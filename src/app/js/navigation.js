@@ -1,8 +1,8 @@
 export const products = [
   { name: 'მთავარი', url: '/' },
-  { name: 'ჩვენ შესახებ', url: '/pages/about' },
+  { name: 'ჩვენს შესახებ', url: '/pages/about' },
   { name: 'სერვისები', url: '/pages/dentalservise' },
-  { name: 'ექიმები', url: '/doctors' },
-  { name: 'გალერეა', url: '/gallery' },
+  { name: 'ექიმები', url: '/pages/doctorspage' },
+  { name: 'გალერეა', url: '/pages/gallery' },
   { name: 'კონტაქტი', url: '/pages/contact' }
 ];
