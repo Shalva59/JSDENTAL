@@ -1,0 +1,44 @@
+/* Fonts  Page */
+@import url('https://fonts.googleapis.com/css2?family=Iansui&family=Playwrite+HU&family=Ponomar&display=swap');
+
+/* ponomar */
+.ponomar-regular {
+    font-family: "Ponomar", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.playwrite-hu {
+    font-family: "Playwrite HU", cursive;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+
+.iansui-regular {
+    font-family: "Iansui", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.kanit-regular {
+    font-family: "Kanit", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.kanit-black {
+    font-family: "Kanit", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.font-tektur{
+    font-family: "Tektur", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+  }

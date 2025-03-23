@@ -1,0 +1,147 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ponomar&family=Montserrat:wght@300;400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Ponomar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+HU&family=Ponomar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Iansui&family=Playwrite+HU&family=Ponomar&display=swap');
+
+
+
+
+@import url(./style/fontsStyle.css);
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --primary: 196 85% 40%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: 199 84% 55%;
+  --accent-foreground: 0 0% 100%;
+
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --ring: 196 85% 40%;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --primary: 196 85% 40%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: 199 84% 55%;
+  --accent-foreground: 0 0% 100%;
+
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 47% 11%;
+  --popover-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --ring: 196 85% 40%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.serviceCards {
+  transform: scale(1) !important;
+}
+
+.serviceCards:hover {
+  transform: scale(1.06) !important;
+  /* 15-ის ნაცვლად 1.5 ან 2 */
+}
+
+.flexMobileResponsive {
+  display: flex;
+  flex-direction: row;
+}
+
+/*  */
+@media only screen and (max-width: 640px) {
+  /* .flexMobileResponsive {
+    display: flex;
+    flex-direction: column;
+  } */
+
+}
+
+/* Fonts */
+@font-face {
+  font-family: "MyPonomar-Regural";
+  src: url("/fonts/Ponomar-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "MyPoppins";
+  src: url("/fonts/Poppins.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+/* ანიმაციის მხარე */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
