@@ -13,6 +13,7 @@
 
 
 @import url(./style/fontsStyle.css);
+@import url(./style/jcDentalDoctors.css); 
 
 @theme {
   --font-sans: var(--font-geist-sans);
@@ -104,6 +105,8 @@ body {
   transform: scale(1.06) !important;
   /* 15-ის ნაცვლად 1.5 ან 2 */
 }
+
+
 
 .flexMobileResponsive {
   display: flex;
