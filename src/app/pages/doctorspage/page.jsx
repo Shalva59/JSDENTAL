@@ -1,48 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { dentists } from "../../js/doctors.js"
 
-function JCDentalDoctors() {
-  // სტომატოლოგების მონაცემები - ზოგიერთს აქვს რამდენიმე სპეციალობა
-  const dentists = [
-    {
-      id: 1,
-      name: "დოქტ. ნინო ჯავახიშვილი",
-      specialties: ["ორთოდონტი სტომატოლოგი"],
-      experience: "15 წელი გამოცდილება",
-      workingDays: ["სამშაბათი", "ოთხშაბათი", "შაბათი"],
-      workingHours: "09:00 - 17:00",
-      image: "https://www.humanitas.net/content/uploads/2017/10/doctors.jpg",
-    },
-    {
-      id: 2,
-      name: "დოქტ. თამარ ბერიძე",
-      specialties: ["პაროდონტოლოგი", "თერაპევტი სტომატოლოგი"],
-      experience: "10 წელი გამოცდილება",
-      workingDays: ["ორშაბათი", "სამშაბათი", "ოთხშაბათი", "ხუთშაბათი"],
-      workingHours: "11:00 - 19:00",
-      image: "https://img.freepik.com/premium-photo/photo-blurry-confident-female-doctor-front_921410-39942.jpg",
-    },
-    {
-      id: 3,
-      name: "დოქტ. ნათია გოგოლაძე",
-      specialties: ["ბავშვთა სტომატოლოგი"],
-      experience: "8 წელი გამოცდილება",
-      workingDays: ["ორშაბათი", "სამშაბათი", "პარასკევი"],
-      workingHours: "09:00 - 17:00",
-      image: "https://wallpapers.com/images/hd/doctor-pictures-l5y1qs2998u7rf0x.jpg",
-    },
-    {
-      id: 4,
-      name: "დოქტ. გიორგი მაისურაძე",
-      specialties: ["ორთოპედი", "ქირურგი", "თერაპევტი"],
-      experience: "15 წელი გამოცდილება",
-      workingDays: ["სამშაბათი", "ხუთშაბათი", "შაბათი"],
-      workingHours: "09:00 - 17:00",
-      image: "https://img.freepik.com/premium-photo/smiling-young-caucasian-doctor-clinic-setting_818261-12638.jpg",
-    },
-  ]
-
+// კომპონენტის სახელი შევცვალოთ, რომ ემთხვეოდეს ფაილის სახელს
+export default function JCDentalDoctors() {
   // სტომატოლოგიური სპეციალობები
   const specialties = [
     "ყველა სპეციალობა",
@@ -262,11 +224,7 @@ function JCDentalDoctors() {
           </div>
         </div>
       </footer>
-
-  
     </div>
   )
 }
-
-export default JCDentalDoctors
 
