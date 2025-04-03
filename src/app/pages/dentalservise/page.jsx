@@ -458,11 +458,11 @@ export default function ServicesPage() {
           </p>
 
           <div className="mt-8 max-w-xl mx-auto">
-            <div className="relative">
+            <div className="relative ">
               <input
                 type="text"
                 placeholder="მოძებნეთ სერვისი"
-                className="w-full py-3 px-4 pl-12 rounded-full bg-[#0079a9] text-white placeholder-gray-300 border border-[#0099c9] focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full py-3 pl-12 px-4 pl-12 rounded-full bg-[#0079a9] text-white placeholder-gray-300 border border-[#0099c9] focus:outline-none focus:ring-2 focus:ring-white"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
@@ -512,7 +512,7 @@ export default function ServicesPage() {
             </div>
 
             <button
-              className="ml-auto px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+              className="ml-auto cursor-pointer px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
               onClick={clearFilters}
             >
               გასუფთავება
