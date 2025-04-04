@@ -1,0 +1,15 @@
+{
+    "home": {
+      "welcome": "Welcome to JC Dental",
+      "get_started": "Get Started"
+    },
+    "about": {
+      "title": "About Us",
+      "description": "We are a modern dental clinic that cares about your smile."
+    },
+    "services": {
+      "title": "Our Services",
+      "description": "We provide high-quality dental care for you and your family."
+    }
+  }
+  

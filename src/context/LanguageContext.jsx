@@ -1,8 +1,19 @@
 "use client"
 
 import { createContext, useState, useContext } from "react"
+import en from "@/locales/en/translation.json" assert { type: "json" }
+import ka from "@/locales/ka/translation.json" assert { type: "json" }
+import he from "@/locales/he/translation.json" assert { type: "json" }
+import ru from "@/locales/ru/translation.json" assert { type: "json" }
 
 const LanguageContext = createContext()
+
+const translations = {
+  en,
+  ka,
+  he,
+  ru,
+}
 
 const languages = {
   en: {
@@ -17,16 +28,10 @@ const languages = {
     name: "עברית",
     code: "he",
   },
-}
-
-export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(languages.ka)
-
-  const changeLanguage = (langCode) => {
-    setLanguage(languages[langCode] || languages.ka)
+  ru: {
+    name: "Русский",
+    code: "ru",
   }
-
-  return <LanguageContext.Provider value={{ language, changeLanguage, languages }}>{children}</LanguageContext.Provider>
 }
 
 export function useLanguage() {
@@ -37,3 +42,25 @@ export function useLanguage() {
   return context
 }
 
+export function LanguageProvider({ children }) {
+  const [languageCode, setLanguageCode] = useState("ka")
+
+  const changeLanguage = (langCode) => {
+    if (languages[langCode]) {
+      setLanguageCode(langCode)
+    }
+  }
+
+  const t = (keyPath) => {
+    const keys = keyPath.split(".")
+    return keys.reduce((obj, key) => obj?.[key], translations[languageCode]) || keyPath
+  }
+
+  const language = languages[languageCode]
+
+  return (
+    <LanguageContext.Provider value={{ language, languageCode, changeLanguage, languages, t }}>
+      {children}
+    </LanguageContext.Provider>
+  )
+}

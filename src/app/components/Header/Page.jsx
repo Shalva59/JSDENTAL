@@ -5,8 +5,10 @@ import Link from "next/link"
 import { products } from "../../js/navigation" // სწორი ბილიკი
 import logo from "../../Assets/logo.png" // სწორი ბილიკი
 import { Globe } from "lucide-react"
+import { useLanguage } from "@/context/LanguageContext";
 
 const languages = [
+  // საქართველოს დროშა
   {
     code: "ka",
     name: "Georgian",
@@ -25,6 +27,8 @@ const languages = [
       </svg>
     ),
   },
+ 
+  // ამერიკის დროშა
   {
     code: "en",
     name: "English",
@@ -45,6 +49,8 @@ const languages = [
       </svg>
     ),
   },
+
+  //  ებრაული დროშა
   {
     code: "he",
     name: "Hebrew",
@@ -55,6 +61,20 @@ const languages = [
         <rect width="300" height="25" y="25" fill="#0038b8" />
         <rect width="300" height="25" y="150" fill="#0038b8" />
         <path d="M150,60 l30,52 l-60,0 z M150,140 l30,-52 l-60,0 z" fill="#0038b8" stroke="#0038b8" strokeWidth="0" />
+      </svg>
+    ),
+  },
+  
+  // რუსული დროშა
+  {
+    code: "ru",
+    name: "Russian",
+    nativeName: "Русский",
+    flag: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" className="h-full w-full">
+        <rect width="300" height="66.7" y="0" fill="#FFFFFF" />
+        <rect width="300" height="66.7" y="66.7" fill="#0039A6" />
+        <rect width="300" height="66.7" y="133.3" fill="#D52B1E" />
       </svg>
     ),
   },
