@@ -113,6 +113,22 @@ body {
   flex-direction: row;
 }
 
+
+[dir="rtl"] h3 {
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .service-title {
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .service-icon {
+  margin-left: 1rem;
+  margin-right: 0;
+}
+
+
+
 /*  */
 @media only screen and (max-width: 640px) {
   /* .flexMobileResponsive {

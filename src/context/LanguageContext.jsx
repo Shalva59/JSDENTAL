@@ -1,66 +1,65 @@
 "use client"
 
-import { createContext, useState, useContext } from "react"
-import en from "@/locales/en/translation.json" assert { type: "json" }
-import ka from "@/locales/ka/translation.json" assert { type: "json" }
-import he from "@/locales/he/translation.json" assert { type: "json" }
-import ru from "@/locales/ru/translation.json" assert { type: "json" }
+import { createContext, useState, useContext, useEffect } from "react"
+import { languages } from "../languages"
 
+// Create the context
 const LanguageContext = createContext()
 
-const translations = {
-  en,
-  ka,
-  he,
-  ru,
-}
-
-const languages = {
-  en: {
-    name: "English",
-    code: "en",
-  },
-  ka: {
-    name: "ქართული",
-    code: "ka",
-  },
-  he: {
-    name: "עברית",
-    code: "he",
-  },
-  ru: {
-    name: "Русский",
-    code: "ru",
-  }
-}
-
-export function useLanguage() {
+// Custom hook to use the language context
+export const useLanguage = () => {
   const context = useContext(LanguageContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useLanguage must be used within a LanguageProvider")
   }
   return context
 }
 
-export function LanguageProvider({ children }) {
-  const [languageCode, setLanguageCode] = useState("ka")
+// Provider component
+export const LanguageProvider = ({ children }) => {
+  // Try to get the language from localStorage, default to 'ka'
+  const [currentLanguage, setCurrentLanguage] = useState("ka")
+  const [translations, setTranslations] = useState(languages.ka)
+  const [direction, setDirection] = useState("ltr")
 
+  // Update language
   const changeLanguage = (langCode) => {
-    if (languages[langCode]) {
-      setLanguageCode(langCode)
+    setCurrentLanguage(langCode)
+    setTranslations(languages[langCode])
+
+    // Set direction for RTL languages (Hebrew)
+    if (langCode === "he") {
+      setDirection("rtl")
+      document.documentElement.dir = "rtl"
+      document.documentElement.lang = langCode
+    } else {
+      setDirection("ltr")
+      document.documentElement.dir = "ltr"
+      document.documentElement.lang = langCode
+    }
+
+    // Save to localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", langCode)
     }
   }
 
-  const t = (keyPath) => {
-    const keys = keyPath.split(".")
-    return keys.reduce((obj, key) => obj?.[key], translations[languageCode]) || keyPath
+  // Initialize from localStorage on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedLanguage = localStorage.getItem("language")
+      if (savedLanguage && languages[savedLanguage]) {
+        changeLanguage(savedLanguage)
+      }
+    }
+  }, [])
+
+  const value = {
+    currentLanguage,
+    translations,
+    direction,
+    changeLanguage,
   }
 
-  const language = languages[languageCode]
-
-  return (
-    <LanguageContext.Provider value={{ language, languageCode, changeLanguage, languages, t }}>
-      {children}
-    </LanguageContext.Provider>
-  )
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
 }

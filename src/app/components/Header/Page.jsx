@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { products } from "../../js/navigation" // სწორი ბილიკი
 import logo from "../../Assets/logo.png" // სწორი ბილიკი
 import { Globe } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext"
+import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
 
 const languages = [
   // საქართველოს დროშა
@@ -27,7 +27,7 @@ const languages = [
       </svg>
     ),
   },
- 
+
   // ამერიკის დროშა
   {
     code: "en",
@@ -64,7 +64,7 @@ const languages = [
       </svg>
     ),
   },
-  
+
   // რუსული დროშა
   {
     code: "ru",
@@ -81,7 +81,8 @@ const languages = [
 ]
 
 const Header = () => {
-  const [currentLanguage, setCurrentLanguage] = useState("ka")
+  const { currentLanguage, changeLanguage, translations } = useLanguage()
+  const localizedProducts = useLocalizedNavigation() // ენა-სპეციფიკური ნავიგაციის მიღება
   const selectedLanguage = languages.find((lang) => lang.code === currentLanguage)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
@@ -119,7 +120,7 @@ const Header = () => {
   }, [])
 
   const handleLanguageChange = (code) => {
-    setCurrentLanguage(code)
+    changeLanguage(code)
     setIsLangMenuOpen(false)
     setIsMobileLangMenuOpen(false)
   }
@@ -159,7 +160,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {products.map((item, index) => (
+            {localizedProducts.map((item, index) => (
               <Link key={index} href={item.url} className="text-base font-medium text-gray-700 hover:text-blue-600">
                 {item.name}
               </Link>
@@ -167,7 +168,7 @@ const Header = () => {
             <div className="text-base font-medium text-gray-700 relative">
               <span>Smile Creator</span>
               <p className="text-[9.7px] text-right text-red-700 absolute right-0 -bottom-3 tracking-[1.2px] animate-blink">
-                Comming Soon
+                {translations?.buttons?.comingSoon || "Coming Soon"}
               </p>
             </div>
           </nav>
@@ -209,7 +210,7 @@ const Header = () => {
               type="button"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
-              Get started
+              {translations?.buttons?.getStarted || "Get started"}
             </button>
           </div>
         </div>
@@ -219,18 +220,21 @@ const Header = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-gray-200 bg-white">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {products.map((item, index) => (
+            {localizedProducts.map((item, index) => (
               <Link
                 key={index}
                 href={item.url}
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
             <div className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 relative">
               <span>Smile Creator</span>
-              <p className="text-[12.5px] text-red-700 tracking-[1.2px] animate-blink">Coming Soon</p>
+              <p className="text-[12.5px] text-red-700 tracking-[1.2px] animate-blink">
+                {translations?.buttons?.comingSoon || "Coming Soon"}
+              </p>
             </div>
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
@@ -267,7 +271,7 @@ const Header = () => {
                 type="button"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
-                Get started
+                {translations?.buttons?.getStarted || "Get started"}
               </button>
             </div>
           </div>
@@ -277,16 +281,4 @@ const Header = () => {
   )
 }
 
-// Add this CSS to your global styles or component
-const styles = `
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.animate-blink {
-  animation: blink 1.5s infinite;
-}
-`
-
 export default Header
-

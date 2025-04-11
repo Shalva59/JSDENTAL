@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useLanguage } from "@/context/LanguageContext"
 
 // SVG Icons for dental services
 const ToothIcon = (props) => (
@@ -140,106 +141,134 @@ const ArrowLeftIcon = (props) => (
   </svg>
 )
 
-// Services data with full details
-const servicesData = {
-  therapy: {
-    id: 1,
-    title: "თერაპია",
-    slug: "therapy",
-    shortDescription: "კბილების და პირის ღრუს არასქირურგიული მკურნალობა",
-    fullDescription:
-      "თერაპია მოიცავს კბილების და პირის ღრუს არასქირურგიულ მკურნალობას. ის ფოკუსირებულია კბილების, ლორწოვანის და პირის ღრუს ქსოვილების კონსერვატიულ აღდგენაზე. ჩვენი კლინიკა გთავაზობთ თანამედროვე მეთოდებს და მასალებს, რომლებიც უზრუნველყოფს მაღალი ხარისხის მკურნალობას და ხანგრძლივ შედეგს.",
-    procedures: [
-      "კბილის დაბჟენა",
-      "კარიესის მკურნალობა",
-      "ენდოდონტიური მკურნალობა (არხების მკურნალობა)",
-      "კბილების პროფესიული წმენდა",
-      "ფტორირება",
-    ],
-    icon: <DrillIcon className="h-16 w-16" />,
-  },
-  orthopedics: {
-    id: 2,
-    title: "ორთოპედია",
-    slug: "orthopedics",
-    shortDescription: "კბილების და ყბა-სახის აპარატის ფუნქციური და ესთეტიკური აღდგენა",
-    fullDescription:
-      "ორთოპედია ფოკუსირებულია კბილების და ყბა-სახის აპარატის ფუნქციური და ესთეტიკური აღდგენაზე. ეს სფერო მოიცავს დაზიანებული, დაკარგული ან დეფორმირებული კბილების პროთეზირებას და აღდგენას. ჩვენი კლინიკა იყენებს უმაღლესი ხარისხის მასალებს და თანამედროვე ტექნოლოგიებს, რათა უზრუნველყოს ბუნებრივი გარეგნობა და მაქსიმალური კომფორტი.",
-    procedures: ["კბილის გვირგვინები", "ვინირები", "ხიდები", "მოსახსნელი პროთეზები", "ინლეი და ონლეი"],
-    icon: <ToothIcon className="h-16 w-16" />,
-  },
-  implantology: {
-    id: 3,
-    title: "იმპლანტოლოგია",
-    slug: "implantology",
-    shortDescription: "დაკარგული კბილების აღდგენა იმპლანტებით",
-    fullDescription:
-      "იმპლანტოლოგია არის სტომატოლოგიის დარგი, რომელიც სპეციალიზირებულია დაკარგული კბილების აღდგენაზე იმპლანტების საშუალებით. იმპლანტები წარმოადგენენ ტიტანის ხრახნებს, რომლებიც ჩაინერგება ძვალში და ასრულებს ფესვის ფუნქციას. ჩვენი კლინიკა გთავაზობთ მსოფლიოში აღიარებული ბრენდების იმპლანტებს და გამოცდილ სპეციალისტებს.",
-    procedures: [
-      "ერთეული იმპლანტები",
-      "მრავლობითი იმპლანტები",
-      "All-on-4 და All-on-6 სისტემები",
-      "ძვლის აუგმენტაცია",
-      "სინუს ლიფტინგი",
-    ],
-    icon: <ImplantIcon className="h-16 w-16" />,
-  },
-  orthodontics: {
-    id: 4,
-    title: "ორთოდონტია",
-    slug: "orthodontics",
-    shortDescription: "კბილების ლამაზად დაწყობის კორექცია",
-    fullDescription:
-      "ორთოდონტია ფოკუსირებულია კბილების არასწორი განლაგების, თანკბილვის პრობლემების და ყბის არასწორი განვითარების გამოსწორებაზე. ჩვენი კლინიკა გთავაზობთ ორთოდონტიული მკურნალობის სხვადასხვა მეთოდებს, როგორიცაა ტრადიციული ბრეკეტები, გამჭვირვალე კაპები და სხვა თანამედროვე სისტემები.",
-    procedures: [
-      "მეტალის ბრეკეტები",
-      "კერამიკული ბრეკეტები",
-      "გამჭვირვალე კაპები (Invisalign)",
-      "ლინგვალური ბრეკეტები",
-      "რეტეინერები",
-    ],
-    icon: <BraceIcon className="h-16 w-16" />,
-  },
-  periodontology: {
-    id: 5,
-    title: "პაროდონტოლოგია",
-    slug: "periodontology",
-    shortDescription: "ღრძილების და პაროდონტის ქსოვილების მკურნალობა",
-    fullDescription:
-      "პაროდონტოლოგია არის სტომატოლოგიის დარგი, რომელიც ფოკუსირებულია ღრძილების, პაროდონტის ქსოვილების (კბილის ირგვლივ მდებარე რბილი და მაგარი ქსოვილები) და ალვეოლური ძვლის დაავადებების მკურნალობაზე. ჩვენი კლინიკა გთავაზობთ პაროდონტოლოგიური დაავადებების პრევენციას, დიაგნოსტიკას და მკურნალობას.",
-    procedures: [
-      "ღრძილების პროფესიული წმენდა",
-      "ღრმა კიურეტაჟი",
-      "ღრძილების პლასტიკა",
-      "ღრძილების რეცესიის მკურნალობა",
-      "პაროდონტიტის მკურნალობა",
-    ],
-    icon: <GumIcon className="h-16 w-16" />,
-  },
-  "pediatric-dentistry": {
-    id: 6,
-    title: "ბავშვთა სტომატოლოგია",
-    slug: "pediatric-dentistry",
-    shortDescription: "ბავშვებისთვის განკუთვნილი მკურნალობა",
-    fullDescription:
-      "ბავშვთა სტომატოლოგია მოიცავს პროფილაქტიკურ ზომებს, კბილების მკურნალობას და ბავშვებში ჯანსაღი პირის ღრუს ჩვევების ჩამოყალიბებას. ჩვენი კლინიკა გთავაზობთ მეგობრულ და კომფორტულ გარემოს ბავშვებისთვის, სადაც ისინი მიიღებენ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას.",
-    procedures: [
-      "პროფილაქტიკური შემოწმება",
-      "კბილების დაბჟენა",
-      "ფტორირება",
-      "ჰერმეტიზაცია",
-      "სარძევე კბილების მკურნალობა",
-    ],
-    icon: <ChildToothIcon className="h-16 w-16" />,
-  },
-}
-
 // Main Services Page Component
 export default function ServicesPage() {
+  const { translations, direction, currentLanguage } = useLanguage()
   const [selectedService, setSelectedService] = useState(null)
   const [searchParams, setSearchParams] = useState(null)
-  const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const isRTL = direction === "rtl"
+  const isHebrew = currentLanguage === "he"
+
+  // Services data with translations
+  const getServicesData = () => {
+    // Default Georgian data
+    const servicesData = {
+      therapy: {
+        id: 1,
+        title: translations?.services?.therapy?.title || "თერაპია",
+        slug: "therapy",
+        shortDescription:
+          translations?.services?.therapy?.shortDescription || "კბილების და პირის ღრუს არასქირურგიული მკურნალობა",
+        fullDescription:
+          translations?.services?.therapy?.fullDescription ||
+          "თერაპია მოიცავს კბილების და პირის ღრუს არასქირურგიულ მკურნალობას. ის ფოკუსირებულია კბილების, ლორწოვანის და პირის ღრუს ქსოვილების კონსერვატიულ აღდგენაზე. ჩვენი კლინიკა გთავაზობთ თანამედროვე მეთოდებს და მასალებს, რომლებიც უზრუნველყოფს მაღალი ხარისხის მკურნალობას და ხანგრძლივ შედეგს.",
+        procedures: translations?.services?.therapy?.procedures || [
+          "კბილის დაბჟენა",
+          "კარიესის მკურნალობა",
+          "ენდოდონტიური მკურნალობა (არხების მკურნალობა)",
+          "კბილების პროფესიული წმენდა",
+          "ფტორირება",
+        ],
+        icon: <DrillIcon className="h-16 w-16" />,
+      },
+      orthopedics: {
+        id: 2,
+        title: translations?.services?.orthopedics?.title || "ორთოპედია",
+        slug: "orthopedics",
+        shortDescription:
+          translations?.services?.orthopedics?.shortDescription ||
+          "კბილების და ყბა-სახის აპარატის ფუნქციური და ესთეტიკური აღდგენა",
+        fullDescription:
+          translations?.services?.orthopedics?.fullDescription ||
+          "ორთოპედია ფოკუსირებულია კბილების და ყბა-სახის აპარატის ფუნქციური და ესთეტიკური აღდგენაზე. ეს სფერო მოიცავს დაზიანებული, დაკარგული ან დეფორმირებული კბილების პროთეზირებას და აღდგენას. ჩვენი კლინიკა იყენებს უმაღლესი ხარისხის მასალებს და თანამედროვე ტექნოლოგიებს, რათა უზრუნველყოს ბუნებრივი გარეგნობა და მაქსიმალური კომფორტი.",
+        procedures: translations?.services?.orthopedics?.procedures || [
+          "კბილის გვირგვინები",
+          "ვინირები",
+          "ხიდები",
+          "მოსახსნელი პროთეზები",
+          "ინლეი და ონლეი",
+        ],
+        icon: <ToothIcon className="h-16 w-16" />,
+      },
+      implantology: {
+        id: 3,
+        title: translations?.services?.implantology?.title || "იმპლანტოლოგია",
+        slug: "implantology",
+        shortDescription:
+          translations?.services?.implantology?.shortDescription || "დაკარგული კბილების აღდგენა იმპლანტებით",
+        fullDescription:
+          translations?.services?.implantology?.fullDescription ||
+          "იმპლანტოლოგია არის სტომატოლოგიის დარგი, რომელიც სპეციალიზირებულია დაკარგული კბილების აღდგენაზე იმპლანტების საშუალებით. იმპლანტები წარმოადგენენ ტიტანის ხრახნებს, რომლებიც ჩაინერგება ძვალში და ასრულებს ფესვის ფუნქციას. ჩვენი კლინიკა გთავაზობთ მსოფლიოში აღიარებული ბრენდების იმპლანტებს და გამოცდილ სპეციალისტებს.",
+        procedures: translations?.services?.implantology?.procedures || [
+          "ერთეული იმპლანტები",
+          "მრავლობითი იმპლანტები",
+          "All-on-4 და All-on-6 სისტემები",
+          "ძვლის აუგმენტაცია",
+          "სინუს ლიფტინგი",
+        ],
+        icon: <ImplantIcon className="h-16 w-16" />,
+      },
+      orthodontics: {
+        id: 4,
+        title: translations?.services?.orthodontics?.title || "ორთოდონტია",
+        slug: "orthodontics",
+        shortDescription:
+          translations?.services?.orthodontics?.shortDescription || "კბილების ლამაზად დაწყობის კორექცია",
+        fullDescription:
+          translations?.services?.orthodontics?.fullDescription ||
+          "ორთოდონტია ფოკუსირებულია კბილების არასწორი განლაგების, თანკბილვის პრობლემების და ყბის არასწორი განვითარების გამოსწორებაზე. ჩვენი კლინიკა გთავაზობთ ორთოდონტიული მკურნალობის სხვადასხვა მეთოდებს, როგორიცაა ტრადიციული ბრეკეტები, გამჭვირვალე კაპები და სხვა თანამედროვე სისტემები.",
+        procedures: translations?.services?.orthodontics?.procedures || [
+          "მეტალის ბრეკეტები",
+          "კერამიკული ბრეკეტები",
+          "გამჭვირვალე კაპები (Invisalign)",
+          "ლინგვალური ბრეკეტები",
+          "რეტეინერები",
+        ],
+        icon: <BraceIcon className="h-16 w-16" />,
+      },
+      periodontology: {
+        id: 5,
+        title: translations?.services?.periodontology?.title || "პაროდონტოლოგია",
+        slug: "periodontology",
+        shortDescription:
+          translations?.services?.periodontology?.shortDescription || "ღრძილების და პაროდონტის ქსოვილების მკურნალობა",
+        fullDescription:
+          translations?.services?.periodontology?.fullDescription ||
+          "პაროდონტოლოგია არის სტომატოლოგიის დარგი, რომელიც ფოკუსირებულია ღრძილების, პაროდონტის ქსოვილების (კბილის ირგვლივ მდებარე რბილი და მაგარი ქსოვილები) და ალვეოლური ძვლის დაავადებების მკურნალობაზე. ჩვენი კლინიკა გთავაზობთ პაროდონტოლოგიური დაავადებების პრევენციას, დიაგნოსტიკას და მკურნალობას.",
+        procedures: translations?.services?.periodontology?.procedures || [
+          "ღრძილების პროფესიული წმენდა",
+          "ღრმა კიურეტაჟი",
+          "ღრძილების პლასტიკა",
+          "ღრძილების რეცესიის მკურნალობა",
+          "პაროდონტიტის მკურნალობა",
+        ],
+        icon: <GumIcon className="h-16 w-16" />,
+      },
+      "pediatric-dentistry": {
+        id: 6,
+        title: translations?.services?.pediatricDentistry?.title || "ბავშვთა სტომატოლოგია",
+        slug: "pediatric-dentistry",
+        shortDescription:
+          translations?.services?.pediatricDentistry?.shortDescription || "ბავშვებისთვის განკუთვნილი მკურნალობა",
+        fullDescription:
+          translations?.services?.pediatricDentistry?.fullDescription ||
+          "ბავშვთა სტომატოლოგია მოიცავს პროფილაქტიკურ ზომებს, კბილების მკურნალობას და ბავშვებში ჯანსაღი პირის ღრუს ჩვევების ჩამოყალიბებას. ჩვენი კლინიკა გთავაზობთ მეგობრულ და კომფორტულ გარემოს ბავშვებისთვის, სადაც ისინი მიიღებენ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას.",
+        procedures: translations?.services?.pediatricDentistry?.procedures || [
+          "პროფილაქტიკური შემოწმება",
+          "კბილების დაბჟენა",
+          "ფტორირება",
+          "ჰერმეტიზაცია",
+          "სარძევე კბილების მკურნალობა",
+        ],
+        icon: <ChildToothIcon className="h-16 w-16" />,
+      },
+    }
+
+    return servicesData
+  }
+
+  const servicesData = getServicesData()
 
   // Check if there's a service slug in the URL on component mount
   useEffect(() => {
@@ -249,7 +278,7 @@ export default function ServicesPage() {
       setSelectedService(servicesData[serviceSlug])
     }
     setSearchParams(params)
-  }, [])
+  }, [currentLanguage]) // Re-run when language changes
 
   // Function to show service details
   const showServiceDetails = (slug) => {
@@ -279,11 +308,6 @@ export default function ServicesPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // Function to handle search input change
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value)
-  }
-
   // Function to handle category selection
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value)
@@ -291,39 +315,32 @@ export default function ServicesPage() {
 
   // Function to clear filters
   const clearFilters = () => {
-    setSearchQuery("")
     setSelectedCategory("all")
   }
 
-  // Filter services based on search query and selected category
+  // Filter services based on selected category
   const filteredServices = Object.entries(servicesData).filter(([slug, service]) => {
-    const matchesSearch =
-      service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.fullDescription.toLowerCase().includes(searchQuery.toLowerCase())
-
     const matchesCategory = selectedCategory === "all" || slug === selectedCategory
-
-    return matchesSearch && matchesCategory
+    return matchesCategory
   })
 
   // If a service is selected, show its details
   if (selectedService) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" dir={direction}>
         {/* Hero Section */}
         <div className="bg-[#0088a9] text-white py-16">
           <div className="container mx-auto px-4">
-            <div className="flex items-center mb-6">
+            <div className={`flex items-center mb-6 ${isRTL ? "flex-row gap-3" : ""}`}>
               <button
                 onClick={backToServices}
-                className="bg-white text-[#0088a9] p-2 rounded-full mr-4 hover:bg-gray-100 transition-colors"
+                className={`bg-white text-[#0088a9] p-2 rounded-full ${isRTL ? "ml-4" : "mr-4"} hover:bg-gray-100 transition-colors`}
               >
-                <ArrowLeftIcon className="h-5 w-5" />
+                <ArrowLeftIcon className="h-5 w-5" style={{ transform: isRTL ? "scaleX(-1)" : "none" }} />
               </button>
               <h1 className="text-3xl md:text-4xl font-bold">{selectedService.title}</h1>
             </div>
-            <p className="max-w-2xl">{selectedService.shortDescription}</p>
+            <p className={`max-w-2xl ${isRTL ? "text-right " : ""}`}>{selectedService.shortDescription}</p>
           </div>
         </div>
 
@@ -331,13 +348,19 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-8">
-              <div className="flex flex-col md:flex-row gap-8">
+              <div className={`flex flex-col md:flex-row gap-8 ${isRTL ? "md:flex-row-reverse" : ""}`}>
                 <div className="md:w-2/3">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">სერვისის აღწერა</h2>
-                  <p className="text-gray-600 mb-8 leading-relaxed">{selectedService.fullDescription}</p>
+                  <h2 className={`text-2xl font-bold text-gray-800 mb-6 ${isRTL ? "text-right" : ""}`}>
+                    {translations?.services?.serviceDescription || "სერვისის აღწერა"}
+                  </h2>
+                  <p className={`text-gray-600 mb-8 leading-relaxed ${isRTL ? "text-right" : ""}`}>
+                    {selectedService.fullDescription}
+                  </p>
 
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">პროცედურები</h2>
-                  <ul className="list-disc pl-5 mb-8 space-y-3">
+                  <h2 className={`text-2xl font-bold text-gray-800 mb-6 ${isRTL ? "text-right" : ""}`}>
+                    {translations?.services?.procedures || "პროცედურები"}
+                  </h2>
+                  <ul className={`${isRTL ? "pr-5 text-right" : "pl-5"} list-disc mb-8 space-y-3`}>
                     {selectedService.procedures.map((procedure, index) => (
                       <li key={index} className="text-gray-600">
                         {procedure}
@@ -345,9 +368,11 @@ export default function ServicesPage() {
                     ))}
                   </ul>
 
-                  <button className="bg-[#0088a9] text-white px-6 py-3 rounded-md hover:bg-[#006680] transition-colors">
-                    დაჯავშნე კონსულტაცია
-                  </button>
+                  <div className={isRTL ? "text-right" : ""}>
+                    <button className="bg-[#0088a9] text-white px-6 py-3 rounded-md hover:bg-[#006680] transition-colors">
+                      {translations?.buttons?.bookConsultation || "დაჯავშნე კონსულტაცია"}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="md:w-1/3 bg-[#e6f7fa] p-6 rounded-lg">
@@ -359,47 +384,60 @@ export default function ServicesPage() {
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">რატომ JC Dental?</h3>
+                  <h3 className={`text-lg font-bold text-gray-800 mb-4 text-center`}>
+                    {translations?.services?.whyChooseUs || "რატომ JC Dental?"}
+                  </h3>
                   <ul className="space-y-3">
-                    <li className="flex items-start gap-2">
+                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">თანამედროვე აღჭურვილობა და ტექნოლოგიები</span>
+                      <span className="text-gray-600 text-sm">
+                        {translations?.services?.benefits?.modernEquipment || "თანამედროვე აღჭურვილობა და ტექნოლოგიები"}
+                      </span>
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">გამოცდილი და მზრუნველი სტომატოლოგები</span>
+                      <span className="text-gray-600 text-sm">
+                        {translations?.services?.benefits?.experiencedDoctors || "გამოცდილი და მზრუნველი სტომატოლოგები"}
+                      </span>
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">კომფორტული და მშვიდი გარემო</span>
+                      <span className="text-gray-600 text-sm">
+                        {translations?.services?.benefits?.comfortableEnvironment || "კომფორტული და მშვიდი გარემო"}
+                      </span>
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">ინდივიდუალური მკურნალობის გეგმები</span>
+                      <span className="text-gray-600 text-sm">
+                        {translations?.services?.benefits?.individualTreatment || "ინდივიდუალური მკურნალობის გეგმები"}
+                      </span>
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">მოქნილი განრიგი და გადაუდებელი დახმარება</span>
+                      <span className="text-gray-600 text-sm">
+                        {translations?.services?.benefits?.flexibleSchedule ||
+                          "მოქნილი განრიგი და გადაუდებელი დახმარება"}
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -409,7 +447,9 @@ export default function ServicesPage() {
 
           {/* Related Services */}
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-8">სხვა სერვისები</h2>
+            <h2 className={`text-2xl font-bold text-gray-800 mb-8 ${isRTL ? "text-right" : ""}`}>
+              {translations?.services?.otherServices || "სხვა სერვისები"}
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {Object.entries(servicesData)
@@ -421,21 +461,29 @@ export default function ServicesPage() {
                     className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => showServiceDetails(slug)}
                   >
-                    <div className="p-4 border-b border-gray-100 flex items-center">
-                      <div className="bg-[#e6f7fa] p-2 rounded-lg mr-3">
-                        <div className="text-[#0088a9]">
-                          {React.cloneElement(service.icon, { className: "h-8 w-8" })}
+                    <div className="p-6 border-b border-gray-100">
+                      <div className={`flex items-center ${isHebrew ? "flex-row" : ""}`}>
+                        <div className={`bg-[#e6f7fa] p-3 rounded-lg ${isHebrew ? "ml-4" : "mr-4"}`}>
+                          <div className="text-[#0088a9]">
+                            {React.cloneElement(service.icon, { className: "h-8 w-8" })}
+                          </div>
                         </div>
+                        <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
                       </div>
-                      <h3 className="text-lg font-bold text-gray-800">{service.title}</h3>
                     </div>
 
-                    <div className="p-4">
-                      <p className="text-gray-600 mb-4 text-sm">{service.shortDescription}</p>
+                    <div className="p-6">
+                      <p className={`text-gray-600 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
 
-                      <span className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors text-sm">
-                        დეტალურად ნახვა →
-                      </span>
+                      <div className={isHebrew ? "text-right" : ""}>
+                        <button className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors">
+                          {isHebrew ? (
+                            <>{translations?.buttons?.viewDetails || "צפה בפרטים"} ←</>
+                          ) : (
+                            <>{translations?.buttons?.viewDetails || "დეტალურად ნახვა"} →</>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -448,111 +496,121 @@ export default function ServicesPage() {
 
   // Otherwise, show the services list
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" dir={direction}>
       {/* Hero Section */}
       <div className="bg-[#0088a9] text-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">JC Dental - ჩვენი სერვისები</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            {translations?.services?.pageTitle || "JC Dental - ჩვენი სერვისები"}
+          </h1>
           <p className="max-w-2xl mx-auto">
-            გაეცანით ჩვენს მაღალი ხარისხის სტომატოლოგიურ მომსახურებას, რომელიც მორგებულია თქვენს საჭიროებებზე
+            {translations?.services?.pageDescription ||
+              "გაეცანით ჩვენს მაღალი ხარისხის სტომატოლოგიურ მომსახურებას, რომელიც მორგებულია თქვენს საჭიროებებზე"}
           </p>
 
-          <div className="mt-8 max-w-xl mx-auto">
-            <div className="relative ">
-              <input
-                type="text"
-                placeholder="მოძებნეთ სერვისი"
-                className="w-full py-3 pl-12 px-4 pl-12 rounded-full bg-[#0079a9] text-white placeholder-gray-300 border border-[#0099c9] focus:outline-none focus:ring-2 focus:ring-white"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                <svg
-                  className="w-5 h-5 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() =>
+                window.scrollTo({ top: document.querySelector(".services-grid").offsetTop - 100, behavior: "smooth" })
+              }
+              className="px-6 py-3 bg-white text-[#0088a9] rounded-full font-medium shadow-lg hover:bg-sky-50 transition-colors"
+            >
+              {translations?.services?.allServices || "ყველა სერვისი"}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Services Section */}
       <div className="container mx-auto px-4 py-16">
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-2">
-            {filteredServices.length > 0 ? `ნაპოვნია ${filteredServices.length} სერვისი` : "სერვისები ვერ მოიძებნა"}
-          </h2>
-
-          <div className="flex flex-wrap gap-4 mb-8">
-            <div className="w-full md:w-64">
-              <select
-                className="w-full p-2 border border-gray-300 rounded"
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-              >
-                <option value="all">ყველა სერვისი</option>
-                <option value="therapy">თერაპია</option>
-                <option value="orthopedics">ორთოპედია</option>
-                <option value="implantology">იმპლანტოლოგია</option>
-                <option value="orthodontics">ორთოდონტია</option>
-                <option value="periodontology">პაროდონტოლოგია</option>
-                <option value="pediatric-dentistry">ბავშვთა სტომატოლოგია</option>
-              </select>
-            </div>
-
-            <button
-              className="ml-auto cursor-pointer px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
-              onClick={clearFilters}
+        <div className={`flex flex-wrap gap-4 mb-8 ${isRTL ? "flex-row-reverse" : ""}`}>
+          <div className="w-full md:w-64">
+            <select
+              className="w-full p-2 border border-gray-300 rounded"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              dir={direction}
             >
-              გასუფთავება
-            </button>
+              <option value="all">{translations?.services?.allServices || "ყველა სერვისი"}</option>
+              <option value="therapy">{translations?.services?.therapy?.title || "თერაპია"}</option>
+              <option value="orthopedics">{translations?.services?.orthopedics?.title || "ორთოპედია"}</option>
+              <option value="implantology">{translations?.services?.implantology?.title || "იმპლანტოლოგია"}</option>
+              <option value="orthodontics">{translations?.services?.orthodontics?.title || "ორთოდონტია"}</option>
+              <option value="periodontology">
+                {translations?.services?.periodontology?.title || "პაროდონტოლოგია"}
+              </option>
+              <option value="pediatric-dentistry">
+                {translations?.services?.pediatricDentistry?.title || "ბავშვთა სტომატოლოგია"}
+              </option>
+            </select>
           </div>
+
+          <button
+            className={`${isRTL ? "mr-auto" : "ml-auto"} cursor-pointer px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors`}
+            onClick={clearFilters}
+          >
+            {translations?.buttons?.clear || "გასუფთავება"}
+          </button>
         </div>
 
         {filteredServices.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 services-grid">
             {filteredServices.map(([slug, service]) => (
               <div
                 key={service.id}
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                 onClick={() => showServiceDetails(slug)}
               >
-                <div className="p-6 border-b border-gray-100 flex items-center">
-                  <div className="bg-[#e6f7fa] p-3 rounded-lg mr-4">
-                    <div className="text-[#0088a9]">{service.icon}</div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
+                {/* Service Card Header */}
+                <div className="p-6 border-b border-gray-100">
+                  {isHebrew ? (
+                    // ებრაული ენისთვის - აიკონი მარჯვნივ
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#e6f7fa] p-3 rounded-lg mr-0 ml-4">
+                        <div className="text-[#0088a9]">{service.icon}</div>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
+                    </div>
+                  ) : (
+                    // სხვა ენებისთვის - აიკონი მარცხნივ
+                    <div className="flex items-center">
+                      <div className="bg-[#e6f7fa] p-3 rounded-lg mr-4 ml-0">
+                        <div className="text-[#0088a9]">{service.icon}</div>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
+                    </div>
+                  )}
                 </div>
 
+                {/* Service Description */}
                 <div className="p-6">
-                  <p className="text-gray-600 mb-6">{service.shortDescription}</p>
+                  <p className={`text-gray-600 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
 
-                  <button className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors">
-                    დეტალურად ნახვა →
-                  </button>
+                  <div className={isHebrew ? "text-right" : ""}>
+                    <button className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors">
+                      {isHebrew ? (
+                        <>{translations?.buttons?.viewDetails || "צפה בפרטים"} ←</>
+                      ) : (
+                        <>{translations?.buttons?.viewDetails || "დეტალურად ნახვა"} →</>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">სამწუხაროდ, თქვენი ძიების შედეგად სერვისები ვერ მოიძებნა.</p>
-            <p className="text-gray-600">გთხოვთ, შეცვალოთ ძიების პარამეტრები ან გაასუფთავოთ ფილტრები.</p>
+            <p className="text-gray-600 mb-4">
+              {translations?.services?.noResultsMessage || "სამწუხაროდ, თქვენი ძიების შედეგად სერვისები ვერ მოიძებნა."}
+            </p>
+            <p className="text-gray-600">
+              {translations?.services?.tryAgainMessage ||
+                "გთხოვთ, შეცვალოთ ძიების პარამეტრები ან გაასუფთავოთ ფილტრები."}
+            </p>
           </div>
         )}
       </div>
     </div>
   )
 }
-
