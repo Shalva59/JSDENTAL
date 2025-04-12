@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import logo from "../../Assets/logo.png" // სწორი ბილიკი
-import { Globe } from "lucide-react"
+import { Globe, Check } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
+import { motion, AnimatePresence } from "framer-motion"
 
 const languages = [
   // საქართველოს დროშა
@@ -81,15 +82,18 @@ const languages = [
 ]
 
 const Header = () => {
-  const { currentLanguage, changeLanguage, translations } = useLanguage()
+  const { currentLanguage, changeLanguage, translations, direction } = useLanguage()
   const localizedProducts = useLocalizedNavigation() // ენა-სპეციფიკური ნავიგაციის მიღება
   const selectedLanguage = languages.find((lang) => lang.code === currentLanguage)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const langMenuRef = useRef(null)
+  const langButtonRef = useRef(null)
   const mobileLangMenuRef = useRef(null)
+  const mobileLangButtonRef = useRef(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileLangMenuOpen, setIsMobileLangMenuOpen] = useState(false)
+  const isRTL = direction === "rtl"
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,10 +107,23 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll)
 
     const handleClickOutside = (event) => {
-      if (langMenuRef.current && !langMenuRef.current.contains(event.target)) {
+      // For desktop language menu
+      if (
+        langMenuRef.current &&
+        !langMenuRef.current.contains(event.target) &&
+        langButtonRef.current &&
+        !langButtonRef.current.contains(event.target)
+      ) {
         setIsLangMenuOpen(false)
       }
-      if (mobileLangMenuRef.current && !mobileLangMenuRef.current.contains(event.target)) {
+
+      // For mobile language menu
+      if (
+        mobileLangMenuRef.current &&
+        !mobileLangMenuRef.current.contains(event.target) &&
+        mobileLangButtonRef.current &&
+        !mobileLangButtonRef.current.contains(event.target)
+      ) {
         setIsMobileLangMenuOpen(false)
       }
     }
@@ -120,16 +137,164 @@ const Header = () => {
   }, [])
 
   const handleLanguageChange = (code) => {
+    // ენის ცვლილების დროს ვხურავთ მენიუს
     changeLanguage(code)
     setIsLangMenuOpen(false)
     setIsMobileLangMenuOpen(false)
   }
+
+  // Calculate dropdown position based on language direction for desktop
+  const getDesktopDropdownPosition = () => {
+    return isRTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
+  }
+
+  // Animation variants for dropdown
+  const dropdownVariants = {
+    hidden: {
+      opacity: 0,
+      y: -10,
+      scale: 0.95,
+      transition: {
+        duration: 0.15,
+        ease: "easeInOut",
+      },
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.15,
+        ease: "easeOut",
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -5,
+      scale: 0.95,
+      transition: {
+        duration: 0.0,
+        ease: "easeInOut",
+      },
+    },
+  }
+
+  // Animation variants for language items
+  const itemVariants = {
+    hidden: { opacity: 0, x: isRTL ? 10 : -10 },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: i * 0.03,
+        duration: 0.2,
+        ease: "easeOut",
+      },
+    }),
+    exit: { opacity: 0, transition: { duration: 0.05 } },
+  }
+
+  // Animation variants for mobile menu
+  const mobileMenuVariants = {
+    hidden: {
+      opacity: 0,
+      height: 0,
+      transition: {
+        duration: 0.2,
+        when: "afterChildren",
+      },
+    },
+    visible: {
+      opacity: 1,
+      height: "auto",
+      transition: {
+        duration: 0.2,
+        when: "beforeChildren",
+        staggerChildren: 0.03,
+      },
+    },
+    exit: {
+      opacity: 0,
+      height: 0,
+      transition: {
+        duration: 0.2,
+        when: "afterChildren",
+      },
+    },
+  }
+
+  // Animation variants for mobile menu items
+  const mobileMenuItemVariants = {
+    hidden: {
+      opacity: 0,
+      y: -5,
+      transition: {
+        duration: 0.1,
+      },
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.1,
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -5,
+      transition: {
+        duration: 0.1,
+      },
+    },
+  }
+
+  // Function to render language item with consistent spacing
+  const renderLanguageItem = (language, index) => {
+    const isSelected = language.code === currentLanguage
+
+    return (
+      <motion.button
+        key={language.code}
+        custom={index}
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={() => handleLanguageChange(language.code)}
+        className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors justify-between ${
+          isSelected ? "bg-white text-gray-900" : "text-gray-700 hover:bg-gray-50"
+        }`}
+        dir="ltr" // Force LTR for language items to ensure consistent spacing
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
+          <span>{language.nativeName}</span>
+        </div>
+        {isSelected && <Check className="h-4 w-4 text-gray-700" />}
+      </motion.button>
+    )
+  }
+
+  // Function to render the selected language with consistent spacing
+  const renderSelectedLanguage = () => {
+    return (
+      <div className="flex items-center gap-3">
+        <Globe className="h-4 w-4 flex-shrink-0 text-gray-600" />
+        <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{selectedLanguage?.flag}</div>
+        <span>{selectedLanguage?.nativeName}</span>
+      </div>
+    )
+  }
+
+  // Common dropdown styles
+  const dropdownStyles = "rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
 
   return (
     <header
       className={`bg-white w-full border-b border-gray-200 z-30 ${
         isScrolled ? "fixed top-0 left-0 animate-slideDown shadow-md" : "relative"
       }`}
+      dir={direction}
     >
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -140,23 +305,57 @@ const Header = () => {
           </Link>
 
           {/* Mobile menu button */}
-          <button
+          <motion.button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
             aria-expanded={isMobileMenuOpen}
+            whileTap={{ scale: 0.95 }}
           >
             <span className="sr-only">Open main menu</span>
-            <svg
+            <motion.svg
               className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+              <motion.path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16"
+                animate={{
+                  d: isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16",
+                  opacity: isMobileMenuOpen ? 1 : 1,
+                }}
+                transition={{ duration: 0.1 }}
+              />
+              <motion.path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 12h16"
+                animate={{
+                  opacity: isMobileMenuOpen ? 0 : 1,
+                }}
+                transition={{ duration: 0.1 }}
+              />
+              <motion.path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 18h16"
+                animate={{
+                  d: isMobileMenuOpen ? "M6 6l12 12" : "M4 18h16",
+                  opacity: isMobileMenuOpen ? 1 : 1,
+                }}
+                transition={{ duration: 0.1 }}
+              />
+            </motion.svg>
+          </motion.button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -176,107 +375,142 @@ const Header = () => {
           {/* Language selector and CTA */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Language Selector */}
-            <div className="relative" ref={langMenuRef}>
-              <button
+            <div className="relative">
+              <motion.button
                 type="button"
+                ref={langButtonRef}
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                whileHover={{ backgroundColor: "#f9fafb" }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Globe className="h-4 w-4 mr-2" />
-                <div className="w-5 h-3.5 relative overflow-hidden mr-2">{selectedLanguage?.flag}</div>
-                <span>{selectedLanguage?.nativeName}</span>
-              </button>
+                {renderSelectedLanguage()}
+              </motion.button>
 
-              {isLangMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                  <div className="py-1">
-                    {languages.map((language) => (
-                      <button
-                        key={language.code}
-                        onClick={() => handleLanguageChange(language.code)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                      >
-                        <div className="w-5 h-3.5 relative overflow-hidden mr-2">{language.flag}</div>
-                        <span>{language.nativeName}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {isLangMenuOpen && (
+                  <motion.div
+                    ref={langMenuRef}
+                    className={`absolute mt-2 w-48 z-10 ${dropdownStyles}`}
+                    style={getDesktopDropdownPosition()}
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <div className="py-1">
+                      {languages.map((language, index) => renderLanguageItem(language, index))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Get Started Button */}
-            <button
+            <motion.button
               type="button"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              whileHover={{ backgroundColor: "#2563eb" }}
+              whileTap={{ scale: 0.98 }}
             >
               {translations?.buttons?.getStarted || "Get started"}
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {localizedProducts.map((item, index) => (
-              <Link
-                key={index}
-                href={item.url}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
+      {/* Mobile menu with animation */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            className="md:hidden border-t border-gray-200 bg-white overflow-hidden"
+            variants={mobileMenuVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {localizedProducts.map((item, index) => (
+                <motion.div key={index} variants={mobileMenuItemVariants}>
+                  <Link
+                    href={item.url}
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
+              ))}
+              <motion.div
+                variants={mobileMenuItemVariants}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 relative"
               >
-                {item.name}
-              </Link>
-            ))}
-            <div className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 relative">
-              <span>Smile Creator</span>
-              <p className="text-[12.5px] text-red-700 tracking-[1.2px] animate-blink">
-                {translations?.buttons?.comingSoon || "Coming Soon"}
-              </p>
+                <span>Smile Creator</span>
+                <p className="text-[12.5px] text-red-700 tracking-[1.2px] animate-blink">
+                  {translations?.buttons?.comingSoon || "Coming Soon"}
+                </p>
+              </motion.div>
             </div>
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center justify-between px-4">
-              <div className="relative" ref={mobileLangMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileLangMenuOpen(!isMobileLangMenuOpen)}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  <Globe className="h-4 w-4 mr-2" />
-                  <div className="w-5 h-3.5 relative overflow-hidden mr-2">{selectedLanguage?.flag}</div>
-                  <span>{selectedLanguage?.nativeName}</span>
-                </button>
+            <motion.div variants={mobileMenuItemVariants} className="pt-4 pb-3 border-t border-gray-200">
+              <div className="flex items-center justify-between px-4">
+                <div className="relative">
+                  <motion.button
+                    type="button"
+                    ref={mobileLangButtonRef}
+                    onClick={() => setIsMobileLangMenuOpen(!isMobileLangMenuOpen)}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    dir="ltr" // Force LTR for consistent layout
+                    whileHover={{ backgroundColor: "#f9fafb" }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {renderSelectedLanguage()}
+                  </motion.button>
 
-                {isMobileLangMenuOpen && (
-                  <div className="absolute left-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1">
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => handleLanguageChange(language.code)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                        >
-                          <div className="w-5 h-3.5 relative overflow-hidden mr-2">{language.flag}</div>
-                          <span>{language.nativeName}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  <AnimatePresence>
+                    {isMobileLangMenuOpen && (
+                      <motion.div
+                        ref={mobileLangMenuRef}
+                        className={`fixed w-48 z-[100] ${dropdownStyles}`}
+                        style={{
+                          top: mobileLangButtonRef.current
+                            ? mobileLangButtonRef.current.getBoundingClientRect().bottom + 5
+                            : "auto",
+                          left: isRTL
+                            ? "auto"
+                            : mobileLangButtonRef.current
+                              ? mobileLangButtonRef.current.getBoundingClientRect().left
+                              : 16,
+                          right: isRTL
+                            ? mobileLangButtonRef.current
+                              ? window.innerWidth - mobileLangButtonRef.current.getBoundingClientRect().right
+                              : 16
+                            : "auto",
+                        }}
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        <div className="py-1">
+                          {languages.map((language, index) => renderLanguageItem(language, index))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <motion.button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  whileHover={{ backgroundColor: "#2563eb" }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {translations?.buttons?.getStarted || "Get started"}
+                </motion.button>
               </div>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {translations?.buttons?.getStarted || "Get started"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
