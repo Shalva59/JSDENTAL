@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
+import Link from "next/link"
 
 // კომპონენტის სახელი შევცვალოთ, რომ ემთხვეოდეს ფაილის სახელს
 export default function JCDentalDoctors() {
@@ -109,7 +110,7 @@ export default function JCDentalDoctors() {
       doctors: "ექიმი",
       clearFilters: "გასუფთავება",
       workingDays: "სამუშაო დღეები:",
-      appointment: "ჯავშანი",
+      appointment: "ნახეთ მეტი",
       noResults: "ექიმები ვერ მოიძებნა",
       changeParams: "გთხოვთ, შეცვალოთ ძიების პარამეტრები",
       clearFiltersButton: "ფილტრების გასუფთავება",
@@ -127,7 +128,7 @@ export default function JCDentalDoctors() {
       doctors: "doctors",
       clearFilters: "Clear",
       workingDays: "Working days:",
-      appointment: "Book Appointment",
+      appointment: "See More",
       noResults: "No doctors found",
       changeParams: "Please change your search parameters",
       clearFiltersButton: "Clear filters",
@@ -146,7 +147,7 @@ export default function JCDentalDoctors() {
       doctors: "врачей",
       clearFilters: "Очистить",
       workingDays: "Рабочие дни:",
-      appointment: "Записаться",
+      appointment: "Подробнее",
       noResults: "Врачи не найдены",
       changeParams: "Пожалуйста, измените параметры поиска",
       clearFiltersButton: "Очистить фильтры",
@@ -157,14 +158,14 @@ export default function JCDentalDoctors() {
       workingHoursValue: "Пн-Сб: 09:00 - 19:00",
     },
     he: {
-      title: "JC Dental - הרופאים שלנו",
+      title: "JC Dental - ה��ופאים שלנו",
       subtitle: "הכירו את רופאי השיניים המוסמכים שלנו הדואגים לבריאות וליופי של החיוך שלכם",
       searchPlaceholder: "חיפוש רופא לפי שם או התמחות",
       sectionTitle: "צפייה ב",
       doctors: "רופאים",
       clearFilters: "נקה",
       workingDays: "ימי עבודה:",
-      appointment: "קביעת תור",
+      appointment: "לפרטים נוספים",
       noResults: "לא נמצאו רופאים",
       changeParams: "אנא שנה את פרמטרי החיפוש",
       clearFiltersButton: "נקה מסננים",
@@ -253,9 +254,8 @@ export default function JCDentalDoctors() {
             {filteredDentists.map((dentist) => (
               <div
                 key={dentist.id}
-                className={`doctor-card ${selectedDentist && selectedDentist.id === dentist.id ? "selected" : ""} ${
-                  isRTL ? "rtl-card" : ""
-                }`}
+                className={`doctor-card ${selectedDentist && selectedDentist.id === dentist.id ? "selected" : ""} ${isRTL ? "rtl-card" : ""
+                  }`}
                 onClick={() => handleDentistClick(dentist)}
                 onMouseEnter={() => setHoveredDentist(dentist.id)}
                 onMouseLeave={() => setHoveredDentist(null)}
@@ -277,9 +277,8 @@ export default function JCDentalDoctors() {
 
                   {/* დამატებითი პროფესიების ჩვენება hover-ზე */}
                   <div
-                    className={`specialties-popup ${
-                      hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
-                    } ${isRTL ? "rtl-popup" : ""}`}
+                    className={`specialties-popup ${hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
+                      } ${isRTL ? "rtl-popup" : ""}`}
                   >
                     {dentist.specialties.slice(1).map((specialty, index) => (
                       <div key={index} className="popup-specialty">
@@ -307,7 +306,9 @@ export default function JCDentalDoctors() {
                     </p>
                   </div>
 
-                  <button className="appointment-button">{t.appointment}</button>
+                  <Link href={`/doctors_vip/${dentist.id}`} className="appointment-button">
+                    {t.appointment}
+                  </Link>
                 </div>
               </div>
             ))}
