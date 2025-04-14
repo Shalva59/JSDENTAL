@@ -3,77 +3,333 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { useLanguage } from "@/context/LanguageContext"
+import { en } from "../../../languages/en"
+import { ka } from "../../../languages/ka"
+import { ru } from "../../../languages/ru"
+import { he } from "../../../languages/he"
 
-// Gallery data
+// Gallery data with image sources
 const GALLERY_DATA = {
   clinic: [
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/implantis_skamis_ukana_xedi-Zef9DamSzbn2erB0eKK1zdecy43sPR.jpeg",
-      alt: "JC Dental - სამკურნალო ოთახი",
-      title: "სამკურნალო ოთახი",
-      description: "თანამედროვე სტომატოლოგიური სავარძელი და აღჭურვილობა",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terapevtis_skamis_ukana_xedi-BAERsoRFjEEalOHBb9D4LgaQIN1JUT.jpeg",
-      alt: "JC Dental - თერაპევტის სავარძელი",
-      title: "თერაპევტის სავარძელი",
-      description: "უკანა ხედი თერაპევტის სავარძლის",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terapevtis_skami_wina_xedi-gszcN6jm9e7KsSWOyF6YWTkiW60EZu.jpeg",
-      alt: "JC Dental - თერაპევტის სავარძელი",
-      title: "თერაპევტის სავარძელი",
-      description: "წინა ხედი თერაპევტის სავარძლის",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/implantis_skamis_sinaxedi-3E7fNY4itTTrQyAHWllXW1ImO9VafG.jpeg",
-      alt: "JC Dental - იმპლანტის სავარძელი",
-      title: "იმპლანტის სავარძელი",
-      description: "სრული ხედი იმპლანტის სავარძლის",
     },
   ],
   reception: [
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hall-kLLiuFH0qkIP80yVbcdzIRPzWGE2JM.jpeg",
-      alt: "JC Dental - მისაღები",
-      title: "მისაღები",
-      description: "კლინიკის მისაღები და მოსაცდელი სივრცე",
     },
   ],
   sterilization: [
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/399b7ce1-0805-4ddc-93f0-6325c24fc51b-P2aZ4qAcdEZrKeGEpVq7obgtqxyL7M.jpeg",
-      alt: "JC Dental - სტერილიზაციის ოთახი",
-      title: "სტერილიზაციის ოთახი",
-      description: "თანამედროვე სტერილიზაციის აღჭურვილობა",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/63f071d5-8660-4cb0-92d6-8f64c24405f9-elyMdYa0y9Lxmqi5G5bk8AcKPA4QaY.jpeg",
-      alt: "JC Dental - სტერილიზაციის ზონა",
-      title: "სტერილიზაციის ზონა",
-      description: "სტერილიზაციის ზონა ნიჟარებით",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ac2b6672-637a-4b71-b631-46e2d1600c97-Cj44x6cxncjMJs1o60A3VV7hRuvjMN.jpeg",
-      alt: "JC Dental - სტერილიზაციის ზონა",
-      title: "სტერილიზაციის ზონა",
-      description: "სტერილიზაციის ზონა აღჭურვილობით",
     },
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3939f448-add2-4e1a-9757-1e74ae78ec4f-EFY7TcWxuDfJDztxpPoZ1draHyo1y2.jpeg",
-      alt: "JC Dental - სტერილიზაციის აპარატები",
-      title: "სტერილიზაციის აპარატები",
-      description: "ავტოკლავი და სხვა სტერილიზაციის აპარატები",
     },
   ],
 }
 
-// Category data
-const CATEGORIES = [
-  { id: "clinic", label: "სამკურნალო ოთახები", icon: "🦷" },
-  { id: "reception", label: "მისაღები", icon: "🏥" },
-  { id: "sterilization", label: "სტერილიზაცია", icon: "🧪" },
-]
+// Add gallery translations to each language object
+const galleryTranslations = {
+  en: {
+    pageTitle: "JC Dental Gallery",
+    pageSubtitle: "Explore our modern clinic, equipment, and workspace",
+    categories: {
+      clinic: "Treatment Rooms",
+      reception: "Reception",
+      sterilization: "Sterilization",
+    },
+    loading: "Loading...",
+    noPhotos: "No photos found",
+    noPhotosInCategory: "No photos in this category",
+    ctaTitle: "Like what you see?",
+    ctaSubtitle: "Contact us today and book an appointment at our modern clinic",
+    bookAppointment: "Book Appointment",
+    gallery: {
+      clinic: [
+        {
+          alt: "JC Dental - Treatment Room",
+          title: "Treatment Room",
+          description: "Modern dental chair and equipment",
+        },
+        {
+          alt: "JC Dental - Therapist's Chair",
+          title: "Therapist's Chair",
+          description: "Rear view of therapist's chair",
+        },
+        {
+          alt: "JC Dental - Therapist's Chair",
+          title: "Therapist's Chair",
+          description: "Front view of therapist's chair",
+        },
+        {
+          alt: "JC Dental - Implant Chair",
+          title: "Implant Chair",
+          description: "Full view of implant chair",
+        },
+      ],
+      reception: [
+        {
+          alt: "JC Dental - Reception",
+          title: "Reception",
+          description: "Clinic reception and waiting area",
+        },
+      ],
+      sterilization: [
+        {
+          alt: "JC Dental - Sterilization Room",
+          title: "Sterilization Room",
+          description: "Modern sterilization equipment",
+        },
+        {
+          alt: "JC Dental - Sterilization Zone",
+          title: "Sterilization Zone",
+          description: "Sterilization zone with sinks",
+        },
+        {
+          alt: "JC Dental - Sterilization Zone",
+          title: "Sterilization Zone",
+          description: "Sterilization zone with equipment",
+        },
+        {
+          alt: "JC Dental - Sterilization Devices",
+          title: "Sterilization Devices",
+          description: "Autoclave and other sterilization devices",
+        },
+      ],
+    },
+  },
+  ka: {
+    pageTitle: "JC Dental გალერეა",
+    pageSubtitle: "გაეცანით ჩვენს თანამედროვე კლინიკას, აღჭურვილობას და სამუშაო სივრცეს",
+    categories: {
+      clinic: "სამკურნალო ოთახები",
+      reception: "მისაღები",
+      sterilization: "სტერილიზაცია",
+    },
+    loading: "იტვირთება...",
+    noPhotos: "ფოტოები ვერ მოიძებნა",
+    noPhotosInCategory: "ამ კატეგორიაში ფოტოები არ არის",
+    ctaTitle: "მოგწონთ რასაც ხედავთ?",
+    ctaSubtitle: "დაგვიკავშირდით დღესვე და დაჯავშნეთ ვიზიტი ჩვენს თანამედროვე კლინიკაში",
+    bookAppointment: "დაჯავშნეთ ვიზიტი",
+    gallery: {
+      clinic: [
+        {
+          alt: "JC Dental - სამკურნალო ოთახი",
+          title: "სამკურნალო ოთახი",
+          description: "თანამედროვე სტომატოლოგიური სავარძელი და აღჭურვილობა",
+        },
+        {
+          alt: "JC Dental - თერაპევტის სავარძელი",
+          title: "თერაპევტის სავარძელი",
+          description: "უკანა ხედი თერაპევტის სავარძლის",
+        },
+        {
+          alt: "JC Dental - თერაპევტის სავარძელი",
+          title: "თერაპევტის სავარძელი",
+          description: "წინა ხედი თერაპევტის სავარძლის",
+        },
+        {
+          alt: "JC Dental - იმპლანტის სავარძელი",
+          title: "იმპლანტის სავარძელი",
+          description: "სრული ხედი იმპლანტის სავარძლის",
+        },
+      ],
+      reception: [
+        {
+          alt: "JC Dental - მისაღები",
+          title: "მისაღები",
+          description: "კლინიკის მისაღები და მოსაცდელი სივრცე",
+        },
+      ],
+      sterilization: [
+        {
+          alt: "JC Dental - სტერილიზაციის ოთახი",
+          title: "სტერილიზაციის ოთახი",
+          description: "თანამედროვე სტერილიზაციის აღჭურვილობა",
+        },
+        {
+          alt: "JC Dental - სტერილიზაციის ზონა",
+          title: "სტერილიზაციის ზონა",
+          description: "სტერილიზაციის ზონა ნიჟარებით",
+        },
+        {
+          alt: "JC Dental - სტერილიზაციის ზონა",
+          title: "სტერილიზაციის ზონა",
+          description: "სტერილიზაციის ზონა აღჭურვილობით",
+        },
+        {
+          alt: "JC Dental - სტერილიზაციის აპარატები",
+          title: "სტერილიზაციის აპარატები",
+          description: "ავტოკლავი და სხვა სტერილიზაციის აპარატები",
+        },
+      ],
+    },
+  },
+  ru: {
+    pageTitle: "JC Dental Галерея",
+    pageSubtitle: "Ознакомьтесь с нашей современной клиникой, оборудованием и рабочим пространством",
+    categories: {
+      clinic: "Лечебные кабинеты",
+      reception: "Приёмная",
+      sterilization: "Стерилизация",
+    },
+    loading: "Загрузка...",
+    noPhotos: "Фотографии не найдены",
+    noPhotosInCategory: "В этой категории нет фотографий",
+    ctaTitle: "Нравится то, что вы видите?",
+    ctaSubtitle: "Свяжитесь с нами сегодня и запишитесь на приём в нашу современную клинику",
+    bookAppointment: "Записаться на приём",
+    gallery: {
+      clinic: [
+        {
+          alt: "JC Dental - Лечебный кабинет",
+          title: "Лечебный кабинет",
+          description: "Современное стоматологическое кресло и оборудование",
+        },
+        {
+          alt: "JC Dental - Кресло терапевта",
+          title: "Кресло терапевта",
+          description: "Вид сзади кресла терапевта",
+        },
+        {
+          alt: "JC Dental - Кресло терапевта",
+          title: "Кресло терапевта",
+          description: "Вид спереди кресла терапевта",
+        },
+        {
+          alt: "JC Dental - Кресло для имплантации",
+          title: "Кресло для имплантации",
+          description: "Полный вид кресла для имплантации",
+        },
+      ],
+      reception: [
+        {
+          alt: "JC Dental - Приёмная",
+          title: "Приёмная",
+          description: "Приёмная клиники и зона ожидания",
+        },
+      ],
+      sterilization: [
+        {
+          alt: "JC Dental - Комната стерилизации",
+          title: "Комната стерилизации",
+          description: "Современное оборудование для стерилизации",
+        },
+        {
+          alt: "JC Dental - Зона стерилизации",
+          title: "Зона стерилизации",
+          description: "Зона стерилизации с раковинами",
+        },
+        {
+          alt: "JC Dental - Зона стерилизации",
+          title: "Зона стерилизации",
+          description: "Зона стерилизации с оборудованием",
+        },
+        {
+          alt: "JC Dental - Аппараты для стерилизации",
+          title: "Аппараты для стерилизации",
+          description: "Автоклав и другие аппараты для стерилизации",
+        },
+      ],
+    },
+  },
+  he: {
+    pageTitle: "גלריית JC Dental",
+    pageSubtitle: "גלו את המרפאה המודרנית שלנו, הציוד ומרחב העבודה",
+    categories: {
+      clinic: "חדרי טיפול",
+      reception: "קבלה",
+      sterilization: "סטריליזציה",
+    },
+    loading: "טוען...",
+    noPhotos: "לא נמצאו תמונות",
+    noPhotosInCategory: "אין תמונות בקטגוריה זו",
+    ctaTitle: "אוהבים את מה שאתם רואים?",
+    ctaSubtitle: "צרו איתנו קשר היום וקבעו תור במרפאה המודרנית שלנו",
+    bookAppointment: "קביעת תור",
+    gallery: {
+      clinic: [
+        {
+          alt: "JC Dental - חדר טיפול",
+          title: "חדר טיפול",
+          description: "כיסא וציוד דנטלי מודרני",
+        },
+        {
+          alt: "JC Dental - כיסא המטפל",
+          title: "כיסא המטפל",
+          description: "מבט אחורי של כיסא המטפל",
+        },
+        {
+          alt: "JC Dental - כיסא המטפל",
+          title: "כיסא המטפל",
+          description: "מבט קדמי של כיסא המטפל",
+        },
+        {
+          alt: "JC Dental - כיסא השתלות",
+          title: "כיסא השתלות",
+          description: "מבט מלא של כיסא השתלות",
+        },
+      ],
+      reception: [
+        {
+          alt: "JC Dental - קבלה",
+          title: "קבלה",
+          description: "אזור הקבלה והמתנה של המרפאה",
+        },
+      ],
+      sterilization: [
+        {
+          alt: "JC Dental - חדר סטריליזציה",
+          title: "חדר סטריליזציה",
+          description: "ציוד סטריליזציה מודרני",
+        },
+        {
+          alt: "JC Dental - אזור סטריליזציה",
+          title: "אזור סטריליזציה",
+          description: "אזור סטריליזציה עם כיורים",
+        },
+        {
+          alt: "JC Dental - אזור סטריליזציה",
+          title: "אזור סטריליזציה",
+          description: "אזור סטריליזציה עם ציוד",
+        },
+        {
+          alt: "JC Dental - מכשירי סטריליזציה",
+          title: "מכשירי סטריליזציה",
+          description: "אוטוקלב ומכשירי סטריליזציה אחרים",
+        },
+      ],
+    },
+  },
+}
+
+// Add gallery translations to each language object
+en.gallery = galleryTranslations.en
+ka.gallery = galleryTranslations.ka
+ru.gallery = galleryTranslations.ru
+he.gallery = galleryTranslations.he
+
+// Create a translations object with all languages
+const translations = { en, ka, ru, he }
 
 // Animation variants
 const fadeIn = {
@@ -144,7 +400,7 @@ const dividerVariants = {
 }
 
 // Gallery Item Component
-const GalleryItem = ({ image, index, onClick }) => {
+const GalleryItem = ({ image, index, onClick, t }) => {
   return (
     <motion.div
       variants={itemVariants}
@@ -173,6 +429,9 @@ const GalleryItem = ({ image, index, onClick }) => {
 
 // Main Gallery Component
 export default function GalleryPage() {
+  const { currentLanguage, direction } = useLanguage()
+  const t = translations[currentLanguage] || translations.ka
+
   // State
   const [currentCategory, setCurrentCategory] = useState("clinic")
   const [selectedImage, setSelectedImage] = useState(null)
@@ -189,8 +448,36 @@ export default function GalleryPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Create localized gallery data by combining image sources with translations
+  const getLocalizedGalleryData = () => {
+    const result = {}
+
+    Object.keys(GALLERY_DATA).forEach((category) => {
+      result[category] = GALLERY_DATA[category].map((item, index) => {
+        const translatedData = t.gallery.gallery[category][index] || {}
+        return {
+          ...item,
+          alt: translatedData.alt || "",
+          title: translatedData.title || "",
+          description: translatedData.description || "",
+        }
+      })
+    })
+
+    return result
+  }
+
+  const localizedGalleryData = getLocalizedGalleryData()
+
   // Get current images based on selected category
-  const currentImages = GALLERY_DATA[currentCategory] || []
+  const currentImages = localizedGalleryData[currentCategory] || []
+
+  // Create category data with translations
+  const categories = [
+    { id: "clinic", label: t.gallery.categories.clinic, icon: "🦷" },
+    { id: "reception", label: t.gallery.categories.reception, icon: "🏥" },
+    { id: "sterilization", label: t.gallery.categories.sterilization, icon: "🧪" },
+  ]
 
   // Handle category change
   const handleCategoryChange = (categoryId) => {
@@ -251,7 +538,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" dir={direction}>
       {/* Header styled like the screenshot */}
       <div className="relative">
         {/* Main header with pattern background */}
@@ -264,7 +551,7 @@ export default function GalleryPage() {
               initial="hidden"
               animate="visible"
             >
-              JC Dental გალერეა
+              {t.gallery.pageTitle}
             </motion.h1>
 
             {/* Divider line */}
@@ -283,7 +570,7 @@ export default function GalleryPage() {
               initial="hidden"
               animate="visible"
             >
-              გაეცანით ჩვენს თანამედროვე კლინიკას, აღჭურვილობას და სამუშაო სივრცეს
+              {t.gallery.pageSubtitle}
             </motion.p>
           </div>
         </div>
@@ -304,7 +591,7 @@ export default function GalleryPage() {
             initial="hidden"
             animate="visible"
           >
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <motion.button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
@@ -337,7 +624,7 @@ export default function GalleryPage() {
             >
               <div className="flex flex-col items-center">
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-[#00A0B0]" />
-                <p className="mt-4 text-[#00A0B0]">იტვირთება...</p>
+                <p className="mt-4 text-[#00A0B0]">{t.gallery.loading}</p>
               </div>
             </motion.div>
           ) : (
@@ -350,7 +637,7 @@ export default function GalleryPage() {
               className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
             >
               {currentImages.map((image, index) => (
-                <GalleryItem key={index} image={image} index={index} onClick={() => openLightbox(image, index)} />
+                <GalleryItem key={index} image={image} index={index} onClick={() => openLightbox(image, index)} t={t} />
               ))}
             </motion.div>
           )}
@@ -365,8 +652,8 @@ export default function GalleryPage() {
             className="flex h-[300px] flex-col items-center justify-center rounded-xl bg-gray-50 p-8 text-center"
           >
             <div className="text-4xl">🔍</div>
-            <h3 className="mt-4 text-xl font-semibold text-gray-700">ფოტოები ვერ მოიძებნა</h3>
-            <p className="mt-2 text-gray-500">ამ კატეგორიაში ფოტოები არ არის</p>
+            <h3 className="mt-4 text-xl font-semibold text-gray-700">{t.gallery.noPhotos}</h3>
+            <p className="mt-2 text-gray-500">{t.gallery.noPhotosInCategory}</p>
           </motion.div>
         )}
       </div>
@@ -389,6 +676,7 @@ export default function GalleryPage() {
               transition={{ type: "spring", damping: 25 }}
               className="relative max-h-[90vh] max-w-5xl overflow-hidden rounded-lg bg-white shadow-2xl"
               onClick={(e) => e.stopPropagation()}
+              dir="ltr" // Force LTR for lightbox
             >
               {/* Close button */}
               <motion.button
@@ -496,7 +784,7 @@ export default function GalleryPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            მოგწონთ რასაც ხედავთ?
+            {t.gallery.ctaTitle}
           </motion.h3>
           <motion.p
             className="mx-auto mt-3 max-w-2xl text-blue-50"
@@ -505,7 +793,7 @@ export default function GalleryPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            დაგვიკავშირდით დღესვე და დაჯავშნეთ ვიზიტი ჩვენს თანამედროვე კლინიკაში
+            {t.gallery.ctaSubtitle}
           </motion.p>
           <motion.div
             initial={{ y: 20, opacity: 0 }}
@@ -519,7 +807,7 @@ export default function GalleryPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
               >
-                დაჯავშნეთ ვიზიტი
+                {t.gallery.bookAppointment}
               </motion.button>
             </Link>
           </motion.div>
@@ -528,4 +816,3 @@ export default function GalleryPage() {
     </div>
   )
 }
-

@@ -299,6 +299,10 @@ body {
 }
 
 
+
+
+
+
 /*  */
 @media only screen and (max-width: 640px) {
   /* .flexMobileResponsive {
@@ -307,6 +311,8 @@ body {
   } */
 
 }
+
+
 
 /* Fonts */
 @font-face {

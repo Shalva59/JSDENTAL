@@ -439,6 +439,7 @@ export default function DoctorDetailPage() {
 
               {/* Book appointment button */}
               <motion.button
+                onClick={() => router.push("/pages/booking")}
                 className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
                 variants={slideUp}
                 whileHover={{ scale: 1.05 }}
