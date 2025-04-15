@@ -406,15 +406,15 @@ const Header = () => {
               </AnimatePresence>
             </div>
 
-            {/* Get Started Button */}
-            <motion.button
-              type="button"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              whileHover={{ backgroundColor: "#2563eb" }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {translations?.buttons?.getStarted || "Get started"}
-            </motion.button>
+            {/* Login Button - Desktop */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/pages/authorization/log_in"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                {translations?.login?.login || "Login"}
+              </Link>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -498,14 +498,15 @@ const Header = () => {
                     )}
                   </AnimatePresence>
                 </div>
-                <motion.button
-                  type="button"
+
+                {/* Login Button - Mobile */}
+                <Link
+                  href="/pages/authorization/log_in"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                  whileHover={{ backgroundColor: "#2563eb" }}
-                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {translations?.buttons?.getStarted || "Get started"}
-                </motion.button>
+                  {translations?.login?.login || "Login"}
+                </Link>
               </div>
             </motion.div>
           </motion.div>
