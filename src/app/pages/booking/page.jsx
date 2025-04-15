@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
 import { motion } from "framer-motion"
+import Link from "next/link"
 // import { sendBookingEmail } from "../../js/sendEmail"
 
 export default function BookingPage() {
@@ -370,14 +371,14 @@ export default function BookingPage() {
       console.log("Sending booking details:", bookingData)
 
       // Call the client-side function that will call our API route
-      const response = await fetch('/api/sendbookingemail', {
-        method: 'POST',
+      const response = await fetch("/api/sendbookingemail", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(bookingData),
       })
-      
+
       const result = await response.json()
       if (!result.success) {
         throw new Error(result.error || "Failed to send booking")
@@ -530,8 +531,8 @@ export default function BookingPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <button
-            onClick={() => router.back()}
+          <Link
+            href="/pages/doctorspage"
             className={`inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-blue-600 transition-colors font-medium ${
               isRTL ? "flex-row-reverse" : ""
             }`}
@@ -551,7 +552,7 @@ export default function BookingPage() {
               <path d="M19 12H5"></path>
             </svg>
             {t.backToDoctor}
-          </button>
+          </Link>
         </motion.div>
 
         {/* Main content */}

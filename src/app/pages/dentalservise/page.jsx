@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useLanguage } from "@/context/LanguageContext"
+import Link from "next/link"
 
 // SVG Icons for dental services
 const ToothIcon = (props) => (
@@ -369,9 +370,12 @@ export default function ServicesPage() {
                   </ul>
 
                   <div className={isRTL ? "text-right" : ""}>
-                    <button className="bg-[#0088a9] text-white px-6 py-3 rounded-md hover:bg-[#006680] transition-colors">
+                    <Link
+                      href="/pages/booking"
+                      className="inline-block bg-[#0088a9] text-white px-6 py-3 rounded-md hover:bg-[#006680] transition-colors"
+                    >
                       {translations?.buttons?.bookConsultation || "დაჯავშნე კონსულტაცია"}
-                    </button>
+                    </Link>
                   </div>
                 </div>
 

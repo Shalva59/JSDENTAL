@@ -39,7 +39,7 @@ export default function AboutPage() {
           </p>
           <div className="mt-8">
             <Link
-              href="/appointment"
+              href="/pages/booking"
               className="px-6 py-3 bg-white text-sky-600 rounded-full font-medium shadow-lg hover:bg-sky-50 transition-colors"
             >
               {translations?.hero?.button || "დაჯავშნეთ ვიზიტი"}
@@ -68,7 +68,7 @@ export default function AboutPage() {
             </p>
             <div className={isRTL ? "text-right" : "text-left"}>
               <Link
-                href="/appointment"
+               href="/pages/booking"
                 className="inline-block px-5 py-3 rounded-md font-medium transition-all duration-300 shadow-md hover:shadow-lg"
                 style={{
                   backgroundColor: colors.primary,
@@ -340,7 +340,7 @@ export default function AboutPage() {
                 <div className="mt-8 flex justify-between items-center">
                   <div className="flex space-x-4">
                     <Link
-                      href="https://facebook.com"
+                      href="https://www.facebook.com/profile.php?id=61573996716691"
                       className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                       style={{ backgroundColor: `${colors.light}` }}
                       aria-label="Facebook"
@@ -348,7 +348,7 @@ export default function AboutPage() {
                       <Facebook className="w-5 h-5" style={{ color: colors.primary }} />
                     </Link>
                     <Link
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/j_c_dental/"
                       className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                       style={{ backgroundColor: `${colors.light}` }}
                       aria-label="Instagram"

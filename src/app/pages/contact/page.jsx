@@ -90,7 +90,7 @@ const ContactPage = () => {
                 <h4 className="font-semibold mb-3">{t.contact.followUs}</h4>
                 <div className={`flex space-x-4 ${direction === "rtl" ? "" : ""}`}>
                   <Link
-                    href="https://facebook.com"
+                   href="https://www.facebook.com/profile.php?id=61573996716691"
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                     style={{ backgroundColor: `${colors.light}` }}
                     aria-label="Facebook"
@@ -98,7 +98,7 @@ const ContactPage = () => {
                     <Facebook className="w-5 h-5" style={{ color: colors.primary }} />
                   </Link>
                   <Link
-                    href="https://instagram.com"
+                   href="https://www.instagram.com/j_c_dental/"
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                     style={{ backgroundColor: `${colors.light}` }}
                     aria-label="Instagram"

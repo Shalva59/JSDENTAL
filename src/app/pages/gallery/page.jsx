@@ -801,7 +801,7 @@ export default function GalleryPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Link href="/contact">
+            <Link href="/pages/booking">
               <motion.button
                 className="mt-6 rounded-full bg-white px-8 py-3 font-medium text-[#00A0B0] shadow-md transition-all hover:bg-gray-100 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2"
                 whileHover={{ scale: 1.05 }}
