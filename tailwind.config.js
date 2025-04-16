@@ -8,8 +8,6 @@ module.exports = {
 
   prefix: "",
   theme: {
-
-  
     container: {
       center: true,
       padding: "2rem",
@@ -17,7 +15,6 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-
 
     extend: {
       colors: {
@@ -70,10 +67,27 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        // ჰედერის ანიმაციისთვის დამატებული keyframes
+        slideDown: {
+          "0%": { transform: "translateY(-100%)", opacity: 0 },
+          "100%": { transform: "translateY(0)", opacity: 1 },
+        },
+        slideUp: {
+          "0%": { transform: "translateY(0)", opacity: 1 },
+          "100%": { transform: "translateY(-100%)", opacity: 0 },
+        },
+        blink: {
+          "0%, 100%": { opacity: 1 },
+          "50%": { opacity: 0.5 },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        // ჰედერის ანიმაციისთვის დამატებული animations
+        slideDown: "slideDown 0.3s ease-out forwards",
+        slideUp: "slideUp 0.3s ease-out forwards",
+        blink: "blink 2s infinite",
       },
 
       fontFamily: {
@@ -84,9 +98,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('flowbite/plugin'),
-    require("tailwindcss-animate")
-  ],
-
+  plugins: [require("flowbite/plugin"), require("tailwindcss-animate")],
 }

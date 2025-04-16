@@ -5,8 +5,9 @@ import "aos/dist/aos.css"
 import { useEffect } from "react"
 import { useLocalizedServices } from "../../../hooks/useLocalizedServices"
 import { useLanguage } from "../../../context/LanguageContext"
+import Link from "next/link"
 
-const Page = () => {
+const ServicesSection = () => {
   const services = useLocalizedServices() // ენა-სპეციფიკური სერვისების მიღება
   const { translations } = useLanguage()
 
@@ -33,9 +34,9 @@ const Page = () => {
               <div className="text-4xl text-teal-500 mb-4">{service.icon}</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.title}</h3>
               <p className="text-gray-600">{service.description}</p>
-              <a href="#" className="mt-4 block text-teal-500 font-semibold">
+              <Link href="/pages/dentalservise" className="mt-4 block text-teal-500 font-semibold">
                 {translations?.buttons?.readMore || "ნახე მეტი"} →
-              </a>
+              </Link>
             </div>
           ))}
         </div>
@@ -44,4 +45,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default ServicesSection
