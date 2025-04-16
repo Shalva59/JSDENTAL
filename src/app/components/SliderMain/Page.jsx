@@ -59,7 +59,7 @@ export default function DentalSlider() {
     },
     {
       id: 3,
-      image: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop",
+      image: "/implantis_skamis_ukana_xedi.jpeg",
       title: translations?.slider?.slide3Title || "კომფორტული გარემო",
       subtitle: translations?.slider?.slide3Subtitle || "პაციენტზე ორიენტირებული მიდგომა",
       description:
