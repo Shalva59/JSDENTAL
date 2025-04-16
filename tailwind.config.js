@@ -3,7 +3,9 @@ module.exports = {
     "./node_modules/flowbite/**/*.js", // ამ ხაზს დაამატეთ
     "./app/**/*.{js,jsx,ts,tsx}",
     "./pages/**/*.{js,jsx,ts,tsx}",
-    // დანარჩენი შენივე კომპონენტები
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "*.{js,ts,jsx,tsx,mdx}",
   ],
 
   prefix: "",
@@ -95,6 +97,10 @@ module.exports = {
         kanit: ["var(--font-kanit)", "sans-serif"],
         montserrat: ["var(--font-montserrat)", "sans-serif"],
         poppins: ["var(--font-poppins)", "sans-serif"],
+      },
+
+      screens: {
+        lg: "1200px", // Override the default lg breakpoint to 1200px
       },
     },
   },

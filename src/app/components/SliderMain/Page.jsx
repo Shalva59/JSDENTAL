@@ -1,428 +1,470 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import useEmblaCarousel from "embla-carousel-react"
-import Autoplay from "embla-carousel-autoplay"
+import { useState, useEffect, useRef } from "react"
+import { motion } from "framer-motion"
+import { useLanguage } from "../../../context/LanguageContext"
+import Link from "next/link"
+import { Calendar, Phone, Clock } from "lucide-react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, Navigation, Pagination, EffectFade } from "swiper/modules"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
-// Slider data
-const slides = [
-  {
-    id: 1,
-    image: "https://www.yourdentistryguide.com/wp-content/uploads/2017/11/kids-dentistry-min.jpg",
-    title: "JC DENTAL",
-    subtitle: "სტომატოლოგიური კლინიკა",
-    buttonText: "ნახეთ მეტი",
-    buttonUrl: "#",
-  },
-  {
-    id: 2,
-    image: "https://healthcare.trainingleader.com/wp-content/uploads/2017/09/dentist-teeth.jpg",
-    title: "JC DENTAL",
-    subtitle: "სტომატოლოგიური კლინიკა",
-    buttonText: "ნახეთ მეტი",
-    buttonUrl: "#",
-  },
-  {
-    id: 3,
-    image: "https://familydentalcareindore.com/wp-content/uploads/2013/08/Family-Dental-Care-Indore.jpg",
-    title: "JC DENTAL",
-    subtitle: "სტომატოლოგიური კლინიკა",
-    buttonText: "ნახეთ მეტი",
-    buttonUrl: "#",
-  },
-]
+// Import Swiper styles
+import "swiper/css"
+import "swiper/css/navigation"
+import "swiper/css/pagination"
+import "swiper/css/effect-fade"
+import "swiper/css/autoplay"
 
-// Custom Button component
-const Button = ({ className, onClick, children, asChild, href, variant, size, ...props }) => {
-  const baseStyles =
-    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
-
-  const variantStyles = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-    icon: "h-10 w-10 p-0",
-  }
-
-  const sizeStyles = {
-    default: "h-10 px-4 py-2",
-    sm: "h-9 px-3",
-    lg: "h-11 px-8",
-    icon: "h-10 w-10",
-  }
-
-  const styles = `${baseStyles} ${variantStyles[variant || "default"]} ${sizeStyles[size || "default"]} ${className || ""}`
-
-  if (asChild && href) {
-    return (
-      <a href={href} className={styles} {...props}>
-        {children}
-      </a>
-    )
-  }
-
-  return (
-    <button className={styles} onClick={onClick} type="button" {...props}>
-      {children}
-    </button>
-  )
-}
-
-// Icon components
-const ChevronLeft = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="m15 18-6-6 6-6" />
-  </svg>
-)
-
-const ChevronRight = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-)
-
-const Sparkles = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.2 1.2L3 12l5.9 1.9a2 2 0 0 1 1.2 1.2L12 21l1.9-5.9a2 2 0 0 1 1.2-1.2L21 12l-5.9-1.9a2 2 0 0 1-1.2-1.2L12 3Z" />
-  </svg>
-)
-
-const Star = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-)
-
-// Main slider component
 export default function DentalSlider() {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const [scrollSnaps, setScrollSnaps] = useState([])
-  const [prevIndex, setPrevIndex] = useState(0)
-  const [direction, setDirection] = useState(0) // -1 for left, 1 for right
+  const { translations, direction, currentLanguage } = useLanguage()
+  const [isMobile, setIsMobile] = useState(false)
+  const swiperRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [swiperInstance, setSwiperInstance] = useState(null)
 
-  // Animation variants
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      once: true,
+      duration: 900,
+      easing: "ease-out-cubic",
+    })
+  }, [])
+
+  // Define slides with translations
+  const slides = [
+    {
+      id: 1,
+      image: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=1974&auto=format&fit=crop",
+      title: translations?.slider?.slide1Title || "პროფესიონალური მომსახურება",
+      subtitle: translations?.slider?.slide1Subtitle || "თანამედროვე სტომატოლოგიური კლინიკა",
+      description:
+        translations?.slider?.slide1Description ||
+        "გთავაზობთ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას თანამედროვე აღჭურვილობით",
+      buttonText: translations?.slider?.bookNow || "დაჯავშნეთ ვიზიტი",
+      buttonUrl: "/appointment",
+    },
+    {
+      id: 2,
+      image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=2070&auto=format&fit=crop",
+      title: translations?.slider?.slide2Title || "გამოცდილი სპეციალისტები",
+      subtitle: translations?.slider?.slide2Subtitle || "პროფესიონალთა გუნდი",
+      description:
+        translations?.slider?.slide2Description ||
+        "ჩვენი ექიმები გამოირჩევიან მრავალწლიანი გამოცდილებით და უახლესი მეთოდების ცოდნით",
+      buttonText: translations?.slider?.meetDoctors || "გაიცანით ჩვენი ექიმები",
+      buttonUrl: "/doctors",
+    },
+    {
+      id: 3,
+      image: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop",
+      title: translations?.slider?.slide3Title || "კომფორტული გარემო",
+      subtitle: translations?.slider?.slide3Subtitle || "პაციენტზე ორიენტირებული მიდგომა",
+      description:
+        translations?.slider?.slide3Description ||
+        "ჩვენი კლინიკა შექმნილია თქვენი კომფორტისთვის, რათა ვიზიტი იყოს სასიამოვნო და უსაფრთხო",
+      buttonText: translations?.slider?.contactUs || "დაგვიკავშირდით",
+      buttonUrl: "/contact",
+    },
+  ]
+
+  // Check if mobile on mount and on resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => {
+      window.removeEventListener("resize", checkMobile)
+    }
+  }, [])
+
+  // Content animation variants
   const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({
+    hidden: { opacity: 0, y: 30 },
+    visible: (delay) => ({
       opacity: 1,
       y: 0,
       transition: {
-        delay: custom * 0.2,
-        duration: 0.5,
+        delay: delay * 0.2,
+        duration: 0.6,
         ease: "easeOut",
       },
     }),
   }
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    {
-      loop: true,
-      skipSnaps: false,
-    },
-    [Autoplay({ delay: 6000, stopOnInteraction: true })],
-  )
+  // Handle slide change
+  const handleSlideChange = (swiper) => {
+    setActiveIndex(swiper.realIndex)
+  }
 
-  const scrollTo = useCallback(
-    (index) => {
-      if (!emblaApi) return
+  // Initialize swiper
+  const handleSwiperInit = (swiper) => {
+    setSwiperInstance(swiper)
 
-      // Determine direction
-      const currentIndex = emblaApi.selectedScrollSnap()
-      const dir = index > currentIndex ? 1 : -1
+    // Set direction
+    swiper.changeLanguageDirection(direction)
+    swiper.update()
 
-      setDirection(dir)
-      setPrevIndex(currentIndex)
-      emblaApi.scrollTo(index)
-    },
-    [emblaApi],
-  )
+    // Make sure autoplay is running
+    swiper.autoplay.start()
 
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return
+    console.log("Swiper initialized with autoplay:", swiper.autoplay.running)
+  }
 
-    const newIndex = emblaApi.selectedScrollSnap()
-    if (newIndex !== selectedIndex) {
-      // Determine direction based on index change
-      const dir = newIndex > prevIndex ? 1 : -1
-      setDirection(dir)
-      setPrevIndex(selectedIndex)
-      setSelectedIndex(newIndex)
-    }
-  }, [emblaApi, prevIndex, selectedIndex])
-
-  const scrollPrev = useCallback(() => {
-    if (!emblaApi) return
-    setDirection(-1)
-    setPrevIndex(selectedIndex)
-    emblaApi.scrollPrev()
-  }, [emblaApi, selectedIndex])
-
-  const scrollNext = useCallback(() => {
-    if (!emblaApi) return
-    setDirection(1)
-    setPrevIndex(selectedIndex)
-    emblaApi.scrollNext()
-  }, [emblaApi, selectedIndex])
-
+  // Update direction when language changes
   useEffect(() => {
-    if (!emblaApi) return
-
-    onSelect()
-    setScrollSnaps(emblaApi.scrollSnapList())
-
-    emblaApi.on("select", onSelect)
-    emblaApi.on("reInit", onSelect)
-
-    return () => {
-      emblaApi.off("select", onSelect)
-      emblaApi.off("reInit", onSelect)
+    if (swiperInstance) {
+      swiperInstance.changeLanguageDirection(direction)
+      swiperInstance.update()
     }
-  }, [emblaApi, onSelect])
+  }, [direction, currentLanguage, swiperInstance])
+
+  // Force restart autoplay every 10 seconds as a fallback
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (swiperInstance && !swiperInstance.autoplay.running) {
+        console.log("Forcing autoplay restart")
+        swiperInstance.autoplay.start()
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [swiperInstance])
+
+  // Refresh AOS when slide changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.refresh()
+    }
+  }, [activeIndex])
 
   return (
-    <div className="relative mt-[-10px] w-full">
-      <div className="relative h-[400px] overflow-hidden md:h-[580px]" ref={emblaRef}>
-        <div className="flex h-full">
+    <div className="relative w-full overflow-hidden" dir={direction}>
+      {/* Main slider container */}
+      <div className="relative h-[500px] sm:h-[550px] md:h-[600px] lg:h-[650px]" data-aos="zoom-in">
+        <Swiper
+          ref={swiperRef}
+          modules={[Autoplay, Navigation, Pagination, EffectFade]}
+          effect="fade"
+          spaceBetween={0}
+          slidesPerView={1}
+          loop={true}
+          speed={800}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            clickable: true,
+            bulletClass: "swiper-pagination-bullet",
+            bulletActiveClass: "swiper-pagination-bullet-active",
+          }}
+          navigation={{
+            prevEl: ".swiper-button-prev",
+            nextEl: ".swiper-button-next",
+          }}
+          dir={direction}
+          className="h-full w-full"
+          onSlideChange={handleSlideChange}
+          onSwiper={handleSwiperInit}
+        >
           {slides.map((slide, index) => (
-            <div key={slide.id} className="relative flex min-w-0 flex-[0_0_100%] flex-col items-start justify-end">
-              {/* Background Image with Animation */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <motion.div
-                  className="relative h-full w-full"
-                  animate={{ scale: index === selectedIndex ? 1.05 : 1 }}
-                  transition={{ duration: 6 }}
-                >
-                  <div className="relative h-full w-full">
+            <SwiperSlide key={slide.id} className="relative h-full w-full">
+              {({ isActive }) => (
+                <>
+                  {/* Background image */}
+                  <div className="absolute inset-0 z-0">
                     <img
                       src={slide.image || "/placeholder.svg"}
                       alt={slide.title}
-                      className="absolute h-full w-full object-cover"
+                      className="h-full w-full object-cover"
                     />
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60" />
                   </div>
-                  {/* Animated Gradient Overlay */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"
-                    initial={{ opacity: 0.5 }}
-                    animate={{ opacity: index === selectedIndex ? 0.7 : 0.5 }}
-                    transition={{ duration: 1 }}
-                  />
-                </motion.div>
-              </div>
 
-              {/* Content with Animations */}
-              {index === selectedIndex && (
-                <div className="relative z-10 w-full p-8 md:p-12 lg:p-16">
-                  <motion.div
-                    className="max-w-md rounded-lg bg-white/10 p-6 backdrop-blur-sm"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                  >
-                    <motion.div
-                      className="mb-2 flex items-center gap-2"
-                      initial="hidden"
-                      animate="visible"
-                      custom={0}
-                      variants={contentVariants}
+                  {/* Content */}
+                  <div className="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 md:px-16 lg:px-24">
+                    <div
+                      className={`max-w-xl ${direction === "rtl" ? "mr-0 ml-auto text-right" : "ml-0 mr-auto text-left"}`}
                     >
-                      <motion.div
-                        initial={{ rotate: -30, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
-                      >
-                        <Sparkles className="h-5 w-5 text-teal-300" />
-                      </motion.div>
-                      <h2 className="text-3xl font-bold tracking-wider text-white">{slide.title}</h2>
-                    </motion.div>
+                      {isActive && (
+                        <motion.div initial="hidden" animate="visible" className="space-y-4">
+                          {/* Subtitle */}
+                          <motion.div
+                            className="inline-flex items-center rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-sm"
+                            variants={contentVariants}
+                            custom={0}
+                          >
+                            <span className="text-sm font-medium text-white md:text-base">{slide.subtitle}</span>
+                          </motion.div>
 
-                    <motion.p
-                      className="mb-6 text-lg font-medium tracking-wider text-teal-50"
-                      initial="hidden"
-                      animate="visible"
-                      custom={1}
-                      variants={contentVariants}
-                    >
-                      {slide.subtitle}
-                    </motion.p>
+                          {/* Title */}
+                          <motion.h2
+                            className="text-3xl font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl"
+                            variants={contentVariants}
+                            custom={1}
+                          >
+                            {slide.title}
+                          </motion.h2>
 
-                    <motion.div
-                      className="mb-4 flex gap-1"
-                      initial="hidden"
-                      animate="visible"
-                      custom={2}
-                      variants={contentVariants}
-                    >
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <motion.div
-                          key={star}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.5 + star * 0.1 }}
-                        >
-                          <Star className="h-4 w-4 fill-teal-300 text-teal-300" />
+                          {/* Description */}
+                          <motion.p
+                            className="max-w-md text-base text-white/90 sm:text-lg md:text-xl"
+                            variants={contentVariants}
+                            custom={2}
+                          >
+                            {slide.description}
+                          </motion.p>
+
+                          {/* Button */}
+                          <motion.div variants={contentVariants} custom={3}>
+                            <Link
+                              href={slide.buttonUrl}
+                              className="group relative mt-4 inline-flex items-center justify-center overflow-hidden rounded-lg bg-white px-6 py-3 font-medium text-gray-900 transition-all duration-300 hover:bg-opacity-90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2"
+                            >
+                              {direction === "rtl" ? (
+                                <span className="relative z-10 flex items-center">
+                                  <svg
+                                    className="mr-2 h-4 w-4 rotate-180 transition-transform duration-300 group-hover:translate-x-1"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                  </svg>
+                                  {slide.buttonText}
+                                </span>
+                              ) : (
+                                <span className="relative z-10 flex items-center">
+                                  {slide.buttonText}
+                                  <svg
+                                    className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                  </svg>
+                                </span>
+                              )}
+                            </Link>
+                          </motion.div>
                         </motion.div>
-                      ))}
-                    </motion.div>
-
-                    <motion.div initial="hidden" animate="visible" custom={3} variants={contentVariants}>
-                      <Button
-                        className="group relative overflow-hidden bg-teal-600 text-white hover:bg-teal-700"
-                        asChild
-                        href={slide.buttonUrl}
-                      >
-                        <motion.span
-                          className="absolute inset-0 bg-white"
-                          initial={{ x: "-100%" }}
-                          whileHover={{ x: "100%" }}
-                          transition={{ duration: 0.5 }}
-                          style={{ opacity: 0.2 }}
-                        />
-                        {slide.buttonText}
-                        <motion.svg
-                          className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
-                          whileHover={{ x: 5 }}
-                          transition={{ type: "spring", stiffness: 400 }}
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 14 10"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M1 5h12m0 0L9 1m4 4L9 9"
-                          />
-                        </motion.svg>
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                </div>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
-            </div>
+            </SwiperSlide>
           ))}
+
+          {/* Standard Swiper navigation buttons */}
+          <div className="swiper-button-prev !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full !left-4"></div>
+          <div className="swiper-button-next !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full !right-4"></div>
+
+          {/* Standard Swiper pagination */}
+          <div className="swiper-pagination !bottom-4"></div>
+        </Swiper>
+
+        {/* Autoplay indicator */}
+        <div className="absolute bottom-0 left-0 z-10 h-1 w-full">
+          <motion.div
+            className="h-full bg-white"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 3, ease: "linear", repeat: Number.POSITIVE_INFINITY }}
+            key={activeIndex}
+          />
         </div>
       </div>
 
-      {/* Animated Navigation Buttons */}
-      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute left-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full border-white/30 bg-black/30 text-white backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
-          onClick={scrollPrev}
-          aria-label="წინა სლაიდი"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-      </motion.div>
+      {/* Quick info section - with RTL support */}
+      <div className="relative z-20 mx-auto -mt-16 max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-4 rounded-xl bg-white p-4 shadow-lg sm:grid-cols-2 md:grid-cols-3 md:p-6">
+          {/* Quick appointment card */}
+          <div
+            className="rounded-lg bg-gray-50 p-4 md:p-6 hover:shadow-md transition-all duration-300"
+            data-aos="zoom-in"
+          >
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
+              >
+                <Calendar className="h-5 w-5 text-blue-700" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {translations?.slider?.quickAppointment || "სწრაფი ჯავშანი"}
+              </h3>
+            </div>
+            <p className="mb-4 text-sm text-gray-600">
+              {translations?.slider?.quickAppointmentText || "დაჯავშნეთ ვიზიტი სწრაფად და მარტივად"}
+            </p>
+            <Link
+              href="/appointment"
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-700"
+            >
+              {translations?.slider?.bookNow || "დაჯავშნეთ ახლავე"}
+            </Link>
+          </div>
 
-      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute right-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full border-white/30 bg-black/30 text-white backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
-          onClick={scrollNext}
-          aria-label="შემდეგი სლაიდი"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </motion.div>
+          {/* Working hours card */}
+          <div
+            className="rounded-lg bg-gray-50 p-4 md:p-6 hover:shadow-md transition-all duration-300"
+            data-aos="zoom-in"
+            data-aos-delay="100"
+          >
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
+              >
+                <Clock className="h-5 w-5 text-blue-700" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {translations?.slider?.workingHours || "სამუშაო საათები"}
+              </h3>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className="flex justify-between">
+                <span>{translations?.slider?.mondayFriday || "ორშაბათი-პარასკევი"}</span>
+                <span className="font-medium">9:00 - 19:00</span>
+              </li>
+              <li className="flex justify-between">
+                <span>{translations?.slider?.saturday || "შაბათი"}</span>
+                <span className="font-medium">10:00 - 16:00</span>
+              </li>
+              <li className="flex justify-between">
+                <span>{translations?.slider?.sunday || "კვირა"}</span>
+                <span className="font-medium">{translations?.slider?.closed || "დახურულია"}</span>
+              </li>
+            </ul>
+          </div>
 
-      {/* Animated Dots Navigation */}
-      <motion.div
-        className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
-        {scrollSnaps.map((_, index) => (
-          <motion.button
-            key={index}
-            className={`h-2.5 rounded-full transition-all ${
-              selectedIndex === index ? "bg-teal-400 w-8" : "bg-white/50 hover:bg-white/80 w-2.5"
-            }`}
-            onClick={() => scrollTo(index)}
-            aria-label={`სლაიდი ${index + 1}`}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            animate={selectedIndex === index ? { scale: [1, 1.2, 1] } : {}}
-            transition={selectedIndex === index ? { duration: 0.5 } : {}}
-          />
-        ))}
-      </motion.div>
+          {/* Contact info card */}
+          <div
+            className="rounded-lg bg-gray-50 p-4 md:p-6 hover:shadow-md transition-all duration-300"
+            data-aos="zoom-in"
+            data-aos-delay="200"
+          >
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
+              >
+                <Phone className="h-5 w-5 text-blue-700" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {translations?.slider?.contactInfo || "საკონტაქტო ინფორმაცია"}
+              </h3>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+                <Phone className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`} />
+                <span>+995 555 12 34 56</span>
+              </li>
+              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+                <svg
+                  className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>info@jcdental.ge</span>
+              </li>
+              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+                <svg
+                  className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>{translations?.slider?.address || "თბილისი, საქართველო"}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-      {/* Animated Floating Elements */}
-      <AnimatePresence>
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={`float-${i}`}
-            className="absolute z-10 hidden rounded-full bg-teal-500/20 backdrop-blur-md md:block"
-            style={{
-              width: 20 + i * 15,
-              height: 20 + i * 15,
-              top: `${20 + i * 25}%`,
-              right: `${5 + i * 10}%`,
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: 0.6,
-              y: [0, -15, 0],
-              x: [0, 10, 0],
-            }}
-            transition={{
-              y: { repeat: Number.POSITIVE_INFINITY, duration: 3 + i, repeatType: "reverse" },
-              x: { repeat: Number.POSITIVE_INFINITY, duration: 5 + i, repeatType: "reverse" },
-              opacity: { duration: 1, delay: 0.5 + i * 0.2 },
-            }}
-          />
-        ))}
-      </AnimatePresence>
+      {/* Custom styles for Swiper elements */}
+      <style jsx global>{`
+        /* Improve pagination bullets */
+        .swiper-pagination-bullet {
+          width: 10px !important;
+          height: 10px !important;
+          background: rgba(255, 255, 255, 0.5) !important;
+          opacity: 1 !important;
+          transition: all 0.3s ease !important;
+        }
+        
+        .swiper-pagination-bullet-active {
+          background: white !important;
+          transform: scale(1.2) !important;
+        }
+        
+        /* Improve navigation buttons */
+        .swiper-button-prev:after,
+        .swiper-button-next:after {
+          font-size: 18px !important;
+          font-weight: bold !important;
+        }
+        
+        .swiper-button-prev,
+        .swiper-button-next {
+          transition: all 0.3s ease !important;
+        }
+        
+        .swiper-button-prev:hover,
+        .swiper-button-next:hover {
+          background: rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* Hide navigation buttons on mobile */
+        @media (max-width: 767px) {
+          .swiper-button-prev,
+          .swiper-button-next {
+            display: none !important;
+          }
+          
+          .swiper-pagination {
+            bottom: 10px !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

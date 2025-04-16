@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDoctors } from "@/hooks/useLocalizedDoctors"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 const DoctorsCarousel = () => {
   const { translations, currentLanguage } = useLanguage()
@@ -13,6 +15,15 @@ const DoctorsCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [touchStartX, setTouchStartX] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      once: true,
+      duration: 1000,
+      easing: "ease-out-cubic",
+    })
+  }, [])
 
   // ✅ ფილტრაცია სურათის და სახელის მიხედვით (დუბლიკატების ამოსაშლელად)
   const uniqueDoctors = doctors.filter(
@@ -151,8 +162,15 @@ const DoctorsCarousel = () => {
     return () => clearInterval(interval)
   }, [currentIndex, visibleCount, isTransitioning])
 
+  // Refresh AOS when slide changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.refresh()
+    }
+  }, [currentIndex])
+
   return (
-    <div className="max-w-5xl mx-auto py-10 relative" ref={containerRef}>
+    <div className="max-w-5xl mx-auto py-10 relative" ref={containerRef} data-aos="zoom-in">
       <style jsx global>{`
         /* სურათის კონტეინერის სტილები */
         .doctor-image-container {
@@ -303,16 +321,16 @@ const DoctorsCarousel = () => {
         }
       `}</style>
 
-      <h2 className="text-center text-2xl ponomar-regular font-bold mb-6 tracking-[.25em]">
+      <h2 className="text-center text-2xl ponomar-regular font-bold mb-6 tracking-[.25em]" data-aos="zoom-in">
         {translations?.doctors?.title || "ექიმები"}
       </h2>
 
       {/* ნავიგაციის ღილაკები */}
-      <button className="nav-button nav-prev" onClick={goPrev}>
+      <button className="nav-button nav-prev" onClick={goPrev} data-aos="zoom-in" data-aos-delay="100">
         {isHebrew ? <ChevronRight /> : <ChevronLeft />}
       </button>
 
-      <button className="nav-button nav-next" onClick={goNext}>
+      <button className="nav-button nav-next" onClick={goNext} data-aos="zoom-in" data-aos-delay="100">
         {isHebrew ? <ChevronLeft /> : <ChevronRight />}
       </button>
 
@@ -322,6 +340,8 @@ const DoctorsCarousel = () => {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={{ direction: isHebrew ? "rtl" : "ltr" }}
+        data-aos="zoom-in"
+        data-aos-delay="200"
       >
         <div
           className="doctors-container"
@@ -354,7 +374,7 @@ const DoctorsCarousel = () => {
       </div>
 
       {/* პაგინაცია */}
-      <div className="pagination">
+      <div className="pagination" data-aos="zoom-in" data-aos-delay="300">
         {Array.from({ length: orderedDoctors.length }).map((_, index) => (
           <div
             key={index}

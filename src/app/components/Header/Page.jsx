@@ -97,6 +97,7 @@ const Header = () => {
   const mobileLangMenuRef = useRef(null)
   const mobileLangButtonRef = useRef(null)
   const pathname = usePathname()
+  const [isDesktop, setIsDesktop] = useState(true)
 
   // სქროლის პროგრესის გამოთვლა
   const { scrollYProgress } = useScroll()
@@ -118,6 +119,24 @@ const Header = () => {
   useEffect(() => {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight)
+    }
+  }, [])
+
+  // Check if screen width is less than 1200px
+  useEffect(() => {
+    const checkScreenWidth = () => {
+      setIsDesktop(window.innerWidth >= 1200)
+    }
+
+    // Initial check
+    checkScreenWidth()
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkScreenWidth)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", checkScreenWidth)
     }
   }, [])
 
@@ -309,7 +328,11 @@ const Header = () => {
             <motion.button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+              className={
+                isDesktop
+                  ? "hidden"
+                  : "inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+              }
               aria-expanded={isMobileMenuOpen}
               whileTap={{ scale: 0.95 }}
             >
@@ -359,7 +382,7 @@ const Header = () => {
             </motion.button>
 
             {/* დესკტოპის ნავიგაცია */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className={isDesktop ? "flex items-center space-x-8" : "hidden"}>
               {localizedProducts.map((item, index) => (
                 <Link
                   key={index}
@@ -391,7 +414,7 @@ const Header = () => {
             </nav>
 
             {/* ენის არჩევანი და CTA */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className={isDesktop ? "flex items-center space-x-4" : "hidden"}>
               {/* ენის არჩევანი */}
               <div className="relative">
                 <motion.button
@@ -441,7 +464,7 @@ const Header = () => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              className="md:hidden border-t border-gray-200 bg-white overflow-hidden"
+              className={isDesktop ? "hidden" : "border-t border-gray-200 bg-white overflow-hidden"}
               variants={mobileMenuVariants}
               initial="hidden"
               animate="visible"
