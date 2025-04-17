@@ -193,13 +193,444 @@ export default function DoctorsPage() {
   return (
     <>
       <style jsx>{`
-  
+        /* ძირითადი სტილები */
+        .jc-dental-page {
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          color: #333;
+          max-width: 100%;
+          overflow-x: hidden;
+        }
+
+        /* ზედა ნაწილი */
+        .header {
+          background-color: #1e40af; /* ლურჯი ფერი */
+          color: white;
+          padding: 3rem 1rem;
+          text-align: center;
+        }
+
+        .header-content {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .header h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .header p {
+          font-size: 1.2rem;
+          max-width: 800px;
+          margin: 0 auto 2rem;
+          line-height: 1.6;
+        }
+
+        /* ძიების ველი */
+        .search-container {
+          position: relative;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 1rem 1rem 1rem 3rem;
+          border-radius: 50px;
+          border: none;
+          font-size: 1rem;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 1.2rem;
+        }
+
+        /* RTL სტილები */
+        .rtl-search .search-icon {
+          left: auto;
+          right: 1rem;
+        }
+
+        .rtl-search .search-input {
+          padding: 1rem 3rem 1rem 1rem;
+        }
+
+        /* მთავარი კონტენტი */
+        .main-content {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 2rem 1rem;
+        }
+
+        /* ფილტრები */
+        .filters {
+          margin-bottom: 2rem;
+        }
+
+        .section-title {
+          font-size: 1.8rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .filter-controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .filter-group {
+          flex: 1;
+          min-width: 200px;
+        }
+
+        .filter-select {
+          width: 100%;
+          padding: 0.8rem;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          background-color: white;
+          font-size: 1rem;
+        }
+
+        .reset-button {
+          padding: 0.8rem 1.5rem;
+          background-color: #f5f5f5;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+          background-color: #e0e0e0;
+        }
+
+        /* RTL ფილტრები */
+        .rtl-filters {
+          flex-direction: row-reverse;
+        }
+
+        /* ექიმების ბარათები */
+        .doctors-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 2rem;
+        }
+
+        .doctor-card {
+          background-color: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+        }
+
+        .doctor-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .doctor-card.selected {
+          border: 2px solid #1e40af; /* ლურჯი ფერი */
+        }
+
+        .doctor-image-container {
+          position: relative;
+          height: 250px;
+          overflow: hidden;
+        }
+
+        .doctor-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+
+        .doctor-card:hover .doctor-image {
+          transform: scale(1.05);
+        }
+
+        /* სპეციალობის ბეჯი */
+        .specialty-badge-container {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          z-index: 2;
+        }
+
+        .primary-specialty {
+          background-color: #1e40af; /* ლურჯი ფერი */
+          color: white;
+          padding: 0.4rem 0.8rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          display: inline-flex;
+          align-items: center;
+          transition: all 0.3s ease;
+        }
+
+        /* Add this new class for RTL specialty badges */
+        .rtl-card .primary-specialty {
+          padding: 0.4rem 1.2rem; /* Increased horizontal padding */
+          margin-left: 0.5rem; /* Add some margin */
+        }
+
+        .badge-active {
+          background-color: #1e3a8a; /* უფრო მუქი ლურჯი */
+        }
+
+        .additional-count {
+          margin-left: 5px;
+          background-color: rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+        }
+
+        /* Add this for RTL additional count */
+        .rtl-card .additional-count {
+          margin-left: 8px; /* Increase spacing between number and text */
+        }
+
+        /* სპეციალობების პოპაპი */
+        .specialties-popup {
+          position: absolute;
+          bottom: 60px;
+          right: 10px;
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+          padding: 0.5rem;
+          opacity: 0;
+          transform: translateY(10px);
+          transition: all 0.3s ease;
+          pointer-events: none;
+          z-index: 3;
+          max-width: 200px;
+        }
+
+        .popup-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .popup-specialty {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          color: #333;
+        }
+
+        /* RTL სპეციალობები */
+        .rtl-card .specialty-badge-container {
+          right: auto;
+          left: 15px; /* Increased from 10px to 15px to move it further from the edge */
+        }
+
+        .rtl-popup {
+          right: auto;
+          left: 15px; /* Increased from 10px to 15px */
+        }
+
+        /* ექიმის ინფორმაცია */
+        .doctor-info {
+          padding: 1.5rem;
+        }
+
+        .doctor-name {
+          font-size: 1.4rem;
+          margin-bottom: 0.5rem;
+          color: #1e40af; /* ლურჯი ფერი */
+        }
+
+        .doctor-experience {
+          font-size: 1rem;
+          color: #666;
+          margin-bottom: 1rem;
+        }
+
+        .doctor-schedule {
+          margin-bottom: 1.5rem;
+        }
+
+        .doctor-schedule h4 {
+          font-size: 1rem;
+          margin-bottom: 0.5rem;
+          color: #555;
+        }
+
+        .working-days {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .working-day {
+          background-color: #f0f0f0;
+          padding: 0.3rem 0.6rem;
+          border-radius: 4px;
+          font-size: 0.9rem;
+        }
+
+        .working-hours {
+          display: flex;
+          align-items: center;
+          font-size: 0.9rem;
+          color: #666;
+        }
+
+        .clock-icon {
+          margin-right: 0.5rem;
+        }
+
+        /* RTL სამუშაო დღეები */
+        .rtl-working-days {
+          flex-direction: row-reverse;
+        }
+
+        .rtl-working-hours .clock-icon {
+          margin-right: 0;
+          margin-left: 0.5rem;
+        }
+
+        /* ჯავშნის ღილაკი */
+        .appointment-button {
+          display: inline-block;
+          background-color: #1e40af; /* ლურჯი ფერი */
+          color: white;
+          padding: 0.8rem 1.5rem;
+          border-radius: 50px;
+          text-decoration: none;
+          font-weight: 500;
+          transition: background-color 0.3s ease;
+          text-align: center;
+        }
+
+        .appointment-button:hover {
+          background-color: #1e3a8a; /* უფრო მუქი ლურჯი */
+        }
+
+        /* შედეგების არარსებობა */
+        .no-results {
+          text-align: center;
+          padding: 3rem 1rem;
+        }
+
+        .no-results h3 {
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
+          color: #666;
+        }
+
+        .no-results p {
+          margin-bottom: 1.5rem;
+          color: #888;
+        }
+
+        /* საკონტაქტო ინფორმაცია */
+        .footer {
+          background-color: #f5f5f5;
+          padding: 3rem 1rem;
+        }
+
+        .contact-info {
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+
+        .contact-info h2 {
+          font-size: 1.8rem;
+          margin-bottom: 2rem;
+          text-align: center;
+          color: #1e40af; /* ლურჯი ფერი */
+        }
+
+        .contact-methods {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-around;
+          gap: 2rem;
+        }
+
+        .contact-method {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .contact-icon {
+          font-size: 1.8rem;
+          color: #1e40af; /* ლურჯი ფერი */
+        }
+
+        .contact-label {
+          font-weight: 600;
+          margin-bottom: 0.3rem;
+          color: #555;
+        }
+
+        .contact-value {
+          color: #666;
+        }
+
+        /* RTL საკონტაქტო ინფორმაცია */
+        .rtl-contact-methods {
+          flex-direction: row-reverse;
+        }
+
+        .rtl-contact-method {
+          flex-direction: row-reverse;
+        }
+
+        /* მედია მოთხოვნები */
+        @media (max-width: 768px) {
+          .header h1 {
+            font-size: 2rem;
+          }
+
+          .header p {
+            font-size: 1rem;
+          }
+
+          .contact-methods {
+            flex-direction: column;
+            align-items: center;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .filter-controls {
+            flex-direction: column;
+          }
+
+          .doctor-card {
+            max-width: 100%;
+          }
+        }
+
+        .text-right {
+          text-align: right;
+        }
       `}</style>
 
       <div className="jc-dental-page" dir={direction}>
         {/* ზედა ნაწილი */}
         <header className="header">
-          <div className="header-content" data-aos="fade-down">
+          <div className={`header-content ${isRTL ? "" : ""}`} data-aos="fade-down">
             <h1>{t.title}</h1>
             <p>{t.subtitle}</p>
 
@@ -277,7 +708,7 @@ export default function DoctorsPage() {
                   onMouseLeave={() => setHoveredDentist(null)}
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
-                  data-aos-offset="100"
+                  offset="100"
                 >
                   <div className="doctor-image-container" data-aos="zoom-in" data-aos-delay={index * 100}>
                     <img src={dentist.image || "/placeholder.svg"} alt={dentist.name} className="doctor-image" />
@@ -314,7 +745,7 @@ export default function DoctorsPage() {
 
                     <div className="doctor-schedule">
                       <h4>{t.workingDays}</h4>
-                      <div className={`working-days ${isRTL ? "" : ""}`}>
+                      <div className={`working-days ${isRTL ? "rtl-working-days" : ""}`}>
                         {dentist.workingDays.map((day) => (
                           <span key={day} className="working-day">
                             {day}
@@ -326,7 +757,11 @@ export default function DoctorsPage() {
                       </p>
                     </div>
 
-                    <Link href={`/doctors_vip/${dentist.id}`} className="appointment-button">
+                    <Link
+                      href={`/doctors_vip/${dentist.id}`}
+                      className="appointment-button"
+                      onClick={(e) => e.stopPropagation()} // Add this line to prevent event propagation
+                    >
                       {t.appointment}
                     </Link>
                   </div>
