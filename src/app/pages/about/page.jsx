@@ -279,7 +279,7 @@ export default function AboutPage() {
               >
                 {/* Google Maps Embed */}
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.8391205735695!2d44.84022233089427!3d41.68230198865621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440d3db3f527e1%3A0x626d96f8aff559d8!2sJC%20dental!5e0!3m2!1sen!2sge!4v1742504874462!5m2!1sen!2sge"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2979.782509610962!2d44.83933513673063!3d41.68204031731445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440d3db3f527e1%3A0x626d96f8aff559d8!2sJC%20dental!5e0!3m2!1sen!2sge!4v1744913309256!5m2!1sen!2sge"
                   className="absolute inset-0 w-full h-full border-0"
                   allowFullScreen
                   loading="lazy"
