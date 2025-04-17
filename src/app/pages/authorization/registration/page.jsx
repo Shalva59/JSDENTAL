@@ -1,15 +1,43 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "../../../../context/LanguageContext"
 import { Eye, EyeOff, CheckCircle, User, Mail, Phone, Lock } from "lucide-react"
 import Link from "next/link"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 const RegistrationPage = () => {
   const { currentLanguage, direction, translations } = useLanguage()
 
   // Get registration translations from the main translations object
   const t = translations?.registration || {}
+
+  // AOS ინიციალიზაცია - გაუმჯობესებული კონფიგურაციით
+  useEffect(() => {
+    // თავიდან გავწმინდოთ ნებისმიერი არსებული AOS ინსტანცია
+    if (typeof window !== "undefined") {
+      window.addEventListener("load", () => {
+        AOS.refresh()
+      })
+    }
+
+    AOS.init({
+      duration: 800, // შევამციროთ ხანგრძლივობა უკეთესი პერფორმანსისთვის
+      once: true, // ანიმაცია გამეორდება ყოველ სქროლზე
+      mirror: true, // ელემენტები ანიმირდება სქროლ-აფზეც
+      offset: 50, // ოფსეტი როდის დაიწყება ანიმაცია
+      easing: "ease-out-cubic", // უფრო გლუვი ანიმაცია
+      anchorPlacement: "top-bottom", // ანიმაცია დაიწყება როცა ელემენტის ზედა ნაწილი მიაღწევს ეკრანის ქვედა ნაწილს
+    })
+
+    // დავრწმუნდეთ, რომ AOS განახლდება ფანჯრის ზომის ცვლილებისას
+    window.addEventListener("resize", AOS.refresh)
+
+    return () => {
+      window.removeEventListener("resize", AOS.refresh)
+    }
+  }, [])
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -119,27 +147,52 @@ const RegistrationPage = () => {
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8"
       dir={direction}
     >
-      <div className="max-w-4xl w-full flex flex-col md:flex-row overflow-hidden bg-white rounded-2xl shadow-xl">
+      <div
+        className="max-w-4xl w-full flex flex-col md:flex-row overflow-hidden bg-white rounded-2xl shadow-xl"
+        data-aos="zoom-in"
+        data-aos-duration="1200"
+        data-aos-offset="200"
+      >
         {/* Left side - Image and branding */}
-        <div className="md:w-5/12 bg-gradient-to-br from-blue-600 to-cyan-500 p-8 flex flex-col justify-between relative overflow-hidden">
+        <div
+          className="md:w-5/12 bg-gradient-to-br from-blue-600 to-cyan-500 p-8 flex flex-col justify-between relative overflow-hidden"
+          data-aos="zoom-in"
+          data-aos-duration="1000"
+          data-aos-delay="300"
+        >
           <div className="relative z-10">
-            <div className="mb-6">
+            <div className="mb-6" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="600">
               <h2 className="text-white text-3xl font-bold">JC Dental</h2>
               <p className="text-blue-100 mt-2">{t.subtitle}</p>
             </div>
 
-            <div className="hidden md:block">
+            <div className="hidden md:block" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="800">
               <h3 className="text-white text-xl font-semibold mb-4">{t.benefits}</h3>
               <ul className="space-y-3">
-                <li className="flex items-center text-blue-100">
+                <li
+                  className="flex items-center text-blue-100"
+                  data-aos="zoom-in"
+                  data-aos-duration="600"
+                  data-aos-delay="900"
+                >
                   <CheckCircle className="h-5 w-5 mr-2 text-blue-200" />
                   <span>{t.benefit1}</span>
                 </li>
-                <li className="flex items-center text-blue-100">
+                <li
+                  className="flex items-center text-blue-100"
+                  data-aos="zoom-in"
+                  data-aos-duration="600"
+                  data-aos-delay="1000"
+                >
                   <CheckCircle className="h-5 w-5 mr-2 text-blue-200" />
                   <span>{t.benefit2}</span>
                 </li>
-                <li className="flex items-center text-blue-100">
+                <li
+                  className="flex items-center text-blue-100"
+                  data-aos="zoom-in"
+                  data-aos-duration="600"
+                  data-aos-delay="1100"
+                >
                   <CheckCircle className="h-5 w-5 mr-2 text-blue-200" />
                   <span>{t.benefit3}</span>
                 </li>
@@ -153,13 +206,18 @@ const RegistrationPage = () => {
         </div>
 
         {/* Right side - Form */}
-        <div className="md:w-7/12 p-8">
-          <div className="mb-6 text-center">
+        <div className="md:w-7/12 p-8" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="300">
+          <div className="mb-6 text-center" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="600">
             <h1 className="text-2xl font-bold text-gray-800">{t.title}</h1>
           </div>
 
           {registrationSuccess ? (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-8 rounded-lg mb-6 text-center">
+            <div
+              className="bg-green-50 border border-green-200 text-green-700 px-6 py-8 rounded-lg mb-6 text-center"
+              data-aos="zoom-in"
+              data-aos-duration="800"
+              data-aos-delay="300"
+            >
               <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
               <h3 className="text-lg font-medium mb-2">{t.successTitle}</h3>
               <p>{t.registrationSuccess}</p>
@@ -174,7 +232,7 @@ const RegistrationPage = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* First Name */}
-                <div>
+                <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="700">
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
                     {t.firstName}
                   </label>
@@ -197,13 +255,14 @@ const RegistrationPage = () => {
                             ? "border-blue-500"
                             : "border-gray-300"
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      style={{ textAlign: direction === "rtl" ? "right" : "left" }}
                     />
                   </div>
                   {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
                 </div>
 
                 {/* Last Name */}
-                <div>
+                <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="800">
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                     {t.lastName}
                   </label>
@@ -226,6 +285,7 @@ const RegistrationPage = () => {
                             ? "border-blue-500"
                             : "border-gray-300"
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      style={{ textAlign: direction === "rtl" ? "right" : "left" }}
                     />
                   </div>
                   {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
@@ -233,7 +293,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Email */}
-              <div>
+              <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="900">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t.email}
                 </label>
@@ -252,13 +312,14 @@ const RegistrationPage = () => {
                     className={`block w-full pl-10 pr-3 py-2.5 border ${
                       errors.email ? "border-red-300" : focusedField === "email" ? "border-blue-500" : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
                   />
                 </div>
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
 
               {/* Phone */}
-              <div>
+              <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1000">
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                   {t.phone}
                 </label>
@@ -303,7 +364,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Password */}
-              <div>
+              <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1100">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   {t.password}
                 </label>
@@ -326,6 +387,7 @@ const RegistrationPage = () => {
                           ? "border-blue-500"
                           : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
                   />
                   <button
                     type="button"
@@ -344,7 +406,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Confirm Password */}
-              <div>
+              <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1200">
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                   {t.confirmPassword}
                 </label>
@@ -369,6 +431,7 @@ const RegistrationPage = () => {
                           ? "border-blue-500"
                           : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
                   />
                   <button
                     type="button"
@@ -387,7 +450,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Terms and Conditions */}
-              <div className="flex items-start">
+              <div className="flex items-start" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1300">
                 <div className="flex items-center h-5">
                   <input
                     id="agreeToTerms"
@@ -410,7 +473,7 @@ const RegistrationPage = () => {
               {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>}
 
               {/* Submit Button */}
-              <div>
+              <div data-aos="zoom-in"  data-aos-duration="500" data-aos-delay="300">
                 <button
                   type="submit"
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-[1.01]"
@@ -447,7 +510,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Login Link */}
-              <div className="text-center mt-4">
+              <div className="text-center mt-4" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1500">
                 <span className="text-sm text-gray-600">{t.alreadyHaveAccount} </span>
                 <Link
                   href="/pages/authorization/log_in"

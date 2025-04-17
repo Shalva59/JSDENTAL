@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
 import Link from "next/link"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 // კომპონენტის სახელი შევცვალოთ, რომ ემთხვეოდეს ფაილის სახელს
 export default function JCDentalDoctors() {
@@ -11,6 +13,15 @@ export default function JCDentalDoctors() {
   const dentists = useLocalizedDentists()
   const isRTL = direction === "rtl"
   const isHebrew = currentLanguage === "he"
+
+  // AOS ინიციალიზაცია
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    })
+  }, [])
 
   // სტომატოლოგიური სპეციალობები მრავალენოვანი
   const specialties = {
@@ -158,7 +169,7 @@ export default function JCDentalDoctors() {
       workingHoursValue: "Пн-Сб: 09:00 - 19:00",
     },
     he: {
-      title: "JC Dental - ה��ופאים שלנו",
+      title: "JC Dental - הרופאים שלנו",
       subtitle: "הכירו את רופאי השיניים המוסמכים שלנו הדואגים לבריאות וליופי של החיוך שלכם",
       searchPlaceholder: "חיפוש רופא לפי שם או התמחות",
       sectionTitle: "צפייה ב",
@@ -184,12 +195,12 @@ export default function JCDentalDoctors() {
     <div className="jc-dental-page" dir={direction}>
       {/* ზედა ნაწილი */}
       <header className="header">
-        <div className={`header-content ${isRTL ? "" : ""}`}>
+        <div className={`header-content ${isRTL ? "" : ""}`} data-aos="fade-down">
           <h1>{t.title}</h1>
           <p>{t.subtitle}</p>
 
           {/* ექიმების შეყვანა ან პროფესიით  */}
-          <div className={`search-container ${isRTL ? "rtl-search" : ""}`}>
+          <div className={`search-container ${isRTL ? "rtl-search" : ""}`} data-aos="zoom-in" data-aos-delay="200">
             <input
               type="text"
               placeholder={t.searchPlaceholder}
@@ -204,12 +215,12 @@ export default function JCDentalDoctors() {
 
       <main className="main-content">
         {/* ფილტრები */}
-        <div className="filters">
+        <div className="filters" data-aos="fade-up">
           <h2 className={`section-title ${isRTL ? "text-right" : ""}`}>
             {t.sectionTitle} {filteredDentists.length} {t.doctors}
           </h2>
 
-          <div className={`filter-controls ${isRTL ? "rtl-filters" : ""}`}>
+          <div className={`filter-controls ${isRTL ? "rtl-filters" : ""}`} data-aos="fade-up" data-aos-delay="100">
             <div className="filter-group">
               <select
                 value={selectedSpecialty}
@@ -251,16 +262,20 @@ export default function JCDentalDoctors() {
         {/* ექიმების სია */}
         {filteredDentists.length > 0 ? (
           <div className="doctors-grid">
-            {filteredDentists.map((dentist) => (
+            {filteredDentists.map((dentist, index) => (
               <div
                 key={dentist.id}
-                className={`doctor-card ${selectedDentist && selectedDentist.id === dentist.id ? "selected" : ""} ${isRTL ? "rtl-card" : ""
-                  }`}
+                className={`doctor-card ${selectedDentist && selectedDentist.id === dentist.id ? "selected" : ""} ${
+                  isRTL ? "rtl-card" : ""
+                }`}
                 onClick={() => handleDentistClick(dentist)}
                 onMouseEnter={() => setHoveredDentist(dentist.id)}
                 onMouseLeave={() => setHoveredDentist(null)}
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+                data-aos-offset="100"
               >
-                <div className="doctor-image-container">
+                <div className="doctor-image-container" data-aos="zoom-in" data-aos-delay={index * 100}>
                   <img src={dentist.image || "/placeholder.svg"} alt={dentist.name} className="doctor-image" />
 
                   {/* პროფესიის ბეჯი სურათზე */}
@@ -277,8 +292,9 @@ export default function JCDentalDoctors() {
 
                   {/* დამატებითი პროფესიების ჩვენება hover-ზე */}
                   <div
-                    className={`specialties-popup ${hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
-                      } ${isRTL ? "rtl-popup" : ""}`}
+                    className={`specialties-popup ${
+                      hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
+                    } ${isRTL ? "rtl-popup" : ""}`}
                   >
                     {dentist.specialties.slice(1).map((specialty, index) => (
                       <div key={index} className="popup-specialty">
@@ -288,7 +304,11 @@ export default function JCDentalDoctors() {
                   </div>
                 </div>
 
-                <div className={`doctor-info ${isRTL ? "text-right" : ""}`}>
+                <div
+                  className={`doctor-info ${isRTL ? "text-right" : ""}`}
+                  // data-aos="fade-up"
+                  // data-aos-delay={index * 100}
+                >
                   <h3 className="doctor-name">{dentist.name}</h3>
                   <p className="doctor-experience">{dentist.experience}</p>
 
@@ -314,7 +334,7 @@ export default function JCDentalDoctors() {
             ))}
           </div>
         ) : (
-          <div className={`no-results ${isRTL ? "text-right" : ""}`}>
+          <div className={`no-results ${isRTL ? "text-right" : ""}`} data-aos="fade-up">
             <h3>{t.noResults}</h3>
             <p>{t.changeParams}</p>
             <button
@@ -332,25 +352,37 @@ export default function JCDentalDoctors() {
       </main>
 
       {/* საკონტაქტო ინფორმაცია */}
-      <footer className="footer">
+      <footer className="footer" data-aos="fade-up" data-aos-offset="200">
         <div className={`contact-info ${isRTL ? "text-right" : ""}`}>
-          <h2>{t.contactUs}</h2>
+          <h2 data-aos="fade-up">{t.contactUs}</h2>
           <div className={`contact-methods ${isRTL ? "rtl-contact-methods" : ""}`}>
-            <div className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}>
+            <div
+              className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
+              data-aos="zoom-in"
+              data-aos-delay="100"
+            >
               <span className="contact-icon">📞</span>
               <div>
                 <p className="contact-label">{t.phone}</p>
                 <p className="contact-value">+995 32 222 33 44</p>
               </div>
             </div>
-            <div className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}>
+            <div
+              className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
+              data-aos="zoom-in"
+              data-aos-delay="200"
+            >
               <span className="contact-icon">✉️</span>
               <div>
                 <p className="contact-label">{t.email}</p>
                 <p className="contact-value">info@jcdental.ge</p>
               </div>
             </div>
-            <div className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}>
+            <div
+              className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
+              data-aos="zoom-in"
+              data-aos-delay="300"
+            >
               <span className="contact-icon">🕒</span>
               <div>
                 <p className="contact-label">{t.workingHours}</p>

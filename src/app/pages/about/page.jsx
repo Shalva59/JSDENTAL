@@ -3,6 +3,9 @@
 import Link from "next/link"
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
+import { useEffect } from "react"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 export default function AboutPage() {
   const { translations, direction, currentLanguage } = useLanguage()
@@ -18,6 +21,14 @@ export default function AboutPage() {
     text: "#334155", // მუქი ნაცრისფერი ტექსტისთვის
   }
 
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    })
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-700" dir={direction}>
       {/* Hero Section */}
@@ -30,7 +41,10 @@ export default function AboutPage() {
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-sky-900/70 to-sky-700/50 z-10"></div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-20">
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-20"
+          data-aos="zoom-in"
+        >
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             {translations?.about?.title || "ჩვენს შესახებ JCDental"}
           </h1>
@@ -51,7 +65,7 @@ export default function AboutPage() {
       {/* Introduction Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className={isRTL ? "md:order-2" : "md:order-1"}>
+          <div className={isRTL ? "md:order-2" : "md:order-1"} data-aos="zoom-in">
             <h2
               className={`text-3xl font-bold mb-6 ${isRTL ? "text-right" : "text-left"}`}
               style={{ color: colors.primary }}
@@ -68,7 +82,7 @@ export default function AboutPage() {
             </p>
             <div className={isRTL ? "text-right" : "text-left"}>
               <Link
-               href="/pages/booking"
+                href="/pages/booking"
                 className="inline-block px-5 py-3 rounded-md font-medium transition-all duration-300 shadow-md hover:shadow-lg"
                 style={{
                   backgroundColor: colors.primary,
@@ -81,9 +95,10 @@ export default function AboutPage() {
           </div>
           <div
             className={`relative h-[400px] rounded-lg overflow-hidden shadow-xl ${isRTL ? "md:order-1" : "md:order-2"}`}
+            data-aos="zoom-in"
           >
             <img
-              src="https://ana-dent.ro/wp-content/uploads/2018/04/DSC_2418-1024x621.jpg"
+              src="/implantis_ukana_xedi.jpg"
               alt={translations?.about?.receptionImageAlt || "JCDental მიმღები"}
               className="w-full h-full object-cover rounded-lg"
             />
@@ -94,7 +109,7 @@ export default function AboutPage() {
       {/* History & Mission Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8" style={{ backgroundColor: colors.light }}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-aos="zoom-in">
             <h2 className="text-3xl font-bold mb-4" style={{ color: colors.primary }}>
               {translations?.about?.historyMissionTitle || "ჩვენი ისტორია და მისია"}
             </h2>
@@ -102,7 +117,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className={isRTL ? "md:order-2" : "md:order-1"}>
+            <div className={isRTL ? "md:order-2" : "md:order-1"} data-aos="zoom-in">
               <h3
                 className={`text-2xl font-semibold mb-4 ${isRTL ? "text-right" : "text-left"}`}
                 style={{ color: colors.dark }}
@@ -139,9 +154,10 @@ export default function AboutPage() {
             </div>
             <div
               className={`relative h-[500px] rounded-lg overflow-hidden shadow-xl ${isRTL ? "md:order-1" : "md:order-2"}`}
+              data-aos="zoom-in"
             >
               <img
-                src="https://th.bing.com/th/id/OIP.g1oqYGi3VZqJkFihNvcOuAHaE2?w=1747&h=1144&rs=1&pid=ImgDetMain"
+                src="/terapevtis_ukana_xedi.jpg"
                 alt={translations?.about?.historyImageAlt || "JCDental კლინიკის ისტორიის დროის ხაზი"}
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -152,7 +168,7 @@ export default function AboutPage() {
 
       {/* Team Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" data-aos="zoom-in">
           <h2 className="text-3xl font-bold mb-4" style={{ color: colors.primary }}>
             {translations?.about?.teamTitle || "გაიცანით ჩვენი გუნდი"}
           </h2>
@@ -165,7 +181,10 @@ export default function AboutPage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Dentist 1 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+          <div
+            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            data-aos="zoom-in"
+          >
             <div className="relative h-[300px]">
               <img
                 src="https://th.bing.com/th/id/R.c8cea7c2e3c3c8a190a652f3d9b79313?rik=91fbcpNU7DhRow&pid=ImgRaw&r=0"
@@ -188,7 +207,10 @@ export default function AboutPage() {
           </div>
 
           {/* Dentist 2 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+          <div
+            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            data-aos="zoom-in"
+          >
             <div className="relative h-[300px]">
               <img
                 src="https://th.bing.com/th/id/OIP.TXtt652cB_RZ2KZThaujvwHaE8?rs=1&pid=ImgDetMain"
@@ -209,7 +231,10 @@ export default function AboutPage() {
           </div>
 
           {/* Specialist */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+          <div
+            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            data-aos="zoom-in"
+          >
             <div className="relative h-[300px]">
               <img
                 src="https://img.freepik.com/premium-photo/dentist-doctor_873925-919177.jpg"
@@ -234,7 +259,7 @@ export default function AboutPage() {
       {/* Contact Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8" style={{ backgroundColor: colors.light }}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-aos="zoom-in">
             <h2 className="text-3xl font-bold mb-4" style={{ color: colors.primary }}>
               {translations?.contact?.title || "დაგვიკავშირდით"}
             </h2>
@@ -248,7 +273,10 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row gap-12">
             {/* Map - ყოველთვის პირველი RTL-ში, მეორე LTR-ში */}
             <div className={`w-full md:w-1/2 ${isRTL ? "md:order-1" : "md:order-2"}`}>
-              <div className="relative h-[400px] md:h-[500px] w-full rounded-xl overflow-hidden shadow-lg">
+              <div
+                className="relative h-[400px] md:h-[500px] w-full rounded-xl overflow-hidden shadow-lg"
+                data-aos="zoom-in"
+              >
                 {/* Google Maps Embed */}
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.8391205735695!2d44.84022233089427!3d41.68230198865621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440d3db3f527e1%3A0x626d96f8aff559d8!2sJC%20dental!5e0!3m2!1sen!2sge!4v1742504874462!5m2!1sen!2sge"
@@ -274,7 +302,7 @@ export default function AboutPage() {
 
             {/* Contact Info - ყოველთვის მეორე RTL-ში, პირველი LTR-ში */}
             <div className={`w-full md:w-1/2 ${isRTL ? "md:order-2" : "md:order-1"}`}>
-              <div className="bg-white p-8 rounded-xl shadow-lg h-full">
+              <div className="bg-white p-8 rounded-xl shadow-lg h-full" data-aos="zoom-in">
                 <h3
                   className={`text-2xl font-bold mb-6 ${isRTL ? "text-right" : "text-left"}`}
                   style={{ color: colors.dark }}
@@ -283,7 +311,7 @@ export default function AboutPage() {
                 </h3>
                 <div className="space-y-6">
                   {/* ლოკაციის ინფორმაცია */}
-                  <div className="flex justify-between items-start gap-2">
+                  <div className="flex justify-between items-start gap-2" data-aos="zoom-in">
                     <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-5 h-5" style={{ color: colors.primary }} />
                     </div>
@@ -297,7 +325,7 @@ export default function AboutPage() {
                   </div>
 
                   {/* ტელეფონის ინფორმაცია */}
-                  <div className="flex justify-between items-start gap-2">
+                  <div className="flex justify-between items-start gap-2" data-aos="zoom-in">
                     <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
                       <Phone className="w-5 h-5" style={{ color: colors.primary }} />
                     </div>
@@ -308,7 +336,7 @@ export default function AboutPage() {
                   </div>
 
                   {/* ელ-ფოსტის ინფორმაცია */}
-                  <div className="flex justify-between items-start gap-2">
+                  <div className="flex justify-between items-start gap-2" data-aos="zoom-in">
                     <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
                       <Mail className="w-5 h-5" style={{ color: colors.primary }} />
                     </div>
@@ -319,7 +347,7 @@ export default function AboutPage() {
                   </div>
 
                   {/* სამუშაო საათების ინფორმაცია */}
-                  <div className="flex justify-between items-start gap-2">
+                  <div className="flex justify-between items-start gap-2" data-aos="zoom-in">
                     <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
                       <Clock className="w-5 h-5" style={{ color: colors.primary }} />
                     </div>
@@ -337,7 +365,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* სოციალური მედიის ლინკები */}
-                <div className="mt-8 flex justify-between items-center">
+                <div className="mt-8 flex justify-between items-center" data-aos="zoom-in">
                   <div className="flex space-x-4">
                     <Link
                       href="https://www.facebook.com/profile.php?id=61573996716691"

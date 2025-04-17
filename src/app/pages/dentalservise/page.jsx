@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import Link from "next/link"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 // SVG Icons for dental services
 const ToothIcon = (props) => (
@@ -151,6 +153,15 @@ export default function ServicesPage() {
   const isRTL = direction === "rtl"
   const isHebrew = currentLanguage === "he"
 
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 500,
+      once: true,
+      easing: "ease-in-out",
+    })
+  }, [])
+
   // Services data with translations
   const getServicesData = () => {
     // Default Georgian data
@@ -254,7 +265,7 @@ export default function ServicesPage() {
           translations?.services?.pediatricDentistry?.shortDescription || "ბავშვებისთვის განკუთვნილი მკურნალობა",
         fullDescription:
           translations?.services?.pediatricDentistry?.fullDescription ||
-          "ბავშვთა სტომატოლოგია მოიცავს პროფილაქტიკურ ზომებს, კბილების მკურნალობას და ბავშვებში ჯანსაღი პირის ღრუს ჩვევების ჩამოყალიბებას. ჩვენი კლინიკა გთავაზობთ მეგობრულ და კომფორტულ გარემოს ბავშვებისთვის, სადაც ისინი მიიღებენ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას.",
+          "ბავშვთა სტომატოლოგია მოიცავს პროფილაქტ��კურ ზომებს, კბილების მკურნალობას და ბავშვებში ჯანსაღი პირის ღრუს ჩვევების ჩამოყალიბებას. ჩვენი კლინიკა გთავაზობთ მეგობრულ და კომფორტულ გარემოს ბავშვებისთვის, სადაც ისინი მიიღებენ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას.",
         procedures: translations?.services?.pediatricDentistry?.procedures || [
           "პროფილაქტიკური შემოწმება",
           "კბილების დაბჟენა",
@@ -332,7 +343,7 @@ export default function ServicesPage() {
         {/* Hero Section */}
         <div className="bg-[#0088a9] text-white py-16">
           <div className="container mx-auto px-4">
-            <div className={`flex items-center mb-6 ${isRTL ? "flex-row gap-3" : ""}`}>
+            <div className={`flex items-center mb-6 ${isRTL ? "flex-row gap-3" : ""}`} data-aos="zoom-in">
               <button
                 onClick={backToServices}
                 className={`bg-white text-[#0088a9] p-2 rounded-full ${isRTL ? "ml-4" : "mr-4"} hover:bg-gray-100 transition-colors`}
@@ -341,16 +352,18 @@ export default function ServicesPage() {
               </button>
               <h1 className="text-3xl md:text-4xl font-bold">{selectedService.title}</h1>
             </div>
-            <p className={`max-w-2xl ${isRTL ? "text-right " : ""}`}>{selectedService.shortDescription}</p>
+            <p className={`max-w-2xl ${isRTL ? "text-right " : ""}`} data-aos="zoom-in">
+              {selectedService.shortDescription}
+            </p>
           </div>
         </div>
 
         {/* Service Detail Content */}
         <div className="container mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="zoom-in">
             <div className="p-8">
               <div className={`flex flex-col md:flex-row gap-8 ${isRTL ? "md:flex-row-reverse" : ""}`}>
-                <div className="md:w-2/3">
+                <div className="md:w-2/3" data-aos="zoom-in">
                   <h2 className={`text-2xl font-bold text-gray-800 mb-6 ${isRTL ? "text-right" : ""}`}>
                     {translations?.services?.serviceDescription || "სერვისის აღწერა"}
                   </h2>
@@ -363,13 +376,13 @@ export default function ServicesPage() {
                   </h2>
                   <ul className={`${isRTL ? "pr-5 text-right" : "pl-5"} list-disc mb-8 space-y-3`}>
                     {selectedService.procedures.map((procedure, index) => (
-                      <li key={index} className="text-gray-600">
+                      <li key={index} className="text-gray-600" data-aos="zoom-in" data-aos-delay={index * 100}>
                         {procedure}
                       </li>
                     ))}
                   </ul>
 
-                  <div className={isRTL ? "text-right" : ""}>
+                  <div className={isRTL ? "text-right" : ""} data-aos="zoom-in">
                     <Link
                       href="/pages/booking"
                       className="inline-block bg-[#0088a9] text-white px-6 py-3 rounded-md hover:bg-[#006680] transition-colors"
@@ -379,7 +392,7 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                <div className="md:w-1/3 bg-[#e6f7fa] p-6 rounded-lg">
+                <div className="md:w-1/3 bg-[#e6f7fa] p-6 rounded-lg" data-aos="zoom-in">
                   <div className="flex justify-center mb-6">
                     <div className="bg-white p-4 rounded-full">
                       <div className="text-[#0088a9]">
@@ -392,7 +405,11 @@ export default function ServicesPage() {
                     {translations?.services?.whyChooseUs || "რატომ JC Dental?"}
                   </h3>
                   <ul className="space-y-3">
-                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
+                    <li
+                      className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="100"
+                    >
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -402,7 +419,11 @@ export default function ServicesPage() {
                         {translations?.services?.benefits?.modernEquipment || "თანამედროვე აღჭურვილობა და ტექნოლოგიები"}
                       </span>
                     </li>
-                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
+                    <li
+                      className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="200"
+                    >
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -412,7 +433,11 @@ export default function ServicesPage() {
                         {translations?.services?.benefits?.experiencedDoctors || "გამოცდილი და მზრუნველი სტომატოლოგები"}
                       </span>
                     </li>
-                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
+                    <li
+                      className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="300"
+                    >
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -422,7 +447,11 @@ export default function ServicesPage() {
                         {translations?.services?.benefits?.comfortableEnvironment || "კომფორტული და მშვიდი გარემო"}
                       </span>
                     </li>
-                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
+                    <li
+                      className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="400"
+                    >
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -432,7 +461,11 @@ export default function ServicesPage() {
                         {translations?.services?.benefits?.individualTreatment || "ინდივიდუალური მკურნალობის გეგმები"}
                       </span>
                     </li>
-                    <li className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}>
+                    <li
+                      className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="500"
+                    >
                       <div className="bg-[#0088a9] rounded-full p-1 mt-0.5 flex-shrink-0">
                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -451,7 +484,7 @@ export default function ServicesPage() {
 
           {/* Related Services */}
           <div className="mt-16">
-            <h2 className={`text-2xl font-bold text-gray-800 mb-8 ${isRTL ? "text-right" : ""}`}>
+            <h2 className={`text-2xl font-bold text-gray-800 mb-8 ${isRTL ? "text-right" : ""}`} data-aos="zoom-in">
               {translations?.services?.otherServices || "სხვა სერვისები"}
             </h2>
 
@@ -459,11 +492,13 @@ export default function ServicesPage() {
               {Object.entries(servicesData)
                 .filter(([slug, service]) => service.id !== selectedService.id)
                 .slice(0, 3)
-                .map(([slug, service]) => (
+                .map(([slug, service], index) => (
                   <div
                     key={service.id}
                     className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => showServiceDetails(slug)}
+                    data-aos="zoom-in"
+                    data-aos-delay={index * 100}
                   >
                     <div className="p-6 border-b border-gray-100">
                       <div className={`flex items-center ${isHebrew ? "flex-row" : ""}`}>
@@ -503,7 +538,7 @@ export default function ServicesPage() {
     <div className="min-h-screen bg-white" dir={direction}>
       {/* Hero Section */}
       <div className="bg-[#0088a9] text-white py-16">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 text-center" data-aos="zoom-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             {translations?.services?.pageTitle || "JC Dental - ჩვენი სერვისები"}
           </h1>
@@ -527,7 +562,7 @@ export default function ServicesPage() {
 
       {/* Services Section */}
       <div className="container mx-auto px-4 py-16">
-        <div className={`flex flex-wrap gap-4 mb-8 ${isRTL ? "flex-row-reverse" : ""}`}>
+        <div className={`flex flex-wrap gap-4 mb-8 ${isRTL ? "flex-row-reverse" : ""}`} data-aos="zoom-in">
           <div className="w-full md:w-64">
             <select
               className="w-full p-2 border border-gray-300 rounded"
@@ -559,11 +594,13 @@ export default function ServicesPage() {
 
         {filteredServices.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 services-grid">
-            {filteredServices.map(([slug, service]) => (
+            {filteredServices.map(([slug, service], index) => (
               <div
                 key={service.id}
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                 onClick={() => showServiceDetails(slug)}
+                data-aos="zoom-in"
+                data-aos-delay={index * 100}
               >
                 {/* Service Card Header */}
                 <div className="p-6 border-b border-gray-100">
@@ -604,7 +641,7 @@ export default function ServicesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
+          <div className="text-center py-12" data-aos="zoom-in">
             <p className="text-gray-600 mb-4">
               {translations?.services?.noResultsMessage || "სამწუხაროდ, თქვენი ძიების შედეგად სერვისები ვერ მოიძებნა."}
             </p>

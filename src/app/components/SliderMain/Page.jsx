@@ -57,6 +57,7 @@ export default function DentalSlider() {
       buttonText: translations?.slider?.meetDoctors || "გაიცანით ჩვენი ექიმები",
       buttonUrl: "/doctors",
     },
+    
     {
       id: 3,
       image: "/implantis_skamis_ukana_xedi.jpeg",
