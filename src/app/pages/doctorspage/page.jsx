@@ -203,7 +203,7 @@ export default function DoctorsPage() {
 
         /* ზედა ნაწილი */
         .header {
-          background-color: #1e40af; /* ლურჯი ფერი */
+          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი - უფრო რბილი */
           color: white;
           padding: 3rem 1rem;
           text-align: center;
@@ -339,7 +339,7 @@ export default function DoctorsPage() {
         }
 
         .doctor-card.selected {
-          border: 2px solid #1e40af; /* ლურჯი ფერი */
+          border: 2px solid #2563a0; /* შეცვლილი ლურჯი ფერი */
         }
 
         .doctor-image-container {
@@ -368,7 +368,7 @@ export default function DoctorsPage() {
         }
 
         .primary-specialty {
-          background-color: #1e40af; /* ლურჯი ფერი */
+          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი */
           color: white;
           padding: 0.4rem 0.8rem;
           border-radius: 20px;
@@ -385,19 +385,22 @@ export default function DoctorsPage() {
         }
 
         .badge-active {
-          background-color: #1e3a8a; /* უფრო მუქი ლურჯი */
+          background-color: #1a4971; /* უფრო მუქი ლურჯი */
         }
 
+        /* შეცვლილი ნოტიფიკაციის ბეჯი */
         .additional-count {
           margin-left: 5px;
           background-color: rgba(255, 255, 255, 0.3);
           border-radius: 50%;
-          width: 20px;
-          height: 20px;
+          width: 22px;
+          height: 22px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           font-size: 0.8rem;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         /* Add this for RTL additional count */
@@ -453,7 +456,7 @@ export default function DoctorsPage() {
         .doctor-name {
           font-size: 1.4rem;
           margin-bottom: 0.5rem;
-          color: #1e40af; /* ლურჯი ფერი */
+          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
         }
 
         .doctor-experience {
@@ -510,7 +513,7 @@ export default function DoctorsPage() {
         /* ჯავშნის ღილაკი */
         .appointment-button {
           display: inline-block;
-          background-color: #1e40af; /* ლურჯი ფერი */
+          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი */
           color: white;
           padding: 0.8rem 1.5rem;
           border-radius: 50px;
@@ -521,7 +524,7 @@ export default function DoctorsPage() {
         }
 
         .appointment-button:hover {
-          background-color: #1e3a8a; /* უფრო მუქი ლურჯი */
+          background-color: #1a4971; /* უფრო მუქი ლურჯი */
         }
 
         /* შედეგების არარსებობა */
@@ -556,7 +559,7 @@ export default function DoctorsPage() {
           font-size: 1.8rem;
           margin-bottom: 2rem;
           text-align: center;
-          color: #1e40af; /* ლურჯი ფერი */
+          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
         }
 
         .contact-methods {
@@ -574,7 +577,7 @@ export default function DoctorsPage() {
 
         .contact-icon {
           font-size: 1.8rem;
-          color: #1e40af; /* ლურჯი ფერი */
+          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
         }
 
         .contact-label {

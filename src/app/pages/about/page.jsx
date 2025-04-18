@@ -3,13 +3,15 @@
 import Link from "next/link"
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import AOS from "aos"
 import "aos/dist/aos.css"
 
 export default function AboutPage() {
   const { translations, direction, currentLanguage } = useLanguage()
   const isRTL = direction === "rtl"
+  const contactInfoRef = useRef(null)
+  const [infoHeight, setInfoHeight] = useState("100%")
 
   // თანმიმდევრული ფერების სქემა
   const colors = {
@@ -27,6 +29,27 @@ export default function AboutPage() {
       once: true,
       easing: "ease-in-out",
     })
+  }, [])
+
+  // მივიღოთ საკონტაქტო ინფორმაციის სიმაღლე და გამოვიყენოთ რუკისთვის
+  useEffect(() => {
+    if (contactInfoRef.current) {
+      const updateHeight = () => {
+        const height = contactInfoRef.current.offsetHeight
+        setInfoHeight(`${height}px`)
+      }
+
+      // Initial measurement
+      updateHeight()
+
+      // Update on resize
+      window.addEventListener("resize", updateHeight)
+
+      // Cleanup
+      return () => {
+        window.removeEventListener("resize", updateHeight)
+      }
+    }
   }, [])
 
   return (
@@ -271,38 +294,9 @@ export default function AboutPage() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-12">
-            {/* Map - ყოველთვის პირველი RTL-ში, მეორე LTR-ში */}
-            <div className={`w-full md:w-1/2 ${isRTL ? "md:order-1" : "md:order-2"}`}>
-              <div
-                className="relative h-[400px] md:h-[500px] w-full rounded-xl overflow-hidden shadow-lg"
-                data-aos="zoom-in"
-              >
-                {/* Google Maps Embed */}
-                <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2979.782509610962!2d44.83933513673063!3d41.68204031731445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440d3db3f527e1%3A0x626d96f8aff559d8!2sJC%20dental!5e0!3m2!1sen!2sge!4v1744913309256!5m2!1sen!2sge"
-                  className="absolute inset-0 w-full h-full border-0"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-
-                {/* Overlay ღილაკი */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <Link
-                    href="https://www.google.com/maps/dir/?api=1&destination=41.68230198865621,44.84022233089427"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-md shadow-lg hover:bg-blue-50 transition-colors"
-                  >
-                    📍 {translations?.contact?.getDirections || "მიიღეთ მიმართულებები"}
-                  </Link>
-                </div>
-              </div>
-            </div>
-
             {/* Contact Info - ყოველთვის მეორე RTL-ში, პირველი LTR-ში */}
             <div className={`w-full md:w-1/2 ${isRTL ? "md:order-2" : "md:order-1"}`}>
-              <div className="bg-white p-8 rounded-xl shadow-lg h-full" data-aos="zoom-in">
+              <div ref={contactInfoRef} className="bg-white p-8 rounded-xl shadow-lg h-full" data-aos="zoom-in">
                 <h3
                   className={`text-2xl font-bold mb-6 ${isRTL ? "text-right" : "text-left"}`}
                   style={{ color: colors.dark }}
@@ -331,7 +325,7 @@ export default function AboutPage() {
                     </div>
                     <div className={`${isRTL ? "text-right" : "text-left"} flex-grow ${isRTL ? "pl-6" : "pr-6"}`}>
                       <h4 className="font-semibold mb-1">{translations?.contact?.phone || "ტელეფონი"}</h4>
-                      <p>+995 500 50 20 62</p>
+                      <p dir="ltr">+995 500 50 20 62</p>
                     </div>
                   </div>
 
@@ -395,6 +389,38 @@ export default function AboutPage() {
                   <div className={`${isRTL ? "text-right" : "text-left"}`}>
                     <h4 className="font-semibold">{translations?.contact?.followUs || "გამოგვყევით"}</h4>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Map - ყოველთვის პირველი RTL-ში, მეორე LTR-ში */}
+            <div className={`w-full md:w-1/2 ${isRTL ? "md:order-1" : "md:order-2"}`}>
+              <div
+                className="relative w-full rounded-xl overflow-hidden shadow-lg"
+                data-aos="zoom-in"
+                style={{ height: infoHeight }}
+              >
+                {/* Google Maps Embed */}
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2979.7482331732344!2d44.842029075397165!3d41.68189427127412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440d3db3f527e1%3A0x626d96f8aff559d8!2sJC%20Dental!5e0!3m2!1ska!2sge!4v1713314084985!5m2!1ska!2sge"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+
+                {/* Overlay ღილაკი */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Link
+                    href="https://www.google.com/maps/dir/?api=1&destination=JC+Dental,+Tbilisi,+Georgia"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-md shadow-lg hover:bg-blue-50 transition-colors"
+                  >
+                    📍 {translations?.contact?.getDirections || "მიიღეთ მიმართულებები"}
+                  </Link>
                 </div>
               </div>
             </div>

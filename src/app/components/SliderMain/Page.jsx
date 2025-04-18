@@ -44,7 +44,7 @@ export default function DentalSlider() {
         translations?.slider?.slide1Description ||
         "გთავაზობთ მაღალი ხარისხის სტომატოლოგიურ მომსახურებას თანამედროვე აღჭურვილობით",
       buttonText: translations?.slider?.bookNow || "დაჯავშნეთ ვიზიტი",
-      buttonUrl: "/appointment",
+      buttonUrl: "/pages/booking",
     },
     {
       id: 2,
@@ -55,9 +55,9 @@ export default function DentalSlider() {
         translations?.slider?.slide2Description ||
         "ჩვენი ექიმები გამოირჩევიან მრავალწლიანი გამოცდილებით და უახლესი მეთოდების ცოდნით",
       buttonText: translations?.slider?.meetDoctors || "გაიცანით ჩვენი ექიმები",
-      buttonUrl: "/doctors",
+      buttonUrl: "/pages/doctorspage",
     },
-    
+
     {
       id: 3,
       image: "/implantis_skamis_ukana_xedi.jpeg",
@@ -67,7 +67,7 @@ export default function DentalSlider() {
         translations?.slider?.slide3Description ||
         "ჩვენი კლინიკა შექმნილია თქვენი კომფორტისთვის, რათა ვიზიტი იყოს სასიამოვნო და უსაფრთხო",
       buttonText: translations?.slider?.contactUs || "დაგვიკავშირდით",
-      buttonUrl: "/contact",
+      buttonUrl: "/pages/contact",
     },
   ]
 
@@ -108,21 +108,36 @@ export default function DentalSlider() {
   const handleSwiperInit = (swiper) => {
     setSwiperInstance(swiper)
 
-    // Set direction
-    swiper.changeLanguageDirection(direction)
+    // Set RTL direction properly
+    if (direction === "rtl") {
+      swiper.rtlTranslate = true
+    } else {
+      swiper.rtlTranslate = false
+    }
+
     swiper.update()
 
     // Make sure autoplay is running
     swiper.autoplay.start()
-
-    console.log("Swiper initialized with autoplay:", swiper.autoplay.running)
   }
 
   // Update direction when language changes
   useEffect(() => {
     if (swiperInstance) {
-      swiperInstance.changeLanguageDirection(direction)
+      // Properly handle RTL direction
+      if (direction === "rtl") {
+        swiperInstance.rtlTranslate = true
+      } else {
+        swiperInstance.rtlTranslate = false
+      }
+
       swiperInstance.update()
+
+      // Force re-render of pagination and navigation
+      setTimeout(() => {
+        swiperInstance.pagination.update()
+        swiperInstance.navigation.update()
+      }, 100)
     }
   }, [direction, currentLanguage, swiperInstance])
 
@@ -130,7 +145,6 @@ export default function DentalSlider() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (swiperInstance && !swiperInstance.autoplay.running) {
-        console.log("Forcing autoplay restart")
         swiperInstance.autoplay.start()
       }
     }, 10000)
@@ -233,7 +247,7 @@ export default function DentalSlider() {
                               {direction === "rtl" ? (
                                 <span className="relative z-10 flex items-center">
                                   <svg
-                                    className="mr-2 h-4 w-4 rotate-180 transition-transform duration-300 group-hover:translate-x-1"
+                                    className="mr-2 h-4 w-4 rotate-180 transition-transform duration-300 group-hover:-translate-x-1"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -276,9 +290,13 @@ export default function DentalSlider() {
             </SwiperSlide>
           ))}
 
-          {/* Standard Swiper navigation buttons */}
-          <div className="swiper-button-prev !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full !left-4"></div>
-          <div className="swiper-button-next !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full !right-4"></div>
+          {/* Custom navigation buttons with RTL support */}
+          <div
+            className={`swiper-button-prev !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full ${direction === "rtl" ? "!right-4 !left-auto" : "!left-4"}`}
+          ></div>
+          <div
+            className={`swiper-button-next !text-white !w-[50px] !h-[50px] !bg-black/30 !rounded-full ${direction === "rtl" ? "!left-4 !right-auto" : "!right-4"}`}
+          ></div>
 
           {/* Standard Swiper pagination */}
           <div className="swiper-pagination !bottom-4"></div>
@@ -304,7 +322,7 @@ export default function DentalSlider() {
             className="rounded-lg bg-gray-50 p-4 md:p-6 hover:shadow-md transition-all duration-300"
             data-aos="zoom-in"
           >
-            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "" : ""}`}>
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
               >
@@ -314,15 +332,17 @@ export default function DentalSlider() {
                 {translations?.slider?.quickAppointment || "სწრაფი ჯავშანი"}
               </h3>
             </div>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className={`mb-4 text-sm text-gray-600 ${direction === "rtl" ? "text-right" : ""}`}>
               {translations?.slider?.quickAppointmentText || "დაჯავშნეთ ვიზიტი სწრაფად და მარტივად"}
             </p>
-            <Link
-              href="/appointment"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-700"
-            >
-              {translations?.slider?.bookNow || "დაჯავშნეთ ახლავე"}
-            </Link>
+            <div className={`${direction === "rtl" ? "text-right" : ""}`}>
+              <Link
+                href="/pages/booking"
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-700"
+              >
+                {translations?.slider?.bookNow || "დაჯავშნეთ ახლავე"}
+              </Link>
+            </div>
           </div>
 
           {/* Working hours card */}
@@ -331,9 +351,10 @@ export default function DentalSlider() {
             data-aos="zoom-in"
             data-aos-delay="100"
           >
-            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "" : ""}`}>
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"
+                  }`}
               >
                 <Clock className="h-5 w-5 text-blue-700" />
               </div>
@@ -341,18 +362,19 @@ export default function DentalSlider() {
                 {translations?.slider?.workingHours || "სამუშაო საათები"}
               </h3>
             </div>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex justify-between">
+            <ul className={`space-y-2 text-sm text-gray-600 ${direction === "rtl" ? "" : ""}`}>
+              <li className="flex justify-between items-center">
                 <span>{translations?.slider?.mondayFriday || "ორშაბათი-პარასკევი"}</span>
-                <span className="font-medium">9:00 - 19:00</span>
+                <span dir="ltr" className="font-medium text-gray-700">11:00 - 20:00</span>
               </li>
-              <li className="flex justify-between">
+              <li className="flex justify-between items-center">
                 <span>{translations?.slider?.saturday || "შაბათი"}</span>
-                <span className="font-medium">10:00 - 16:00</span>
+                {/* <span dir="ltr" className="font-medium text-gray-700">10:00 - 16:00</span> */}
+                <span className="font-medium text-gray-700">{translations?.slider?.closed || "დახურულია"}</span>
               </li>
-              <li className="flex justify-between">
+              <li className="flex justify-between items-center">
                 <span>{translations?.slider?.sunday || "კვირა"}</span>
-                <span className="font-medium">{translations?.slider?.closed || "დახურულია"}</span>
+                <span dir="ltr" className="font-medium text-gray-700">11:00 - 20:00</span>
               </li>
             </ul>
           </div>
@@ -363,7 +385,7 @@ export default function DentalSlider() {
             data-aos="zoom-in"
             data-aos-delay="200"
           >
-            <div className={`mb-4 flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+            <div className={`mb-4 flex items-center ${direction === "rtl" ? "" : ""}`}>
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"}`}
               >
@@ -373,12 +395,14 @@ export default function DentalSlider() {
                 {translations?.slider?.contactInfo || "საკონტაქტო ინფორმაცია"}
               </h3>
             </div>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+            <ul className={`space-y-2 text-sm text-gray-600 ${direction === "rtl" ? "text-right" : ""}`}>
+              <li className={`flex items-center ${direction === "rtl" ? "" : ""}`}>
                 <Phone className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`} />
-                <span>+995 555 12 34 56</span>
+                <span dir="ltr" className="font-medium text-gray-700">
+                  +995 500 50 20 62
+                </span>
               </li>
-              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+              <li className={`flex items-center ${direction === "rtl" ? "" : ""}`}>
                 <svg
                   className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`}
                   fill="none"
@@ -392,9 +416,9 @@ export default function DentalSlider() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span>info@jcdental.ge</span>
+                <span>jcdental07@gmail.com</span>
               </li>
-              <li className={`flex items-center ${direction === "rtl" ? "flex-row-reverse" : ""}`}>
+              <li className={`flex items-center ${direction === "rtl" ? "" : ""}`}>
                 <svg
                   className={`h-4 w-4 text-blue-700 ${direction === "rtl" ? "ml-2" : "mr-2"}`}
                   fill="none"
@@ -452,6 +476,19 @@ export default function DentalSlider() {
         .swiper-button-prev:hover,
         .swiper-button-next:hover {
           background: rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* RTL specific fixes */
+        html[dir="rtl"] .swiper-wrapper {
+          direction: rtl;
+        }
+        
+        html[dir="rtl"] .swiper-button-prev:after {
+          content: 'next';
+        }
+        
+        html[dir="rtl"] .swiper-button-next:after {
+          content: 'prev';
         }
         
         /* Hide navigation buttons on mobile */
