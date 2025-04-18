@@ -72,11 +72,21 @@ export default function DoctorsPage() {
 
   // სამუშაო დღეები მრავალენოვანი
   const workDays = {
-    ka: ["ყველა დღე", "ორშაბათი", "სამშაბათი", "ოთხშაბათი", "ხუთშაბათი", "პარასკევი", "შაბათი"],
-    en: ["All Days", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    ru: ["Все дни", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
-    he: ["כל הימים", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת"],
+    ka: ["ყველა დღე", "ორშაბათი", "სამშაბათი", "ოთხშაბათი", "ხუთშაბათი", "პარასკევი", "შაბათი", "კვირა"],
+    en: ["All Days", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    ru: ["Все дни", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
+    he: ["כל הימים", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת", "יום ראשון"],
   }
+
+  function reverseTime(str) {
+    const parts = str.split(":")
+    if (parts.length < 2) return str
+    const label = parts[0]
+    const time = parts.slice(1).join(":").trim()
+    const reversedTime = time.split("-").map(s => s.trim()).reverse().join(" - ")
+    return `${reversedTime} :${label}`
+  }
+
 
   // მიმდინარე ენის სპეციალობები და სამუშაო დღეები
   const currentSpecialties = specialties[currentLanguage] || specialties.ka
@@ -85,7 +95,6 @@ export default function DoctorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSpecialty, setSelectedSpecialty] = useState(currentSpecialties[0])
   const [selectedDay, setSelectedDay] = useState(currentWorkDays[0])
-  const [selectedDentist, setSelectedDentist] = useState(null)
   const [hoveredDentist, setHoveredDentist] = useState(null)
 
   // ექიმების ფილტრაცია - გათვალისწინებულია რამდენიმე სპეციალობა
@@ -103,11 +112,6 @@ export default function DoctorsPage() {
 
     return matchesSearch && matchesSpecialty && matchesDay
   })
-
-  // ექიმის დეტალების ჩვენება
-  const handleDentistClick = (dentist) => {
-    setSelectedDentist(selectedDentist && selectedDentist.id === dentist.id ? null : dentist)
-  }
 
   // ტექსტები სხვადასხვა ენაზე
   const texts = {
@@ -190,16 +194,49 @@ export default function DoctorsPage() {
   // მიმდინარე ენის ტექსტები
   const t = texts[currentLanguage] || texts.ka
 
+  // Fix scrolling issues without affecting the design
+  useEffect(() => {
+    // Simple fix to prevent scrollbar issues
+    const fixScrolling = () => {
+      // Remove any overflow hidden that might be causing issues
+      document.documentElement.style.overflow = "auto"
+      document.body.style.overflow = "auto"
+      document.documentElement.style.height = "auto"
+      document.body.style.height = "auto"
+    }
+
+    // Apply fix on mount
+    fixScrolling()
+
+    // Also apply on resize
+    window.addEventListener("resize", fixScrolling)
+
+    return () => {
+      window.removeEventListener("resize", fixScrolling)
+    }
+  }, [])
+
   return (
-    <>
-      <style jsx>{`
+    <div className="bg-white" dir={direction}>
+      <style jsx global>{`
+        /* Fix scrolling issues without affecting the design */
+        html, body {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          height: auto !important;
+          position: static !important;
+          margin: 0;
+          padding: 0;
+        }
+        
         /* ძირითადი სტილები - მხოლოდ ღია რეჟიმი */
         .jc-dental-page {
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
           color: #333;
-          max-width: 100%;
-          overflow-x: hidden;
+          width: 100%;
           background-color: #ffffff;
+          position: static;
+          height: auto;
         }
 
         /* ზედა ნაწილი */
@@ -208,6 +245,7 @@ export default function DoctorsPage() {
           color: white;
           padding: 3rem 1rem;
           text-align: center;
+          width: 100%;
         }
 
         .header-content {
@@ -270,6 +308,8 @@ export default function DoctorsPage() {
           margin: 0 auto;
           padding: 2rem 1rem;
           background-color: #ffffff;
+          position: static;
+          height: auto;
         }
 
         /* ფილტრები */
@@ -331,15 +371,17 @@ export default function DoctorsPage() {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 2rem;
+          position: static;
         }
 
         .doctor-card {
           background-color: white;
           border-radius: 12px;
-          overflow: hidden;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
           cursor: pointer;
+          position: static;
+          height: auto;
         }
 
         .doctor-card:hover {
@@ -354,7 +396,6 @@ export default function DoctorsPage() {
         .doctor-image-container {
           position: relative;
           height: 250px;
-          overflow: hidden;
         }
 
         .doctor-image {
@@ -362,6 +403,8 @@ export default function DoctorsPage() {
           height: 100%;
           object-fit: cover;
           transition: transform 0.5s ease;
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
         }
 
         .doctor-card:hover .doctor-image {
@@ -562,6 +605,7 @@ export default function DoctorsPage() {
         .footer {
           background-color: #f5f5f5;
           padding: 3rem 1rem;
+          width: 100%;
         }
 
         .contact-info {
@@ -643,99 +687,117 @@ export default function DoctorsPage() {
         .text-right {
           text-align: right;
         }
+        
+        /* Teal gradient background for header */
+        .teal-gradient-bg {
+          background: linear-gradient(135deg, #0e7490 0%, #0369a1 100%);
+          color: white;
+          padding: 3rem 0;
+          text-align: center;
+        }
       `}</style>
 
-      <div className="jc-dental-page" dir={direction}>
-        {/* ზედა ნაწილი */}
-        <header className="header">
-          <div className={`header-content ${isRTL ? "" : ""}`} data-aos="fade-down">
-            <h1>{t.title}</h1>
-            <p>{t.subtitle}</p>
+      <div className="jc-dental-page">
+        {/* Header section with teal gradient background */}
+        <div className="teal-gradient-bg">
+          <div className="container mx-auto px-4">
+            <h1 className="text-4xl font-bold text-white mb-4">JC Dental - ჩვენი ექიმები</h1>
+            <p className="text-lg text-white mb-8 max-w-3xl mx-auto">
+              გაიცანით ჩვენი მაღალკვალიფიციური სტომატოლოგები, რომლებიც ზრუნავენ თქვენი ღიმილის ჯანმრთელობასა და
+              სილამაზეზე
+            </p>
 
-            {/* ექიმების შეყვანა ან პროფესიით  */}
-            <div className={`search-container ${isRTL ? "rtl-search" : ""}`} data-aos="zoom-in" data-aos-delay="200">
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-              />
-              <span className="search-icon">🔍</span>
+            {/* Search bar - centered with shadow */}
+            <div className="flex justify-center mb-4">
+              <div className="relative w-full max-w-xl">
+                <input
+                  type="text"
+                  placeholder="მოძებნეთ ექიმი სახელით ან სპეციალობით"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full py-3 px-12 rounded-full border-0 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-500">
+                  <span className="text-xl">🔍</span>
+                </div>
+              </div>
             </div>
           </div>
-        </header>
+        </div>
 
-        <main className="main-content">
-          {/* ფილტრები */}
-          <div className="filters" data-aos="fade-up">
-            <h2 className={`section-title ${isRTL ? "text-right" : ""}`}>
-              {t.sectionTitle} {filteredDentists.length} {t.doctors}
-            </h2>
+        {/* Main content */}
+        <div className="container mx-auto px-4 py-8">
+          {/* "See 4 doctors" title */}
+          <h2 className="text-2xl font-bold text-[#2563a0] mb-6">ნახეთ {filteredDentists.length} ექიმი</h2>
 
-            <div className={`filter-controls ${isRTL ? "rtl-filters" : ""}`} data-aos="fade-up" data-aos-delay="100">
-              <div className="filter-group">
-                <select
-                  value={selectedSpecialty}
-                  onChange={(e) => setSelectedSpecialty(e.target.value)}
-                  className="filter-select"
-                >
-                  {currentSpecialties.map((specialty) => (
-                    <option key={specialty} value={specialty}>
-                      {specialty}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          {/* Filter controls with reduced width */}
+          <div className="flex gap-4 mb-8 justify-start">
+            <div className="w-[220px]">
+              <select
+                value={selectedSpecialty}
+                onChange={(e) => setSelectedSpecialty(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {currentSpecialties.map((specialty) => (
+                  <option key={specialty} value={specialty}>
+                    {specialty}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="filter-group">
-                <select value={selectedDay} onChange={(e) => setSelectedDay(e.target.value)} className="filter-select">
-                  {currentWorkDays.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="w-[220px]">
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {currentWorkDays.map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            <div className="w-[220px]">
               <button
-                className="reset-button"
                 onClick={() => {
                   setSearchQuery("")
                   setSelectedSpecialty(currentSpecialties[0])
                   setSelectedDay(currentWorkDays[0])
-                  setSelectedDentist(null)
                 }}
+                className="w-full p-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md transition-colors"
               >
                 {t.clearFilters}
               </button>
             </div>
           </div>
 
-          {/* ექიმების სია */}
+          {/* Doctors grid */}
           {filteredDentists.length > 0 ? (
-            <div className="doctors-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredDentists.map((dentist, index) => (
                 <div
                   key={dentist.id}
-                  className={`doctor-card ${selectedDentist && selectedDentist.id === dentist.id ? "selected" : ""} ${
-                    isRTL ? "rtl-card" : ""
-                  }`}
-                  onClick={() => handleDentistClick(dentist)}
+                  className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 ${isRTL ? "rtl-card" : ""} flex flex-col h-full`}
                   onMouseEnter={() => setHoveredDentist(dentist.id)}
                   onMouseLeave={() => setHoveredDentist(null)}
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
-                  offset="100"
                 >
-                  <div className="doctor-image-container" data-aos="zoom-in" data-aos-delay={index * 100}>
-                    <img src={dentist.image || "/placeholder.svg"} alt={dentist.name} className="doctor-image" />
+                  <div className="relative h-64">
+                    <img
+                      src={dentist.image || "/placeholder.svg"}
+                      alt={dentist.name}
+                      className="w-full h-full object-cover"
+                    />
 
-                    {/* პროფესიის ბეჯი სურათზე */}
+                    {/* Specialty badge */}
                     <div className="specialty-badge-container">
                       {dentist.specialties.length > 0 && (
-                        <div className={`primary-specialty ${hoveredDentist === dentist.id ? "badge-active" : ""}`}>
-                          {dentist.specialties[0]}
+                        <div
+                          className={`primary-specialty flex items-center gap-2 ${hoveredDentist === dentist.id ? "badge-active" : ""}`}
+                        >
+                          <span>{dentist.specialties[0]}</span>
                           {dentist.specialties.length > 1 && (
                             <span className="additional-count">+{dentist.specialties.length - 1}</span>
                           )}
@@ -743,11 +805,10 @@ export default function DoctorsPage() {
                       )}
                     </div>
 
-                    {/* დამატებითი პროფესიების ჩვენება hover-ზე */}
+                    {/* Additional specialties on hover */}
                     <div
-                      className={`specialties-popup ${
-                        hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
-                      } ${isRTL ? "rtl-popup" : ""}`}
+                      className={`specialties-popup ${hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
+                        } ${isRTL ? "rtl-popup" : ""}`}
                     >
                       {dentist.specialties.slice(1).map((specialty, index) => (
                         <div key={index} className="popup-specialty">
@@ -757,41 +818,46 @@ export default function DoctorsPage() {
                     </div>
                   </div>
 
-                  <div className={`doctor-info ${isRTL ? "text-right" : ""}`}>
-                    <h3 className="doctor-name">{dentist.name}</h3>
-                    <p className="doctor-experience">{dentist.experience}</p>
+                  <div className={`p-5 ${isRTL ? "text-right" : ""} flex-grow flex flex-col`}>
+                    <h3 className="text-xl font-semibold text-[#2563a0] mb-2">{dentist.name}</h3>
+                    <p className="text-gray-600 mb-4">{dentist.experience}</p>
 
-                    <div className="doctor-schedule">
-                      <h4>{t.workingDays}</h4>
-                      <div className={`working-days ${isRTL ? "rtl-working-days" : ""}`}>
+                    <div className="mb-4">
+                      <h4 className="font-medium text-gray-700 mb-2">{t.workingDays}</h4>
+                      <div className={`flex flex-wrap gap-2 mb-2 ${isRTL ? "" : ""}`}>
                         {dentist.workingDays.map((day) => (
-                          <span key={day} className="working-day">
+                          <span key={day} className="bg-gray-100 px-2 py-1 rounded text-sm">
                             {day}
                           </span>
                         ))}
                       </div>
-                      <p className={`working-hours ${isRTL ? "rtl-working-hours" : ""}`}>
-                        <span className="clock-icon">🕒</span> {dentist.workingHours}
-                      </p>
+                      {/* <p
+                        className={`text-sm text-gray-600 flex items-center ${isRTL ? "flex justify-end" : ""}`}
+                        dir="ltr"
+                      >
+                        <span className={`mr-2 ${isRTL ? "ml-2 mr-0" : ""}`}>🕒</span>
+                        {dentist.workingHours}
+                      </p> */}
                     </div>
 
-                    <Link
-                      href={`/doctors_vip/${dentist.id}`}
-                      className="appointment-button"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {t.appointment}
-                    </Link>
+                    <div className="mt-auto">
+                      <Link
+                        href={`/doctors_vip/${dentist.id}`}
+                        className="inline-block w-full text-center bg-[#2563a0] text-white py-2 px-4 rounded-full hover:bg-[#1e4e8c] transition-colors whitespace-nowrap"
+                      >
+                        {t.appointment}
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className={`no-results ${isRTL ? "text-right" : ""}`} data-aos="fade-up">
-              <h3>{t.noResults}</h3>
-              <p>{t.changeParams}</p>
+            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">{t.noResults}</h3>
+              <p className="text-gray-600 mb-6">{t.changeParams}</p>
               <button
-                className="reset-button"
+                className="px-6 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
                 onClick={() => {
                   setSearchQuery("")
                   setSelectedSpecialty(currentSpecialties[0])
@@ -802,50 +868,46 @@ export default function DoctorsPage() {
               </button>
             </div>
           )}
-        </main>
+        </div>
 
-        {/* საკონტაქტო ინფორმაცია */}
-        <footer className="footer" data-aos="fade-up" data-aos-offset="200">
-          <div className={`contact-info ${isRTL ? "text-right" : ""}`}>
-            <h2 data-aos="fade-up">{t.contactUs}</h2>
-            <div className={`contact-methods ${isRTL ? "rtl-contact-methods" : ""}`}>
-              <div
-                className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
-                data-aos="zoom-in"
-                data-aos-delay="100"
-              >
-                <span className="contact-icon">📞</span>
+        {/* Contact section */}
+        <div className="bg-gray-100 py-12">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold text-[#2563a0] mb-8 text-center">{t.contactUs}</h2>
+
+            <div className="flex flex-wrap justify-center gap-8">
+              <div className="flex items-center gap-4">
+                <div className="text-3xl text-[#2563a0]">📞</div>
                 <div>
-                  <p className="contact-label">{t.phone}</p>
-                  <p className="contact-value">+995 32 222 33 44</p>
+                  <p className="font-semibold text-gray-700">{t.phone}</p>
+                  <p dir="ltr" className="text-gray-600">+995 500 50 20 62</p>
                 </div>
               </div>
-              <div
-                className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
-                data-aos="zoom-in"
-                data-aos-delay="200"
-              >
-                <span className="contact-icon">✉️</span>
+
+              <div className="flex items-center gap-4">
+                <div className="text-3xl text-[#2563a0]">✉️</div>
                 <div>
-                  <p className="contact-label">{t.email}</p>
-                  <p className="contact-value">info@jcdental.ge</p>
+                  <p className="font-semibold text-gray-700">{t.email}</p>
+                  <p className="text-gray-600">jcdental07@gmail.com</p>
                 </div>
               </div>
-              <div
-                className={`contact-method ${isRTL ? "rtl-contact-method" : ""}`}
-                data-aos="zoom-in"
-                data-aos-delay="300"
-              >
-                <span className="contact-icon">🕒</span>
+
+
+              <div className={`flex items-center gap-4 ${isRTL ? "" : "text-left"}`}>
+                <div className="text-3xl text-[#2563a0]">🕒</div>
                 <div>
-                  <p className="contact-label">{t.workingHours}</p>
-                  <p className="contact-value">{t.workingHoursValue}</p>
+                  <p className="font-semibold text-gray-700">{t.workingHours}</p>
+                  <p className={`${isRTL ? "ltr" : "ltr"} text-gray-600`}>
+                    {isRTL ? reverseTime(t.workingHoursValue) : t.workingHoursValue}
+                  </p>
                 </div>
               </div>
+
+
             </div>
           </div>
-        </footer>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
