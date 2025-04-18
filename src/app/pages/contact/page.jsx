@@ -20,7 +20,7 @@ const ContactPage = () => {
     // Ensure AOS is initialized only once
     AOS.init({
       duration: 900,
-      once: true, // Changed to false to allow animations to occur every time the element comes into view
+      once: true,
       easing: "ease-out",
       offset: 100, // Trigger animations a bit earlier
       delay: 0,
@@ -102,14 +102,18 @@ const ContactPage = () => {
         }
       `}</style>
 
-      <section className="py-16 px-4 md:px-6 lg:px-8" style={{ backgroundColor: colors.light }} dir={direction}>
+      <section
+        className="py-16 px-4 md:px-6 lg:px-8 bg-white"
+        style={{ backgroundColor: colors.light }}
+        dir={direction}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12" data-aos="zoom-in">
             <h2 className="text-3xl font-bold mb-4" style={{ color: colors.primary }}>
               {t.contact.title}
             </h2>
             <div className="w-20 h-1 mx-auto mb-6" style={{ backgroundColor: colors.primary }}></div>
-            <p className="text-lg max-w-3xl mx-auto">{t.contact.subtitle}</p>
+            <p className="text-lg max-w-3xl mx-auto text-gray-800">{t.contact.subtitle}</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
@@ -126,8 +130,8 @@ const ContactPage = () => {
                   >
                     <MapPin className={`w-5 h-5 ${iconMargin} mt-1`} style={{ color: colors.primary }} />
                     <div>
-                      <h4 className="font-semibold mb-1">{t.contact.address}</h4>
-                      <p>{t.contact.addressText}</p>
+                      <h4 className="font-semibold mb-1 text-gray-800">{t.contact.address}</h4>
+                      <p className="text-gray-700">{t.contact.addressText}</p>
                     </div>
                   </div>
 
@@ -138,8 +142,10 @@ const ContactPage = () => {
                   >
                     <Phone className={`w-5 h-5 ${iconMargin} mt-1`} style={{ color: colors.primary }} />
                     <div>
-                      <h4 className="font-semibold mb-1">{t.contact.phone}</h4>
-                      <p dir="ltr">+995 500 50 20 62</p>
+                      <h4 className="font-semibold mb-1 text-gray-800">{t.contact.phone}</h4>
+                      <p dir="ltr" className="text-gray-700">
+                        +995 500 50 20 62
+                      </p>
                     </div>
                   </div>
 
@@ -150,8 +156,8 @@ const ContactPage = () => {
                   >
                     <Mail className={`w-5 h-5 ${iconMargin} mt-1`} style={{ color: colors.primary }} />
                     <div>
-                      <h4 className="font-semibold mb-1">{t.contact.email}</h4>
-                      <p>jcdental07@gmail.com</p>
+                      <h4 className="font-semibold mb-1 text-gray-800">{t.contact.email}</h4>
+                      <p className="text-gray-700">jcdental07@gmail.com</p>
                     </div>
                   </div>
 
@@ -162,8 +168,8 @@ const ContactPage = () => {
                   >
                     <Clock className={`w-5 h-5 ${iconMargin} mt-1`} style={{ color: colors.primary }} />
                     <div>
-                      <h4 className="font-semibold mb-1">{t.contact.hours}</h4>
-                      <p>
+                      <h4 className="font-semibold mb-1 text-gray-800">{t.contact.hours}</h4>
+                      <p className="text-gray-700">
                         {t.contact.weekdays}: 10:00 - 20:00
                         <br />
                         {t.contact.saturday}: {t.contact.closed}
@@ -179,10 +185,8 @@ const ContactPage = () => {
                   data-aos="zoom-in"
                   data-aos-delay="400"
                 >
-                  <h4 className="font-semibold mb-3">{t.contact.followUs}</h4>
-                  <div
-                    className={`flex ${direction === "rtl" ? " space-x-reverse gap-3 " : "space-x-4"}`}
-                  >
+                  <h4 className="font-semibold mb-3 text-gray-800">{t.contact.followUs}</h4>
+                  <div className={`flex ${direction === "rtl" ? " space-x-reverse gap-3 " : "space-x-4"}`}>
                     <div data-aos="zoom-in" data-aos-delay="450" className="aos-init">
                       <Link
                         href="https://www.facebook.com/profile.php?id=61573996716691"

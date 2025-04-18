@@ -193,17 +193,18 @@ export default function DoctorsPage() {
   return (
     <>
       <style jsx>{`
-        /* ძირითადი სტილები */
+        /* ძირითადი სტილები - მხოლოდ ღია რეჟიმი */
         .jc-dental-page {
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
           color: #333;
           max-width: 100%;
           overflow-x: hidden;
+          background-color: #ffffff;
         }
 
         /* ზედა ნაწილი */
         .header {
-          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი - უფრო რბილი */
+          background-color: #2563a0;
           color: white;
           padding: 3rem 1rem;
           text-align: center;
@@ -217,6 +218,7 @@ export default function DoctorsPage() {
         .header h1 {
           font-size: 2.5rem;
           margin-bottom: 1rem;
+          font-weight: 700;
         }
 
         .header p {
@@ -240,6 +242,8 @@ export default function DoctorsPage() {
           border: none;
           font-size: 1rem;
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          color: #333;
+          background-color: #fff;
         }
 
         .search-icon {
@@ -265,6 +269,7 @@ export default function DoctorsPage() {
           max-width: 1200px;
           margin: 0 auto;
           padding: 2rem 1rem;
+          background-color: #ffffff;
         }
 
         /* ფილტრები */
@@ -275,6 +280,8 @@ export default function DoctorsPage() {
         .section-title {
           font-size: 1.8rem;
           margin-bottom: 1.5rem;
+          color: #2563a0;
+          font-weight: 600;
         }
 
         .filter-controls {
@@ -296,6 +303,7 @@ export default function DoctorsPage() {
           border: 1px solid #ddd;
           background-color: white;
           font-size: 1rem;
+          color: #333;
         }
 
         .reset-button {
@@ -306,6 +314,7 @@ export default function DoctorsPage() {
           cursor: pointer;
           font-size: 1rem;
           transition: all 0.3s ease;
+          color: #333;
         }
 
         .reset-button:hover {
@@ -339,7 +348,7 @@ export default function DoctorsPage() {
         }
 
         .doctor-card.selected {
-          border: 2px solid #2563a0; /* შეცვლილი ლურჯი ფერი */
+          border: 2px solid #2563a0;
         }
 
         .doctor-image-container {
@@ -368,7 +377,7 @@ export default function DoctorsPage() {
         }
 
         .primary-specialty {
-          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი */
+          background-color: #2563a0;
           color: white;
           padding: 0.4rem 0.8rem;
           border-radius: 20px;
@@ -451,17 +460,19 @@ export default function DoctorsPage() {
         /* ექიმის ინფორმაცია */
         .doctor-info {
           padding: 1.5rem;
+          background-color: #ffffff;
         }
 
         .doctor-name {
           font-size: 1.4rem;
           margin-bottom: 0.5rem;
-          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
+          color: #2563a0;
+          font-weight: 600;
         }
 
         .doctor-experience {
           font-size: 1rem;
-          color: #666;
+          color: #444;
           margin-bottom: 1rem;
         }
 
@@ -472,7 +483,8 @@ export default function DoctorsPage() {
         .doctor-schedule h4 {
           font-size: 1rem;
           margin-bottom: 0.5rem;
-          color: #555;
+          color: #444;
+          font-weight: 600;
         }
 
         .working-days {
@@ -487,13 +499,14 @@ export default function DoctorsPage() {
           padding: 0.3rem 0.6rem;
           border-radius: 4px;
           font-size: 0.9rem;
+          color: #333;
         }
 
         .working-hours {
           display: flex;
           align-items: center;
           font-size: 0.9rem;
-          color: #666;
+          color: #444;
         }
 
         .clock-icon {
@@ -513,7 +526,7 @@ export default function DoctorsPage() {
         /* ჯავშნის ღილაკი */
         .appointment-button {
           display: inline-block;
-          background-color: #2563a0; /* შეცვლილი ლურჯი ფერი */
+          background-color: #2563a0;
           color: white;
           padding: 0.8rem 1.5rem;
           border-radius: 50px;
@@ -531,17 +544,18 @@ export default function DoctorsPage() {
         .no-results {
           text-align: center;
           padding: 3rem 1rem;
+          background-color: #ffffff;
         }
 
         .no-results h3 {
           font-size: 1.5rem;
           margin-bottom: 1rem;
-          color: #666;
+          color: #444;
         }
 
         .no-results p {
           margin-bottom: 1.5rem;
-          color: #888;
+          color: #555;
         }
 
         /* საკონტაქტო ინფორმაცია */
@@ -559,7 +573,8 @@ export default function DoctorsPage() {
           font-size: 1.8rem;
           margin-bottom: 2rem;
           text-align: center;
-          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
+          color: #2563a0;
+          font-weight: 600;
         }
 
         .contact-methods {
@@ -577,17 +592,17 @@ export default function DoctorsPage() {
 
         .contact-icon {
           font-size: 1.8rem;
-          color: #2563a0; /* შეცვლილი ლურჯი ფერი */
+          color: #2563a0;
         }
 
         .contact-label {
           font-weight: 600;
           margin-bottom: 0.3rem;
-          color: #555;
+          color: #444;
         }
 
         .contact-value {
-          color: #666;
+          color: #444;
         }
 
         /* RTL საკონტაქტო ინფორმაცია */
@@ -644,7 +659,7 @@ export default function DoctorsPage() {
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input text-black"
+                className="search-input"
               />
               <span className="search-icon">🔍</span>
             </div>
@@ -763,7 +778,7 @@ export default function DoctorsPage() {
                     <Link
                       href={`/doctors_vip/${dentist.id}`}
                       className="appointment-button"
-                      onClick={(e) => e.stopPropagation()} // Add this line to prevent event propagation
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {t.appointment}
                     </Link>

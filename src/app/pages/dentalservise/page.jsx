@@ -367,7 +367,7 @@ export default function ServicesPage() {
                   <h2 className={`text-2xl font-bold text-gray-800 mb-6 ${isRTL ? "text-right" : ""}`}>
                     {translations?.services?.serviceDescription || "სერვისის აღწერა"}
                   </h2>
-                  <p className={`text-gray-600 mb-8 leading-relaxed ${isRTL ? "text-right" : ""}`}>
+                  <p className={`text-gray-700 mb-8 leading-relaxed ${isRTL ? "text-right" : ""}`}>
                     {selectedService.fullDescription}
                   </p>
 
@@ -376,7 +376,7 @@ export default function ServicesPage() {
                   </h2>
                   <ul className={`${isRTL ? "pr-5 text-right" : "pl-5"} list-disc mb-8 space-y-3`}>
                     {selectedService.procedures.map((procedure, index) => (
-                      <li key={index} className="text-gray-600" data-aos="zoom-in" data-aos-delay={index * 100}>
+                      <li key={index} className="text-gray-700" data-aos="zoom-in" data-aos-delay={index * 100}>
                         {procedure}
                       </li>
                     ))}
@@ -415,7 +415,7 @@ export default function ServicesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm">
                         {translations?.services?.benefits?.modernEquipment || "თანამედროვე აღჭურვილობა და ტექნოლოგიები"}
                       </span>
                     </li>
@@ -429,7 +429,7 @@ export default function ServicesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm">
                         {translations?.services?.benefits?.experiencedDoctors || "გამოცდილი და მზრუნველი სტომატოლოგები"}
                       </span>
                     </li>
@@ -443,7 +443,7 @@ export default function ServicesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm">
                         {translations?.services?.benefits?.comfortableEnvironment || "კომფორტული და მშვიდი გარემო"}
                       </span>
                     </li>
@@ -457,7 +457,7 @@ export default function ServicesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm">
                         {translations?.services?.benefits?.individualTreatment || "ინდივიდუალური მკურნალობის გეგმები"}
                       </span>
                     </li>
@@ -471,7 +471,7 @@ export default function ServicesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm">
                         {translations?.services?.benefits?.flexibleSchedule ||
                           "მოქნილი განრიგი და გადაუდებელი დახმარება"}
                       </span>
@@ -512,7 +512,7 @@ export default function ServicesPage() {
                     </div>
 
                     <div className="p-6">
-                      <p className={`text-gray-600 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
+                      <p className={`text-gray-700 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
 
                       <div className={isHebrew ? "text-right" : ""}>
                         <button className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors">
@@ -565,7 +565,7 @@ export default function ServicesPage() {
         <div className={`flex flex-wrap gap-4 mb-8 ${isRTL ? "flex-row-reverse" : ""}`} data-aos="zoom-in">
           <div className="w-full md:w-64">
             <select
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-300 rounded text-gray-800 bg-white"
               value={selectedCategory}
               onChange={handleCategoryChange}
               dir={direction}
@@ -585,7 +585,7 @@ export default function ServicesPage() {
           </div>
 
           <button
-            className={`${isRTL ? "mr-auto" : "ml-auto"} cursor-pointer px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors`}
+            className={`${isRTL ? "mr-auto" : "ml-auto"} cursor-pointer px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors text-gray-800`}
             onClick={clearFilters}
           >
             {translations?.buttons?.clear || "გასუფთავება"}
@@ -625,7 +625,7 @@ export default function ServicesPage() {
 
                 {/* Service Description */}
                 <div className="p-6">
-                  <p className={`text-gray-600 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
+                  <p className={`text-gray-700 mb-6 ${isHebrew ? "text-right" : ""}`}>{service.shortDescription}</p>
 
                   <div className={isHebrew ? "text-right" : ""}>
                     <button className="inline-flex items-center text-[#0088a9] font-medium hover:text-[#006680] transition-colors">
@@ -642,10 +642,10 @@ export default function ServicesPage() {
           </div>
         ) : (
           <div className="text-center py-12" data-aos="zoom-in">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-700 mb-4">
               {translations?.services?.noResultsMessage || "სამწუხაროდ, თქვენი ძიების შედეგად სერვისები ვერ მოიძებნა."}
             </p>
-            <p className="text-gray-600">
+            <p className="text-gray-700">
               {translations?.services?.tryAgainMessage ||
                 "გთხოვთ, შეცვალოთ ძიების პარამეტრები ან გაასუფთავოთ ფილტრები."}
             </p>
