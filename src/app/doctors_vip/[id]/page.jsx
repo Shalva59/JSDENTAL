@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
-import { Calendar, Clock, ArrowLeft, GraduationCap, Award, Phone, Mail } from "lucide-react"
+import { Calendar, ArrowLeft, GraduationCap, Award, Phone, Mail, Camera } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function DoctorDetailPage() {
@@ -115,12 +115,14 @@ export default function DoctorDetailPage() {
       phone: "ტელეფონი",
       email: "ელ-ფოსტა",
       portfolio: "ნამუშევრები",
+      viewPortfolio: "ნახეთ ნამუშევრები",
       bookAppointment: "ჯავშანი",
       about: "ექიმის შესახებ",
       services: "სერვისები",
       reviews: "შეფასებები",
       years: "წელი გამოცდილება",
       loading: "იტვირთება...",
+      beforeAfter: "მკურნალობამდე და შემდეგ",
     },
     en: {
       title: "Doctor Profile",
@@ -136,12 +138,14 @@ export default function DoctorDetailPage() {
       phone: "Phone",
       email: "Email",
       portfolio: "Portfolio",
+      viewPortfolio: "View Portfolio",
       bookAppointment: "Book Appointment",
       about: "About Doctor",
       services: "Services",
       reviews: "Reviews",
       years: "years experience",
       loading: "Loading...",
+      beforeAfter: "Before & After",
     },
     ru: {
       title: "Профиль врача",
@@ -157,12 +161,14 @@ export default function DoctorDetailPage() {
       phone: "Телефон",
       email: "Эл. почта",
       portfolio: "Портфолио",
+      viewPortfolio: "Смотреть портфолио",
       bookAppointment: "Записаться на прием",
       about: "О враче",
       services: "Услуги",
       reviews: "Отзывы",
       years: "лет опыта",
       loading: "Загрузка...",
+      beforeAfter: "До и После",
     },
     he: {
       title: "פרופיל רופא",
@@ -178,12 +184,14 @@ export default function DoctorDetailPage() {
       phone: "טלפון",
       email: "אימייל",
       portfolio: "תיק עבודות",
+      viewPortfolio: "צפה בתיק העבודות",
       bookAppointment: "קביעת תור",
       about: "אודות הרופא",
       services: "שירותים",
       reviews: "ביקורות",
       years: "שנות ניסיון",
       loading: "טוען...",
+      beforeAfter: "לפני ואחרי",
     },
   }
 
@@ -254,6 +262,11 @@ export default function DoctorDetailPage() {
     }
 
     return tabs
+  }
+
+  // Navigate to the before-after page with doctor ID
+  const handleViewPortfolio = () => {
+    router.push(`/pages/before_and_after?doctor=${id}`)
   }
 
   if (loading) {
@@ -426,28 +439,31 @@ export default function DoctorDetailPage() {
                     ))}
                   </div>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <motion.div whileHover={{ rotate: 15 }}>
-                      <Clock size={18} className="text-blue-600" />
-                    </motion.div>
-                    <h2 className="text-lg font-medium text-gray-700">{t.workingHours}</h2>
-                  </div>
-                  <p className="text-gray-600">{doctor.workingHours || "11:00 - 19:00"}</p>
-                </div>
               </motion.div>
 
-              {/* Book appointment button */}
-              <motion.button
-                onClick={() => router.push("/pages/booking")}
-                className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-                variants={slideUp}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                animate={pulseAnimation}
-              >
-                {t.bookAppointment}
-              </motion.button>
+              {/* Portfolio button */}
+              <motion.div className="mt-6 flex flex-col sm:flex-row gap-4" variants={slideUp}>
+                <motion.button
+                  onClick={handleViewPortfolio}
+                  className="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Camera size={18} />
+                  {t.viewPortfolio}
+                </motion.button>
+
+                {/* Book appointment button */}
+                <motion.button
+                  onClick={() => router.push("/pages/booking")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  animate={pulseAnimation}
+                >
+                  {t.bookAppointment}
+                </motion.button>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>

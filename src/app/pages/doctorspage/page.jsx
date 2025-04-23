@@ -228,7 +228,7 @@ export default function DoctorsPage() {
           margin: 0;
           padding: 0;
         }
-        
+
         /* ძირითადი სტილები - მხოლოდ ღია რეჟიმი */
         .jc-dental-page {
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -687,7 +687,7 @@ export default function DoctorsPage() {
         .text-right {
           text-align: right;
         }
-        
+
         /* Teal gradient background for header */
         .teal-gradient-bg {
           background: linear-gradient(135deg, #0e7490 0%, #0369a1 100%);
@@ -789,6 +789,7 @@ export default function DoctorsPage() {
                       src={dentist.image || "/placeholder.svg"}
                       alt={dentist.name}
                       className="w-full h-full object-cover"
+                      style={{ objectFit: "cover", objectPosition: "150% 23%" }}
                     />
 
                     {/* Specialty badge */}

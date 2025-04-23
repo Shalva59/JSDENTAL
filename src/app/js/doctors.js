@@ -70,13 +70,12 @@ export const doctors = [
   {
     name: "გაბრიელ ჯანაშვილი",
     specialty: "ორთოპედი, ქირურგი",
-    image: "https://doctorsonduty.com/wp-content/uploads/2023/11/accent1.png",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     name: "თენგო შიმშილაშვილი",
     specialty: "ორთოპედი, ქირურგი, თერაპევტი",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     name: "ანა პაჩკორია",
@@ -96,13 +95,12 @@ export const enDoctors = [
   {
     name: "Gabriel Janashvili",
     specialty: "Orthopedist, Surgeon",
-    image: "https://doctorsonduty.com/wp-content/uploads/2023/11/accent1.png",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     name: "Tengo Shimshilashvili",
     specialty: "Orthopedist, Surgeon, Therapist",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     name: "Ana Pachkoria",
@@ -122,13 +120,12 @@ export const ruDoctors = [
   {
     name: "Габриэль Джанашвили",
     specialty: "Ортопед, Хирург",
-    image: "https://doctorsonduty.com/wp-content/uploads/2023/11/accent1.png",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     name: "Тенго Шимшилашвили",
     specialty: "Ортопед, Хирург, Терапевт",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     name: "Ана Пачкория",
@@ -148,13 +145,12 @@ export const heDoctors = [
   {
     name: "גבריאל ג'נשווילי",
     specialty: "אורתופד, מנתח",
-    image: "https://doctorsonduty.com/wp-content/uploads/2023/11/accent1.png",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     name: "טנגו שימשילשווילי",
     specialty: "אורתופד, מנתח, מטפל",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     name: "אנה פצ'קוריה",
@@ -226,7 +222,7 @@ export const dentists = [
     experience: "15 წელი გამოცდილება",
     workingDays: ["ორშაბათი", "სამშაბათი", "ოთხშაბათი", "ხუთშაბათი", "პარასკევი", "კვირა"],
     workingHours: "09:00 - 17:00",
-    image: "https://www.humanitas.net/content/uploads/2017/10/doctors.jpg",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     id: 2,
@@ -235,7 +231,7 @@ export const dentists = [
     experience: "10 წელი გამოცდილება",
     workingDays: ["სამშაბათი", "ხუთშაბათი"],
     workingHours: "11:00 - 19:00",
-    image: "https://img.freepik.com/premium-photo/photo-blurry-confident-female-doctor-front_921410-39942.jpg",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     id: 3,
@@ -266,7 +262,7 @@ export const enDentists = [
     experience: "15 years of experience",
     workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sunday"],
     workingHours: "09:00 - 17:00",
-    image: "https://www.humanitas.net/content/uploads/2017/10/doctors.jpg",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     id: 2,
@@ -275,7 +271,7 @@ export const enDentists = [
     experience: "10 years of experience",
     workingDays: ["Tuesday", "Thursday"],
     workingHours: "11:00 - 19:00",
-    image: "https://img.freepik.com/premium-photo/photo-blurry-confident-female-doctor-front_921410-39942.jpg",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     id: 3,
@@ -306,7 +302,7 @@ export const ruDentists = [
     experience: "15 лет опыта",
     workingDays: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Воскресенье"],
     workingHours: "09:00 - 17:00",
-    image: "https://www.humanitas.net/content/uploads/2017/10/doctors.jpg",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     id: 2,
@@ -315,7 +311,7 @@ export const ruDentists = [
     experience: "10 лет опыта",
     workingDays: ["Вторник", "Четверг"],
     workingHours: "11:00 - 19:00",
-    image: "https://img.freepik.com/premium-photo/photo-blurry-confident-female-doctor-front_921410-39942.jpg",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     id: 3,
@@ -346,7 +342,7 @@ export const heDentists = [
     experience: "15 שנות ניסיון",
     workingDays: ["יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום ראשון"],
     workingHours: "09:00 - 17:00",
-    image: "https://www.humanitas.net/content/uploads/2017/10/doctors.jpg",
+    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
   },
   {
     id: 2,
@@ -355,7 +351,7 @@ export const heDentists = [
     experience: "10 שנות ניסיון",
     workingDays: ["יום שלישי", "יום חמישי"],
     workingHours: "11:00 - 19:00",
-    image: "https://img.freepik.com/premium-photo/photo-blurry-confident-female-doctor-front_921410-39942.jpg",
+    image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
     id: 3,
