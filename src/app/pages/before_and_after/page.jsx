@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "../../../context/LanguageContext"
@@ -10,7 +10,8 @@ import { ArrowLeft, ChevronRight, X } from "lucide-react"
 import ReactCompareImage from "react-compare-image"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function BeforeAfterPage() {
+// Create a wrapper component that uses useSearchParams
+function BeforeAfterPageContent() {
   const searchParams = useSearchParams()
   const doctorParam = searchParams.get("doctor")
 
@@ -22,6 +23,9 @@ export default function BeforeAfterPage() {
   const [filteredCases, setFilteredCases] = useState([])
   const [activeCase, setActiveCase] = useState(null)
   const [pageLoaded, setPageLoaded] = useState(false)
+  const [sliderPosition, setSliderPosition] = useState(50)
+  const [isDragging, setIsDragging] = useState(false)
+  const sliderContainerRef = useRef(null)
 
   useEffect(() => {
     if (doctorParam) {
@@ -48,11 +52,18 @@ export default function BeforeAfterPage() {
     setPageLoaded(true)
   }, [])
 
+  // Reset slider position when a new case is selected
+  useEffect(() => {
+    if (activeCase) {
+      setSliderPosition(50)
+    }
+  }, [activeCase])
+
   // Close modal when escape key is pressed
   useEffect(() => {
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
-        setActiveCase(null)
+        closeModal()
       }
     }
 
@@ -64,6 +75,31 @@ export default function BeforeAfterPage() {
       document.removeEventListener("keydown", handleEscKey)
     }
   }, [activeCase])
+
+  // Handle mouse events for slider
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging || !sliderContainerRef.current) return
+
+      const rect = sliderContainerRef.current.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 100
+      setSliderPosition(Math.min(Math.max(x, 0), 100))
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove)
+      window.addEventListener("mouseup", handleMouseUp)
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
+    }
+  }, [isDragging])
 
   const texts = {
     ka: {
@@ -169,6 +205,22 @@ export default function BeforeAfterPage() {
     setActiveCase(null)
     // Re-enable body scrolling
     document.body.style.overflow = "auto"
+  }
+
+  // Handle slider mouse down
+  const handleSliderMouseDown = (e) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  // Handle slider touch events
+  const handleSliderTouchMove = (e) => {
+    if (!sliderContainerRef.current) return
+
+    const touch = e.touches[0]
+    const rect = sliderContainerRef.current.getBoundingClientRect()
+    const x = ((touch.clientX - rect.left) / rect.width) * 100
+    setSliderPosition(Math.min(Math.max(x, 0), 100))
   }
 
   return (
@@ -305,16 +357,54 @@ export default function BeforeAfterPage() {
               </div>
 
               <div className="overflow-y-auto flex-grow">
-                <div className="aspect-[16/9] w-full relative">
-                  <ReactCompareImage
-                    leftImage={activeCase.beforeImage || "/placeholder.svg"}
-                    rightImage={activeCase.afterImage || "/placeholder.svg"}
-                    leftLabel={t.before}
-                    rightLabel={t.after}
-                    sliderLineColor="#ffffff"
-                    className="w-full h-full"
-                    handle={customSliderHandle}
-                  />
+                {/* Custom Before-After Slider */}
+                <div
+                  ref={sliderContainerRef}
+                  className="aspect-[16/9] w-full relative cursor-ew-resize"
+                  onMouseDown={handleSliderMouseDown}
+                  onTouchMove={handleSliderTouchMove}
+                  onTouchStart={handleSliderMouseDown}
+                >
+                  {/* Before image (full width) */}
+                  <div className="absolute inset-0">
+                    <img
+                      src={activeCase.beforeImage || "/placeholder.svg"}
+                      alt="Before"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {t.before}
+                    </div>
+                  </div>
+
+                  {/* After image (clipped) */}
+                  <div className="absolute inset-0 overflow-hidden" style={{ width: `${sliderPosition}%` }}>
+                    <img
+                      src={activeCase.afterImage || "/placeholder.svg"}
+                      alt="After"
+                      className="absolute top-0 left-0 w-full h-full object-cover"
+                      style={{ width: `${100 / (sliderPosition / 100)}%` }}
+                    />
+                    <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs px-2 py-1 rounded">
+                      {t.after}
+                    </div>
+                  </div>
+
+                  {/* Slider handle */}
+                  <div
+                    className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize"
+                    style={{ left: `${sliderPosition}%` }}
+                  >
+                    <motion.div
+                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <div className="flex items-center justify-center">
+                        <div className="w-1 h-5 bg-gray-400 rounded-full"></div>
+                      </div>
+                    </motion.div>
+                  </div>
                 </div>
 
                 <div className="p-6">
@@ -354,5 +444,14 @@ export default function BeforeAfterPage() {
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+// Main component with Suspense boundary
+export default function BeforeAfterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <BeforeAfterPageContent />
+    </Suspense>
   )
 }
