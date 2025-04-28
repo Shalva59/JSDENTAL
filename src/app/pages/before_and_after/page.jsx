@@ -237,8 +237,8 @@ const beforeAfterCases = [
       ru: "Керамические коронки",
       he: "כתרים קרמיים",
     },
-    beforeImage: "/JC_namushevrebi/ana_pachkoria/3/before.jpg",
-    afterImage: "/JC_namushevrebi/ana_pachkoria/3/after.jpg",
+    beforeImage: "/JC_namushevrebi/ana_pachkoria/3/Before22.webp",
+    afterImage: "/JC_namushevrebi/ana_pachkoria/3/After22.webp",
     date: "2024-02-05",
   },
 
