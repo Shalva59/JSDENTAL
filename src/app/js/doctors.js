@@ -11,7 +11,7 @@
 //       "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
 //   },
 //   {
-//     name: "ანა პაჩკორია",
+//     name: "ანა პაჭკორია ",
 //     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
 //     image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
 //   },
@@ -54,7 +54,7 @@
 //   },
 //   {
 //     id: 4,
-//     name: "დოქტ. ანა პაჩკორია",
+//     name: "დოქტ. ანა პაჭკორია ",
 //     specialties: ["თერაპევტი", "ქირურგი", "პაროდონტოლოგი"],
 //     experience: "15 წელი გამოცდილება",
 //     workingDays: ["სამშაბათი", "ხუთშაბათი", "შაბათი"],
@@ -78,7 +78,7 @@ export const doctors = [
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
-    name: "ანა პაჩკორია",
+    name: "ანა პაჭკორია ",
     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
     image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
   },
@@ -103,7 +103,7 @@ export const enDoctors = [
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
   {
-    name: "Ana Pachkoria",
+    name: "Ana Patchkoria ",
     specialty: "Therapist, Surgeon, Periodontologist",
     image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
   },
@@ -204,7 +204,7 @@ export const doctorsByLanguage = {
 //   },
 //   {
 //     id: 4,
-//     name: "დოქტ. ანა პაჩკორია",
+//     name: "დოქტ. ანა პაჭკორია ",
 //     specialties: ["თერაპევტი", "ქირურგი", "პაროდონტოლოგი"],
 //     experience: "15 წელი გამოცდილება",
 //     workingDays: ["სამშაბათი", "ხუთშაბათი", "შაბათი"],
@@ -244,7 +244,7 @@ export const dentists = [
   },
   {
     id: 4,
-    name: "დოქტ. ანა პაჩკორია",
+    name: "დოქტ. ანა პაჭკორია ",
     specialties: ["თერაპევტი", "ქირურგი", "პაროდონტოლოგი"],
     experience: "15 წელი გამოცდილება",
     workingDays: ["ხუთშაბათი", "კვირა"],
@@ -284,7 +284,7 @@ export const enDentists = [
   },
   {
     id: 4,
-    name: "Dr. Ana Pachkoria",
+    name: "Dr. Ana Patchkoria ",
     specialties: ["Therapist", "Surgeon", "Periodontologist"],
     experience: "15 years of experience",
     workingDays: ["Thursday", "Sunday"],
