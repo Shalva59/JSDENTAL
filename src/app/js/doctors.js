@@ -70,7 +70,7 @@ export const doctors = [
   {
     name: "გაბრიელ ჯანაშვილი",
     specialty: "ორთოპედი, ქირურგი",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     name: "თენგო შიმშილაშვილი",
@@ -95,7 +95,7 @@ export const enDoctors = [
   {
     name: "Gabriel Janashvili",
     specialty: "Orthopedist, Surgeon",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     name: "Tengo Shimshilashvili",
@@ -120,7 +120,7 @@ export const ruDoctors = [
   {
     name: "Габриэль Джанашвили",
     specialty: "Ортопед, Хирург",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     name: "Тенго Шимшилашвили",
@@ -145,7 +145,7 @@ export const heDoctors = [
   {
     name: "גבריאל ג'נשווילי",
     specialty: "אורתופד, מנתח",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     name: "טנגו שימשילשווילי",
@@ -222,7 +222,7 @@ export const dentists = [
     experience: "15 წელი გამოცდილება",
     workingDays: ["ორშაბათი", "სამშაბათი", "ოთხშაბათი", "ხუთშაბათი", "პარასკევი", "კვირა"],
     workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     id: 2,
@@ -262,7 +262,7 @@ export const enDentists = [
     experience: "15 years of experience",
     workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sunday"],
     workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     id: 2,
@@ -302,7 +302,7 @@ export const ruDentists = [
     experience: "15 лет опыта",
     workingDays: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Воскресенье"],
     workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     id: 2,
@@ -342,7 +342,7 @@ export const heDentists = [
     experience: "15 שנות ניסיון",
     workingDays: ["יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום ראשון"],
     workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Gabriel_Janashvili.jpeg",
+    image: "/JC_Dental_Doctors/gabis_surati2.jpg",
   },
   {
     id: 2,
