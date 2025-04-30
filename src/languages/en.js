@@ -282,4 +282,106 @@ export const en = {
     contactInfo: "Contact Information",
     address: "Tbilisi, Georgia",
   },
+
+  sectionTitle: "Our Packages",
+  sectionSubtitle: "Choose a package tailored to your needs and enjoy high-quality dental services",
+  packagesLabel: "Packages",
+  popularLabel: "Popular",
+  perMonth: "/ month",
+  choosePackage: "Choose Package",
+  viewDetails: "View Details",
+  viewAllPackages: "View full package descriptions and comparison",
+  packages: {
+    basic: {
+      name: "Basic",
+      price: "50₾",
+      description: "Essential services",
+      features: ["2 preventive visits per year", "1 X-ray per year", "10% discount on other procedures"],
+    },
+    full: {
+      name: "Full",
+      price: "80₾",
+      description: "Optimal choice",
+      features: ["3 preventive visits per year", "2 full X-rays per year", "15% discount on aesthetic procedures"],
+    },
+    premium: {
+      name: "Premium",
+      price: "120₾",
+      description: "Complete service",
+      features: ["4 preventive visits per year", "Full X-rays as needed", "20% discount on implants"],
+    },
+    family: {
+      name: "Family",
+      price: "200₾",
+      description: "For families (up to 4 members)",
+      features: [
+        "3 preventive visits per member per year",
+        "Full X-rays as needed",
+        "25% discount on all procedures",
+      ],
+    },
+  },
+
+  packagesHero: {
+    label: "Dental Packages",
+    title1: "Choose",
+    title2: "the Perfect Package",
+    title3: "for Your Smile",
+    description:
+      "Our dental packages are designed with your needs in mind to ensure your dental health at an affordable price.",
+  },
+
+  packagesSection: {
+    title1: "Choose",
+    title2: "the Right Package",
+    title3: "for You",
+    description: "We offer various types of individual packages according to your needs",
+  },
+
+  comparison: {
+    label: "Comparison",
+    title: "Package Comparison",
+    description: "Check out the detailed comparison of our packages and choose the option that best suits you",
+    features: "Features",
+    price: "Price",
+    preventiveVisits: "Preventive Visits",
+    visits2: "2 per year",
+    visits3: "3 per year",
+    visits4: "4 per year",
+    xrays: "X-rays",
+    xray1: "1 per year",
+    xray2: "2 per year",
+    xrayAsNeeded: "As needed",
+    discount: "Discount on Procedures",
+    emergency: "Emergency Assistance",
+    workingHours: "During working hours",
+    validity: "Validity Period",
+    year1: "1 year",
+  },
+
+  faq: {
+    title: "Frequently Asked Questions",
+    description: "Find answers to the most commonly asked questions about our packages",
+    question1: "How can I purchase a package?",
+    answer1:
+      "To purchase a package, you can contact us by phone, email, or visit our clinic. Our consultant will help you choose the right package for you and explain all the terms.",
+    question2: "Can I change my package?",
+    answer2:
+      "Yes, you can change your package at any time. If you want to choose a higher or lower package, contact us and we will help you make the change.",
+    question3: "What happens if I don't use all my visits?",
+    answer3:
+      "Unused visits do not carry over to the next year. However, we recommend that you use all scheduled visits to maintain your oral health.",
+    question4: "What is included in a preventive visit?",
+    answer4:
+      "A preventive visit includes a complete oral examination, professional cleaning, removal of plaque and tartar, as well as recommendations for oral hygiene.",
+    question5: "Can I cancel my package?",
+    answer5:
+      "You can cancel your package within 14 days of purchase with a full refund if you haven't used any services. After 14 days, refunds are proportional to unused services.",
+  },
+
+  buttons: {
+    backToHome: "Back to Home Page",
+  },
+
+
 }

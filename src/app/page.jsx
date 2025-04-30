@@ -4,14 +4,16 @@ import SliderMain from "./components/SliderMain/Page"
 import MainText from "./components/MainText/Page"
 import DentalServices from "./components/DentalServices/Page"
 import Doctors from "./components/Doctors/Page"
+import Packageprices from "./components/PackagePrices/page"
 
 export default function Home() {
   return (
     <div>
-      
+
       <SliderMain />
       <MainText />
       <DentalServices />
+      <Packageprices />
       {/* <Price /> */}
       <Doctors />
 

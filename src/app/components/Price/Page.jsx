@@ -1,5 +1,6 @@
 import { CheckIcon } from '@heroicons/react/20/solid'
 
+
 const tiers = [
   {
     name: 'Hobby',
@@ -21,7 +22,7 @@ const tiers = [
       'Unlimited subscribers',
       'Advanced analytics',
       'Dedicated support representative',
-      'Marketing automations',
+      'Marketing automations', 
       'Custom integrations',
     ],
     featured: true,
