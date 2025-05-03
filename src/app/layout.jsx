@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className} style={{background:"white"}}>
         {/* 🌐 ენების კონტექსტის პროვაიდერი - აქ იშლება მთელი აპი */}
         <LanguageProvider>
           <Header />

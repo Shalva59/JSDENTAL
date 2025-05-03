@@ -353,8 +353,9 @@ export default function DentalSlider() {
           >
             <div className={`mb-4 flex items-center ${direction === "rtl" ? "" : ""}`}>
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${direction === "rtl" ? "ml-3" : "mr-3"
-                  }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ${
+                  direction === "rtl" ? "ml-3" : "mr-3"
+                }`}
               >
                 <Clock className="h-5 w-5 text-blue-700" />
               </div>
@@ -365,7 +366,9 @@ export default function DentalSlider() {
             <ul className={`space-y-2 text-sm text-gray-600 ${direction === "rtl" ? "" : ""}`}>
               <li className="flex justify-between items-center">
                 <span>{translations?.slider?.mondayFriday || "ორშაბათი-პარასკევი"}</span>
-                <span dir="ltr" className="font-medium text-gray-700">11:00 - 20:00</span>
+                <span dir="ltr" className="font-medium text-gray-700">
+                  11:00 - 20:00
+                </span>
               </li>
               <li className="flex justify-between items-center">
                 <span>{translations?.slider?.saturday || "შაბათი"}</span>
@@ -374,7 +377,9 @@ export default function DentalSlider() {
               </li>
               <li className="flex justify-between items-center">
                 <span>{translations?.slider?.sunday || "კვირა"}</span>
-                <span dir="ltr" className="font-medium text-gray-700">11:00 - 20:00</span>
+                <span dir="ltr" className="font-medium text-gray-700">
+                  11:00 - 20:00
+                </span>
               </li>
             </ul>
           </div>

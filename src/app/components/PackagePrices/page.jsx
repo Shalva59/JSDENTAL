@@ -15,7 +15,6 @@ export default function PackagesSection({ showAllLink = true, limit = 3, classNa
     return classes.filter(Boolean).join(" ")
   }
 
-
   // პაკეტების მონაცემები
   const packages = [
     {

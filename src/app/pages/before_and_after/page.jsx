@@ -70,11 +70,6 @@ const aosStyles = `
     transition-property: transform, opacity;
   }
 
-  [data-aos="fade-up"].aos-animate {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-
   [data-aos="zoom-in"] {
     transform: scale(0.6);
     opacity: 0;
@@ -108,8 +103,6 @@ const aosStyles = `
     opacity: 1;
   }
 `
-
-
 
 // Categories for filtering
 const categories = [
@@ -307,21 +300,21 @@ const CaseCard = ({ caseItem, onView, currentLanguage, getDisplayTitle, getCateg
     <div
       data-aos="fade-up"
       data-aos-duration="800"
-      className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+      className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
     >
       {/* Card Header */}
-      <div className="p-5 border-b border-gray-100 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-500/100 dark:group-hover:text-blue-600/75 transition-colors">
+      <div className="p-5 border-b border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-500/100 transition-colors">
           {getDisplayTitle(caseItem)}
         </h3>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-sm text-gray-500 dark:text-gray-400">{getCategoryName(caseItem.category)}</p>
+          <p className="text-sm text-gray-500">{getCategoryName(caseItem.category)}</p>
           <div className="flex items-center gap-1">
             <Sparkles size={14} className="text-yellow-500" />
-            <span className="text-xs text-[#1E6FB0] dark:text-[#3a8bc9] font-medium">{t.amazingResults}</span>
+            <span className="text-xs text-[#1E6FB0] font-medium">{t.amazingResults}</span>
           </div>
         </div>
-        <p className="text-sm text-[#1E6FB0] dark:text-[#3a8bc9] font-medium">{doctorName}</p>
+        <p className="text-sm text-[#1E6FB0] font-medium">{doctorName}</p>
       </div>
 
       {/* Before & After Images Side by Side */}
@@ -352,7 +345,7 @@ const CaseCard = ({ caseItem, onView, currentLanguage, getDisplayTitle, getCateg
       </div>
 
       {/* Card Footer */}
-      <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-100">
         <motion.button
           onClick={() => onView(caseItem)}
           className="w-full bg-[#1E6FB0] hover:bg-[#1a5f96] text-white py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-1 transition-colors shadow-md"
@@ -948,11 +941,11 @@ export default function BeforeAfterPage() {
       <Head>
         <style>{aosStyles}</style>
       </Head>
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-gray-900 font-sans">
+      <div className="min-h-screen bg-[#f8fafc] font-sans">
         {/* Hero Section - remove parallax effect */}
         <div className="relative bg-[#007A87] text-white overflow-hidden">
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10" style={{backgroundColor:"blue"}}>
+          <div className="absolute inset-0 opacity-10" style={{ backgroundColor: "blue" }}>
             <div className="absolute top-0 left-0 w-full h-full bg-[url('/dental-abstraction.png')] bg-repeat opacity-20"></div>
           </div>
 
@@ -1090,7 +1083,7 @@ export default function BeforeAfterPage() {
             >
               <path
                 d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-                className="fill-[#f8fafc] dark:fill-gray-900"
+                className="fill-[#f8fafc]"
               ></path>
             </svg>
           </div>
@@ -1100,18 +1093,15 @@ export default function BeforeAfterPage() {
         <AnimatePresence>
           {showInfo && (
             <div className="container mx-auto px-4 py-4" data-aos="fade-down">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex items-start gap-4 border border-teal-100 dark:border-gray-700">
-                <div className="bg-[#e6f3f5] dark:bg-[#007A87]/30 p-3 rounded-full">
-                  <MousePointer className="h-6 w-6 text-[#007A87] dark:text-[#80bdc4]" />
+              <div className="bg-white rounded-xl shadow-lg p-6 flex items-start gap-4 border border-teal-100">
+                <div className="bg-[#e6f3f5] p-3 rounded-full">
+                  <MousePointer className="h-6 w-6 text-[#007A87]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t.howToUse}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{t.howToUseText}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.howToUse}</h3>
+                  <p className="text-gray-600">{t.howToUseText}</p>
                 </div>
-                <button
-                  onClick={() => setShowInfo(false)}
-                  className="ml-auto p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
+                <button onClick={() => setShowInfo(false)} className="ml-auto p-2 text-gray-400 hover:text-gray-600">
                   <X size={20} />
                 </button>
               </div>
@@ -1146,7 +1136,7 @@ export default function BeforeAfterPage() {
                       key={caseItem.id}
                       data-aos="fade-up"
                       data-aos-delay={index * 100}
-                      className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                      className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
                     >
                       <div className="md:flex">
                         {/* Images */}
@@ -1184,22 +1174,18 @@ export default function BeforeAfterPage() {
                         <div className="md:w-1/2 p-6 flex flex-col justify-between">
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                              <h3 className="text-xl font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
                                 {getDisplayTitle(caseItem)}
                               </h3>
                               <div className="flex items-center gap-1">
                                 <Sparkles size={16} className="text-yellow-500" />
-                                <span className="text-sm text-[#1E6FB0] dark:text-[#3a8bc9] font-medium">
-                                  {t.amazingResults}
-                                </span>
+                                <span className="text-sm text-[#1E6FB0] font-medium">{t.amazingResults}</span>
                               </div>
                             </div>
 
                             <div className="mb-4">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {getCategoryName(caseItem.category)}
-                              </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              <p className="text-sm text-gray-500">{getCategoryName(caseItem.category)}</p>
+                              <p className="text-sm text-gray-500 mt-1">
                                 {t.doctor}: {dentists.find((d) => d.id === caseItem.doctorId)?.name || ""}
                               </p>
                             </div>
@@ -1221,10 +1207,7 @@ export default function BeforeAfterPage() {
               )}
             </>
           ) : (
-            <div
-              data-aos="fade-up"
-              className="bg-white dark:bg-gray-800 p-8 text-center rounded-xl shadow-md max-w-md mx-auto"
-            >
+            <div data-aos="fade-up" className="bg-white p-8 text-center rounded-xl shadow-md max-w-md mx-auto">
               <motion.div
                 className="mb-4 text-teal-500"
                 animate={{
@@ -1235,8 +1218,8 @@ export default function BeforeAfterPage() {
               >
                 <Search size={48} className="mx-auto opacity-50" />
               </motion.div>
-              <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">{t.noResults}</h3>
-              <p className="text-gray-500 dark:text-gray-400">{t.tryDifferent}</p>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noResults}</h3>
+              <p className="text-gray-500">{t.tryDifferent}</p>
             </div>
           )}
         </div>
@@ -1256,46 +1239,46 @@ export default function BeforeAfterPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 transition={{ type: "spring", damping: 20 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden max-w-5xl w-full max-h-[90vh] flex flex-col"
+                className="bg-white rounded-2xl overflow-hidden max-w-5xl w-full max-h-[90vh] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-700 bg-[#e6f3f5] dark:from-gray-800 dark:to-gray-700">
+                <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-[#e6f3f5]">
                   <div className="flex items-center gap-3">
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ type: "spring", damping: 10 }}
-                      className="bg-[#e6f3f5] dark:bg-[#007A87]/30 p-2 rounded-full"
+                      className="bg-[#e6f3f5] p-2 rounded-full"
                     >
-                      <Smile size={20} className="text-[#007A87] dark:text-[#80bdc4]" />
+                      <Smile size={20} className="text-[#007A87]" />
                     </motion.div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{getDisplayTitle(activeCase)}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{getDisplayTitle(activeCase)}</h2>
                   </div>
                   <div className="flex items-center gap-2">
                     <motion.button
                       onClick={() => navigateToCase("prev")}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <ChevronLeft size={20} className="text-gray-600 dark:text-gray-300" />
+                      <ChevronLeft size={20} className="text-gray-600" />
                     </motion.button>
                     <motion.button
                       onClick={() => navigateToCase("next")}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" />
+                      <ChevronRight size={20} className="text-gray-600" />
                     </motion.button>
                     <motion.button
                       onClick={closeModal}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <X size={20} className="text-gray-600 dark:text-gray-300" />
+                      <X size={20} className="text-gray-600" />
                     </motion.button>
                   </div>
                 </div>
@@ -1303,7 +1286,7 @@ export default function BeforeAfterPage() {
                 <div className="overflow-y-auto flex-grow">
                   {/* Before and After images side by side */}
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{t.transformation}</h3>
+                    <h3 className="text-xl font-semibold mb-4 text-gray-900">{t.transformation}</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Before Image */}
@@ -1391,7 +1374,10 @@ export default function BeforeAfterPage() {
                             drag={zoomedImages.after}
                             dragConstraints={getDragConstraints("after")}
                           />
-                          <div className="absolute top-0 right-0  bg-teal-600 text-white text-sm px-3 py-1 m-3 rounded" style={{backgroundColor:"#1E6FB0"}}>
+                          <div
+                            className="absolute top-0 right-0  bg-teal-600 text-white text-sm px-3 py-1 m-3 rounded"
+                            style={{ backgroundColor: "#1E6FB0" }}
+                          >
                             {t.after}
                           </div>
 
@@ -1434,37 +1420,35 @@ export default function BeforeAfterPage() {
                     </div>
 
                     {/* Hint for zoom */}
-                    <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-2">{t.clickToZoom}</div>
+                    <div className="text-center text-gray-500 text-sm mt-2">{t.clickToZoom}</div>
 
                     {/* Procedure description */}
-                    <div className="mt-6 bg-[#e6f3f5] dark:bg-[#007A87]/20 p-4 rounded-lg">
-                      <h4 className="font-medium text-[#007A87] dark:text-[#80bdc4] mb-2">{t.procedureDescription}</h4>
-                      <p className="text-[#007A87] dark:text-[#80bdc4]">{t.procedureText}</p>
+                    <div className="mt-6 bg-[#e6f3f5] p-4 rounded-lg">
+                      <h4 className="font-medium text-[#007A87] mb-2">{t.procedureDescription}</h4>
+                      <p className="text-[#007A87]">{t.procedureText}</p>
                     </div>
 
                     <div className="mt-8">
-                      <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{t.details}</h3>
+                      <h3 className="text-xl font-semibold mb-4 text-gray-900">{t.details}</h3>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t.doctor}</p>
-                          <p className="text-base text-gray-900 dark:text-white">
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-sm font-medium text-gray-700">{t.doctor}</p>
+                          <p className="text-base text-gray-900">
                             {dentists.find((d) => d.id === activeCase.doctorId)?.name || ""}
                           </p>
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t.category}</p>
-                          <p className="text-base text-gray-900 dark:text-white">
-                            {getCategoryName(activeCase.category)}
-                          </p>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-sm font-medium text-gray-700">{t.category}</p>
+                          <p className="text-base text-gray-900">{getCategoryName(activeCase.category)}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Similar cases */}
                     <div className="mt-8">
-                      <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{t.similarCases}</h3>
+                      <h3 className="text-xl font-semibold mb-4 text-gray-900">{t.similarCases}</h3>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {filteredCases
@@ -1477,7 +1461,7 @@ export default function BeforeAfterPage() {
                           .map((item) => (
                             <motion.div
                               key={`similar-${item.id}`}
-                              className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md cursor-pointer"
+                              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md cursor-pointer"
                               whileHover={{ y: -5 }}
                               onClick={() => {
                                 setActiveCase(item)
@@ -1493,13 +1477,9 @@ export default function BeforeAfterPage() {
                                 />
                               </div>
                               <div className="p-3">
-                                <h4 className="font-medium text-sm text-gray-900 dark:text-white">
-                                  {getDisplayTitle(item)}
-                                </h4>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {getCategoryName(item.category)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <h4 className="font-medium text-sm text-gray-900">{getDisplayTitle(item)}</h4>
+                                <p className="text-xs text-gray-500">{getCategoryName(item.category)}</p>
+                                <p className="text-xs text-gray-500 mt-1">
                                   {dentists.find((d) => d.id === item.doctorId)?.name || ""}
                                 </p>
                               </div>
@@ -1510,7 +1490,7 @@ export default function BeforeAfterPage() {
                   </div>
                 </div>
 
-                <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="p-4 border-t border-gray-100 bg-gray-50">
                   <button
                     onClick={closeModal}
                     className="w-full py-3 bg-[#1E6FB0] hover:bg-[#1a5f96] text-white font-medium rounded-lg transition-colors shadow-md"

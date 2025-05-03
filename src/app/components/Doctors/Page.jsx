@@ -321,7 +321,7 @@ const DoctorsCarousel = () => {
         }
       `}</style>
 
-      <h2 className="text-center text-2xl ponomar-regular font-bold mb-6 tracking-[.25em]" data-aos="zoom-in">
+      <h2 className="text-center text-black  text-2xl ponomar-regular font-bold mb-6 tracking-[.25em]" data-aos="zoom-in">
         {translations?.doctors?.title || "ექიმები"}
       </h2>
 
