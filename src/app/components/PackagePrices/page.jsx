@@ -15,6 +15,7 @@ export default function PackagesSection({ showAllLink = true, limit = 3, classNa
     return classes.filter(Boolean).join(" ")
   }
 
+
   // პაკეტების მონაცემები
   const packages = [
     {
@@ -162,7 +163,7 @@ export default function PackagesSection({ showAllLink = true, limit = 3, classNa
                       {translations?.choosePackage || "აირჩიე პაკეტი"}
                     </Button>
                     <Link
-                      href={`/packages#${pkg.id}`}
+                      href={`/packages/${pkg.id}`}
                       className="text-center text-sm text-gray-500 hover:text-blue-600"
                     >
                       {translations?.viewDetails || "დეტალურად ნახვა"}

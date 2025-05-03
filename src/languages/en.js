@@ -70,7 +70,7 @@ export const en = {
     closed: "Closed",
     followUs: "Follow Us",
     getDirections: "Get Directions",
-  },
+  },  
   services: {
     title: "Our Services",
     pageTitle: "JC Dental - Our Services",
@@ -94,7 +94,7 @@ export const en = {
       comfortableEnvironment: "Comfortable and calm environment",
       individualTreatment: "Individual treatment plans",
       flexibleSchedule: "Flexible schedule and emergency assistance",
-    },
+    },    
     therapy: {
       title: "Therapy",
       shortDescription: "Non-surgical treatment of teeth and oral cavity",
@@ -379,7 +379,7 @@ export const en = {
       "You can cancel your package within 14 days of purchase with a full refund if you haven't used any services. After 14 days, refunds are proportional to unused services.",
   },
 
-  buttons: {
+  buttons2: {
     backToHome: "Back to Home Page",
   },
 
