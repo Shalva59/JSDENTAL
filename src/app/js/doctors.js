@@ -13,7 +13,7 @@
 //   {
 //     name: "ანა პაჭკორია ",
 //     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
-//     image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
+//     image: "/JC_Dental_Doctors/Ana_patchkoria.jpg",
 //   },
 //   {
 //     name: "ელი კასრელიშვილი",
@@ -80,13 +80,12 @@ export const doctors = [
   {
     name: "ანა პაჭკორია ",
     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
-    image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
   {
     name: "ელი კასრელიშვილი",
     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
   },
 ]
 
@@ -105,13 +104,12 @@ export const enDoctors = [
   {
     name: "Ana Patchkoria ",
     specialty: "Therapist, Surgeon, Periodontologist",
-    image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
   {
     name: "Eli Kasrelishvili",
     specialty: "Therapist, Surgeon, Periodontologist",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
   },
 ]
 
@@ -130,15 +128,14 @@ export const ruDoctors = [
   {
     name: "Ана Пачкория",
     specialty: "Терапевт, Хирург, Пародонтолог",
-    image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
   {
     name: "Эли Касрелишвили",
     specialty: "Терапевт, Хирург, Пародонтолог",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
   },
-]
+] 
 
 // ებრაული ექიმები
 export const heDoctors = [
@@ -155,13 +152,12 @@ export const heDoctors = [
   {
     name: "אנה פצ'קוריה",
     specialty: "מטפל, מנתח, פריודונטולוג",
-    image: "https://img.freepik.com/premium-photo/happy-doctors-man-woman-isolated-white_168410-2355.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
   {
     name: "אלי קסרלישווילי",
     specialty: "מטפל, מנתח, פריודונטולוג",
-    image:
-      "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=1xw:0.74965xh;center,top&resize=1200:*",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
   },
 ]
 
@@ -240,7 +236,7 @@ export const dentists = [
     experience: "8 წელი გამოცდილება",
     workingDays: ["ორშაბათი", "ოთხშაბათი", "პარასკევი"],
     workingHours: "09:00 - 17:00",
-    image: "https://wallpapers.com/images/hd/doctor-pictures-l5y1qs2998u7rf0x.jpg",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
   },
   {
     id: 4,
@@ -249,7 +245,7 @@ export const dentists = [
     experience: "15 წელი გამოცდილება",
     workingDays: ["ხუთშაბათი", "კვირა"],
     workingHours: "09:00 - 17:00",
-    image: "https://img.freepik.com/premium-photo/smiling-young-caucasian-doctor-clinic-setting_818261-12638.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria_3.jpg",
   },
 ]
 
@@ -280,7 +276,7 @@ export const enDentists = [
     experience: "8 years of experience",
     workingDays: ["Monday", "Wednesday", "Friday"],
     workingHours: "09:00 - 17:00",
-    image: "https://wallpapers.com/images/hd/doctor-pictures-l5y1qs2998u7rf0x.jpg",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
   },
   {
     id: 4,
@@ -289,7 +285,7 @@ export const enDentists = [
     experience: "15 years of experience",
     workingDays: ["Thursday", "Sunday"],
     workingHours: "09:00 - 17:00",
-    image: "https://img.freepik.com/premium-photo/smiling-young-caucasian-doctor-clinic-setting_818261-12638.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria_3.jpg",
   },
 ]
 
@@ -320,7 +316,7 @@ export const ruDentists = [
     experience: "8 лет опыта",
     workingDays: ["Понедельник", "Среда", "Пятница"],
     workingHours: "09:00 - 17:00",
-    image: "https://wallpapers.com/images/hd/doctor-pictures-l5y1qs2998u7rf0x.jpg",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
   },
   {
     id: 4,
@@ -329,7 +325,7 @@ export const ruDentists = [
     experience: "15 лет опыта",
     workingDays: ["Четверг", "Воскресенье"],
     workingHours: "09:00 - 17:00",
-    image: "https://img.freepik.com/premium-photo/smiling-young-caucasian-doctor-clinic-setting_818261-12638.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria_3.jpg",
   },
 ]
 
@@ -360,7 +356,7 @@ export const heDentists = [
     experience: "8 שנות ניסיון",
     workingDays: ["יום שני", "יום רביעי", "יום שישי"],
     workingHours: "09:00 - 17:00",
-    image: "https://wallpapers.com/images/hd/doctor-pictures-l5y1qs2998u7rf0x.jpg",
+    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
   },
   {
     id: 4,
@@ -369,7 +365,7 @@ export const heDentists = [
     experience: "15 שנות ניסיון",
     workingDays: ["יום חמישי", "יום ראשון"],
     workingHours: "09:00 - 17:00",
-    image: "https://img.freepik.com/premium-photo/smiling-young-caucasian-doctor-clinic-setting_818261-12638.jpg",
+    image: "/JC_Dental_Doctors/Ana_patchkoria_3.jpg",
   },
 ]
 // ყველა ენის კბილის ექიმები ერთ ობიექტში
