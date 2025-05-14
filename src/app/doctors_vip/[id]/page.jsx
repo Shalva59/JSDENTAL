@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
-import { Calendar, ArrowLeft, GraduationCap, Phone, Mail, Camera } from "lucide-react"
+import { Calendar, ArrowLeft, GraduationCap, Phone, Mail, Camera, Award } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function DoctorDetailPage() {
@@ -137,6 +137,13 @@ export default function DoctorDetailPage() {
       tbilisiMedicalUniversity: "თბილისის სახელმწიფო სამედიცინო უნივერსიტეტი",
       dentiveri: "დენტივერი",
       unident: "Unident",
+      // Certification types
+      implantology: "იმპლანტოლოგია",
+      orthodontics: "ორთოდონტია",
+      aestheticDentistry: "ესთეტიკური სტომატოლოგია",
+      pediatricDentistry: "ბავშვთა სტომატოლოგია",
+      endodontics: "ენდოდონტია",
+      dentalSurgery: "დენტალური ქირურგია",
     },
     en: {
       title: "Doctor Profile",
@@ -164,6 +171,13 @@ export default function DoctorDetailPage() {
       tbilisiMedicalUniversity: "Tbilisi State Medical University",
       dentiveri: "Dentiveri",
       unident: "Unident",
+      // Certification types
+      implantology: "Implantology",
+      orthodontics: "Orthodontics",
+      aestheticDentistry: "Aesthetic Dentistry",
+      pediatricDentistry: "Pediatric Dentistry",
+      endodontics: "Endodontics",
+      dentalSurgery: "Dental Surgery",
     },
     ru: {
       title: "Профиль врача",
@@ -180,7 +194,7 @@ export default function DoctorDetailPage() {
       email: "Эл. почта",
       portfolio: "Портфолио",
       viewPortfolio: "Смотреть портфолио",
-      bookAppointment: "Записаться на прием",
+      bookAppointment: "Запис��ться на прием",
       about: "О враче",
       services: "Услуги",
       reviews: "Отзывы",
@@ -191,6 +205,13 @@ export default function DoctorDetailPage() {
       tbilisiMedicalUniversity: "Тбилисский государственный медицинский университет",
       dentiveri: "Дентивери",
       unident: "Юнидент",
+      // Certification types
+      implantology: "Имплантология",
+      orthodontics: "Ортодонтия",
+      aestheticDentistry: "Эстетическая стоматология",
+      pediatricDentistry: "Детская стоматология",
+      endodontics: "Эндодонтия",
+      dentalSurgery: "Дентальная хирургия",
     },
     he: {
       title: "פרופיל רופא",
@@ -218,6 +239,13 @@ export default function DoctorDetailPage() {
       tbilisiMedicalUniversity: "האוניברסיטה הרפואית של טביליסי",
       dentiveri: "דנטיברי",
       unident: "יונידנט",
+      // Certification types
+      implantology: "שתלים",
+      orthodontics: "יישור שיניים",
+      aestheticDentistry: "רפואת שיניים אסתטית",
+      pediatricDentistry: "רפואת שיניים לילדים",
+      endodontics: "טיפולי שורש",
+      dentalSurgery: "כירורגיית פה ולסת",
     },
   }
 
@@ -274,16 +302,19 @@ export default function DoctorDetailPage() {
     const tabs = [
       { id: "about", label: t.about },
       { id: "education", label: t.education },
+      { id: "certifications", label: t.certifications },
       { id: "services", label: t.services },
-      { id: "contact", label: t.contactInfo },
+      
+      // კონტაქტების ტაბი
+      // { id: "contact", label: t.contactInfo },
     ]
 
     // For very small screens, limit to fewer tabs
     if (windowWidth < 360) {
       return [
         { id: "education", label: t.education },
+        { id: "certifications", label: t.certifications },
         { id: "services", label: t.services },
-        { id: "contact", label: t.contactInfo },
       ]
     }
 
@@ -416,7 +447,7 @@ export default function DoctorDetailPage() {
               </motion.div>
             </motion.div>
             <motion.div className="md:w-2/3 p-6" variants={staggerContainer} initial="hidden" animate="visible">
-              <motion.h1 className="text-3xl font-bold text-gray-800 mb-2" variants={slideUp}>
+              <motion.h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2" variants={slideUp}>
                 {doctor.name}
               </motion.h1>
 
@@ -598,6 +629,79 @@ export default function DoctorDetailPage() {
                         >
                           <h3 className="font-bold text-gray-800">{t.unident}</h3>
                           <p className="text-gray-600">2021-2022</p>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Certifications tab */}
+              {activeTab === "certifications" && (
+                <motion.div
+                  key="certifications"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={tabContentVariants}
+                >
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <motion.div whileHover={{ rotate: 15 }}>
+                        <Award size={22} className="text-blue-600" />
+                      </motion.div>
+                      <h2 className="text-2xl font-bold text-gray-800">{t.certifications}</h2>
+                    </div>
+                    <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                      {/* TSSU Certification for all doctors */}
+                      <motion.div
+                        className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow border-t-4 border-t-blue-500"
+                        variants={slideUp}
+                        whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-bold text-gray-800 mb-1">{t.tbilisiMedicalUniversity}</h3>
+                          </div>
+                          <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                            2021
+                          </span>
+                        </div>
+                      </motion.div>
+
+                      {/* Dentiveri certification for doctor 1 */}
+                      {doctor.id === 1 && (
+                        <motion.div
+                          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                          variants={slideUp}
+                          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-gray-800 mb-1">{t.dentiveri}</h3>
+                            </div>
+                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                              2022
+                            </span>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Unident certification for doctors 2, 3, 4 */}
+                      {(doctor.id === 2 || doctor.id === 3 || doctor.id === 4) && (
+                        <motion.div
+                          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                          variants={slideUp}
+                          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-gray-800 mb-1">{t.unident}</h3>
+                            </div>
+                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                              2022
+                            </span>
+                          </div>
                         </motion.div>
                       )}
                     </motion.div>
