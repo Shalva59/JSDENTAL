@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
-import { Calendar, ArrowLeft, GraduationCap, Award, Phone, Mail, Camera } from "lucide-react"
+import { Calendar, ArrowLeft, GraduationCap, Phone, Mail, Camera, Award } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function DoctorDetailPage() {
@@ -42,6 +42,15 @@ export default function DoctorDetailPage() {
 
     if (foundDoctor) {
       setDoctor(foundDoctor)
+
+      // Extract years of experience immediately when doctor is found
+      const experienceYears = foundDoctor.experience ? foundDoctor.experience.match(/\d+/) : null
+      const years = experienceYears ? experienceYears[0] : "10"
+      const yearsNum = Number.parseInt(years, 10)
+
+      // Set count directly without animation for initial render
+      setCount(yearsNum)
+      setCountStarted(true)
     }
 
     // Simulate loading for animation
@@ -57,8 +66,9 @@ export default function DoctorDetailPage() {
   const years = experienceYears ? experienceYears[0] : "10"
   const yearsNum = Number.parseInt(years, 10)
 
-  // Set up intersection observer for counting animation
+  // Set up intersection observer for counting animation only for subsequent views
   useEffect(() => {
+    // Skip setting up observer if count is already started
     if (!countRef.current || countStarted) return
 
     const options = {
@@ -123,6 +133,17 @@ export default function DoctorDetailPage() {
       years: "წელი გამოცდილება",
       loading: "იტვირთება...",
       beforeAfter: "მკურნალობამდე და შემდეგ",
+      // Education institutions
+      tbilisiMedicalUniversity: "თბილისის სახელმწიფო სამედიცინო უნივერსიტეტი",
+      dentiveri: "დენტივერი",
+      unident: "Unident",
+      // Certification types
+      implantology: "იმპლანტოლოგია",
+      orthodontics: "ორთოდონტია",
+      aestheticDentistry: "ესთეტიკური სტომატოლოგია",
+      pediatricDentistry: "ბავშვთა სტომატოლოგია",
+      endodontics: "ენდოდონტია",
+      dentalSurgery: "დენტალური ქირურგია",
     },
     en: {
       title: "Doctor Profile",
@@ -146,6 +167,17 @@ export default function DoctorDetailPage() {
       years: "years experience",
       loading: "Loading...",
       beforeAfter: "Before & After",
+      // Education institutions
+      tbilisiMedicalUniversity: "Tbilisi State Medical University",
+      dentiveri: "Dentiveri",
+      unident: "Unident",
+      // Certification types
+      implantology: "Implantology",
+      orthodontics: "Orthodontics",
+      aestheticDentistry: "Aesthetic Dentistry",
+      pediatricDentistry: "Pediatric Dentistry",
+      endodontics: "Endodontics",
+      dentalSurgery: "Dental Surgery",
     },
     ru: {
       title: "Профиль врача",
@@ -162,13 +194,24 @@ export default function DoctorDetailPage() {
       email: "Эл. почта",
       portfolio: "Портфолио",
       viewPortfolio: "Смотреть портфолио",
-      bookAppointment: "Записаться на прием",
+      bookAppointment: "Запис��ться на прием",
       about: "О враче",
       services: "Услуги",
       reviews: "Отзывы",
       years: "лет опыта",
       loading: "Загрузка...",
       beforeAfter: "До и После",
+      // Education institutions
+      tbilisiMedicalUniversity: "Тбилисский государственный медицинский университет",
+      dentiveri: "Дентивери",
+      unident: "Юнидент",
+      // Certification types
+      implantology: "Имплантология",
+      orthodontics: "Ортодонтия",
+      aestheticDentistry: "Эстетическая стоматология",
+      pediatricDentistry: "Детская стоматология",
+      endodontics: "Эндодонтия",
+      dentalSurgery: "Дентальная хирургия",
     },
     he: {
       title: "פרופיל רופא",
@@ -192,6 +235,17 @@ export default function DoctorDetailPage() {
       years: "שנות ניסיון",
       loading: "טוען...",
       beforeAfter: "לפני ואחרי",
+      // Education institutions
+      tbilisiMedicalUniversity: "האוניברסיטה הרפואית של טביליסי",
+      dentiveri: "דנטיברי",
+      unident: "יונידנט",
+      // Certification types
+      implantology: "שתלים",
+      orthodontics: "יישור שיניים",
+      aestheticDentistry: "רפואת שיניים אסתטית",
+      pediatricDentistry: "רפואת שיניים לילדים",
+      endodontics: "טיפולי שורש",
+      dentalSurgery: "כירורגיית פה ולסת",
     },
   }
 
@@ -248,16 +302,19 @@ export default function DoctorDetailPage() {
     const tabs = [
       { id: "about", label: t.about },
       { id: "education", label: t.education },
+      { id: "certifications", label: t.certifications },
       { id: "services", label: t.services },
-      { id: "contact", label: t.contactInfo },
+      
+      // კონტაქტების ტაბი
+      // { id: "contact", label: t.contactInfo },
     ]
 
     // For very small screens, limit to fewer tabs
     if (windowWidth < 360) {
       return [
         { id: "education", label: t.education },
+        { id: "certifications", label: t.certifications },
         { id: "services", label: t.services },
-        { id: "contact", label: t.contactInfo },
       ]
     }
 
@@ -267,6 +324,16 @@ export default function DoctorDetailPage() {
   // Navigate to the before-after page with doctor ID
   const handleViewPortfolio = () => {
     router.push(`/pages/before_and_after?doctor=${id}`)
+  }
+
+  // Get doctor's specialty institution based on ID
+  const getSpecialtyInstitution = () => {
+    if (id === 1) {
+      return t.dentiveri
+    } else if (id === 2 || id === 3 || id === 4) {
+      return t.unident
+    }
+    return null
   }
 
   if (loading) {
@@ -323,6 +390,8 @@ export default function DoctorDetailPage() {
     )
   }
 
+  const specialtyInstitution = getSpecialtyInstitution()
+
   return (
     <div className="bg-gray-50 min-h-screen py-8" dir={direction}>
       <div className="container mx-auto px-4">
@@ -378,7 +447,7 @@ export default function DoctorDetailPage() {
               </motion.div>
             </motion.div>
             <motion.div className="md:w-2/3 p-6" variants={staggerContainer} initial="hidden" animate="visible">
-              <motion.h1 className="text-3xl font-bold text-gray-800 mb-2" variants={slideUp}>
+              <motion.h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2" variants={slideUp}>
                 {doctor.name}
               </motion.h1>
 
@@ -411,7 +480,7 @@ export default function DoctorDetailPage() {
               <motion.div className="mb-6" variants={slideUp}>
                 <h2 className="text-lg font-medium text-gray-700 mb-2">{t.experience}</h2>
                 <p className="text-gray-600" ref={countRef}>
-                  <span className="font-medium">{countStarted ? count : 0}</span> {t.years}
+                  <span className="font-medium">{count}</span> {t.years}
                 </p>
               </motion.div>
 
@@ -530,26 +599,53 @@ export default function DoctorDetailPage() {
                       <h2 className="text-2xl font-bold text-gray-800">{t.education}</h2>
                     </div>
                     <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                      {/* Base education for all doctors */}
                       <motion.div
                         className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
                         variants={slideUp}
                         whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
                       >
-                        <h3 className="font-bold text-gray-800">Tbilisi State Medical University</h3>
-                        <p className="text-gray-600">Doctor of Dental Medicine, 2010-2015</p>
+                        <h3 className="font-bold text-gray-800">{t.tbilisiMedicalUniversity}</h3>
+                        <p className="text-gray-600">2016-2021</p>
                       </motion.div>
-                      <motion.div
-                        className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
-                        variants={slideUp}
-                        whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
-                      >
-                        <h3 className="font-bold text-gray-800">New York University College of Dentistry</h3>
-                        <p className="text-gray-600">Specialty Training, 2015-2017</p>
-                      </motion.div>
+
+                      {/* Additional education based on doctor ID */}
+                      {doctor.id === 1 && (
+                        <motion.div
+                          className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
+                          variants={slideUp}
+                          whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
+                        >
+                          <h3 className="font-bold text-gray-800">{t.dentiveri}</h3>
+                          <p className="text-gray-600">2021-2022</p>
+                        </motion.div>
+                      )}
+
+                      {(doctor.id === 2 || doctor.id === 3 || doctor.id === 4) && (
+                        <motion.div
+                          className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
+                          variants={slideUp}
+                          whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
+                        >
+                          <h3 className="font-bold text-gray-800">{t.unident}</h3>
+                          <p className="text-gray-600">2021-2022</p>
+                        </motion.div>
+                      )}
                     </motion.div>
                   </div>
+                </motion.div>
+              )}
 
-                  <div className="mt-12">
+              {/* Certifications tab */}
+              {activeTab === "certifications" && (
+                <motion.div
+                  key="certifications"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={tabContentVariants}
+                >
+                  <div className="mb-8">
                     <div className="flex items-center gap-2 mb-4">
                       <motion.div whileHover={{ rotate: 15 }}>
                         <Award size={22} className="text-blue-600" />
@@ -557,22 +653,57 @@ export default function DoctorDetailPage() {
                       <h2 className="text-2xl font-bold text-gray-800">{t.certifications}</h2>
                     </div>
                     <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                      {/* TSSU Certification for all doctors */}
                       <motion.div
-                        className={`border-green-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
+                        className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow border-t-4 border-t-blue-500"
                         variants={slideUp}
-                        whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
+                        whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
                       >
-                        <h3 className="font-bold text-gray-800">American Dental Association</h3>
-                        <p className="text-gray-600">Certified Member, 2017</p>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-bold text-gray-800 mb-1">{t.tbilisiMedicalUniversity}</h3>
+                          </div>
+                          <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                            2021
+                          </span>
+                        </div>
                       </motion.div>
-                      <motion.div
-                        className={`border-green-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
-                        variants={slideUp}
-                        whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
-                      >
-                        <h3 className="font-bold text-gray-800">European Society of Cosmetic Dentistry</h3>
-                        <p className="text-gray-600">Certified Specialist, 2018</p>
-                      </motion.div>
+
+                      {/* Dentiveri certification for doctor 1 */}
+                      {doctor.id === 1 && (
+                        <motion.div
+                          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                          variants={slideUp}
+                          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-gray-800 mb-1">{t.dentiveri}</h3>
+                            </div>
+                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                              2022
+                            </span>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Unident certification for doctors 2, 3, 4 */}
+                      {(doctor.id === 2 || doctor.id === 3 || doctor.id === 4) && (
+                        <motion.div
+                          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                          variants={slideUp}
+                          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-gray-800 mb-1">{t.unident}</h3>
+                            </div>
+                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                              2022
+                            </span>
+                          </div>
+                        </motion.div>
+                      )}
                     </motion.div>
                   </div>
                 </motion.div>
