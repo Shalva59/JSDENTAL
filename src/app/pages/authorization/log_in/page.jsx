@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import Link from "next/link"
 import AOS from "aos"
 import "aos/dist/aos.css"
+import { signIn } from "next-auth/react";
 
 const LoginPage = () => {
   const { currentLanguage, direction, translations } = useLanguage()
@@ -67,23 +68,34 @@ const LoginPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (validateForm()) {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
+        const result = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        });
+  
+        if (result.error) {
+          throw new Error("Invalid email or password");
+        }
+  
         // Show success message
-        setLoginSuccess(true)
+        setLoginSuccess(true);
       } catch (error) {
-        console.error("Login error:", error)
+        console.error("Login error:", error);
+        setErrors({
+          ...errors,
+          general: error.message
+        });
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     }
-  }
+  };
 
   return (
     <div

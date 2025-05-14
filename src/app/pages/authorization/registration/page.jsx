@@ -113,17 +113,29 @@ const RegistrationPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (validateForm()) {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          // Show more specific error message
+          throw new Error(data.error || 'Registration failed');
+        }
+  
         // Show success message
-        setRegistrationSuccess(true)
-
+        setRegistrationSuccess(true);
+  
         // Reset form
         setFormData({
           firstName: "",
@@ -133,14 +145,20 @@ const RegistrationPage = () => {
           password: "",
           confirmPassword: "",
           agreeToTerms: false,
-        })
+        });
       } catch (error) {
-        console.error("Registration error:", error)
+        console.error("Registration error:", error);
+        
+        // Add a general error to display at the top of the form
+        setErrors({
+          ...errors,
+          general: error.message
+        });
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     }
-  }
+  };
 
   return (
     <div

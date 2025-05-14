@@ -1,5 +1,4 @@
 'use client';
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header/Page";
@@ -7,7 +6,7 @@ import Footer from "./components/Footer/Page";
 import { Inter } from "next/font/google";
 import Script from 'next/script';
 import { LanguageProvider } from "../context/LanguageContext";
- // ✅ სწორად მითითებული ბილიკი!
+import { AuthProvider } from './providers/AuthProvider';
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -15,14 +14,17 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className} style={{background:"white"}}>
-        {/* 🌐 ენების კონტექსტის პროვაიდერი - აქ იშლება მთელი აპი */}
+        {/* Wrap everything with SessionProvider */}
+        <AuthProvider>
+        {/* Language context provider */}
         <LanguageProvider>
           <Header />
           {children}
           <Footer />
         </LanguageProvider>
-
-        {/* 💬 LiveChat სკრიპტი */}
+      </AuthProvider>
+        
+        {/* LiveChat script */}
         <Script
           id="livechat-script"
           strategy="lazyOnload"

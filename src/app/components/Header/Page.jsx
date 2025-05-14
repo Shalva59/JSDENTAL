@@ -8,6 +8,7 @@ import { Globe, Check } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
+import { useSession, signOut } from "next-auth/react"
 
 const languages = [
   // საქართველოს დროშა
@@ -29,7 +30,6 @@ const languages = [
       </svg>
     ),
   },
-
   // ამერიკის დროშა
   {
     code: "en",
@@ -51,7 +51,6 @@ const languages = [
       </svg>
     ),
   },
-
   //  ებრაული დროშა
   {
     code: "he",
@@ -66,7 +65,6 @@ const languages = [
       </svg>
     ),
   },
-
   // რუსული დროშა
   {
     code: "ru",
@@ -85,6 +83,8 @@ const languages = [
 const Header = () => {
   const { currentLanguage, changeLanguage, translations, direction } = useLanguage()
   const localizedProducts = useLocalizedNavigation()
+  const { data: session, status } = useSession()  // Add this line
+  const isAuthenticated = status === "authenticated"  // Add this line
   const selectedLanguage = languages.find((lang) => lang.code === currentLanguage)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -98,13 +98,11 @@ const Header = () => {
   const mobileLangButtonRef = useRef(null)
   const pathname = usePathname()
   const [isDesktop, setIsDesktop] = useState(true)
-
+  
   // სქროლის პროგრესის გამოთვლა
   const { scrollYProgress } = useScroll()
-
   // სქროლის ინდიკატორის ტრანსფორმაცია - თავიდან ცარიელი, შემდეგ ივსება
   const scrollProgress = useTransform(scrollYProgress, [0, 0.05, 1], ["0%", "5%", "100%"])
-
   // ჰედერის სტილების ტრანსფორმაცია სქროლის მიხედვით
   const headerHeight = useTransform(scrollYProgress, [0, 0.1], ["4rem", "3.5rem"])
   const headerBgOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.98])
@@ -114,32 +112,29 @@ const Header = () => {
     ["0 0 0 rgba(0,0,0,0)", "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"],
   )
   const logoSize = useTransform(scrollYProgress, [0, 0.1], [50, 40])
-
+  
   // მხოლოდ ჰედერის სიმაღლის გაზომვა
   useEffect(() => {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight)
     }
   }, [])
-
+  
   // Check if screen width is less than 1200px
   useEffect(() => {
     const checkScreenWidth = () => {
       setIsDesktop(window.innerWidth >= 1200)
     }
-
     // Initial check
     checkScreenWidth()
-
     // Add event listener for window resize
     window.addEventListener("resize", checkScreenWidth)
-
     // Cleanup
     return () => {
       window.removeEventListener("resize", checkScreenWidth)
     }
   }, [])
-
+  
   // ენის მენიუს დახურვა გარე კლიკზე
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -152,7 +147,6 @@ const Header = () => {
       ) {
         setIsLangMenuOpen(false)
       }
-
       // მობილურის ენის მენიუსთვის
       if (
         mobileLangMenuRef.current &&
@@ -163,25 +157,23 @@ const Header = () => {
         setIsMobileLangMenuOpen(false)
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside)
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
-
+  
   const handleLanguageChange = (code) => {
     changeLanguage(code)
     setIsLangMenuOpen(false)
     setIsMobileLangMenuOpen(false)
   }
-
+  
   // დროფდაუნის პოზიციის გამოთვლა ენის მიმართულების მიხედვით
   const getDesktopDropdownPosition = () => {
     return isRTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
   }
-
+  
   // დროფდაუნის ანიმაციის ვარიანტები
   const dropdownVariants = {
     hidden: {
@@ -203,7 +195,7 @@ const Header = () => {
       transition: { duration: 0.1 },
     },
   }
-
+  
   // ენის ელემენტების ანიმაციის ვარიანტები
   const itemVariants = {
     hidden: { opacity: 0, x: isRTL ? 10 : -10 },
@@ -214,7 +206,7 @@ const Header = () => {
     }),
     exit: { opacity: 0, transition: { duration: 0.05 } },
   }
-
+  
   // მობილური მენიუს ანიმაციის ვარიანტები
   const mobileMenuVariants = {
     hidden: {
@@ -233,14 +225,14 @@ const Header = () => {
       transition: { duration: 0.2, when: "afterChildren" },
     },
   }
-
+  
   // მობილური მენიუს ელემენტების ანიმაციის ვარიანტები
   const mobileMenuItemVariants = {
     hidden: { opacity: 0, y: -5, transition: { duration: 0.1 } },
     visible: { opacity: 1, y: 0, transition: { duration: 0.1 } },
     exit: { opacity: 0, y: -5, transition: { duration: 0.1 } },
   }
-
+  
   // "Coming Soon" ტექსტის ციმციმის ანიმაცია
   const blinkVariants = {
     animate: {
@@ -248,11 +240,10 @@ const Header = () => {
       transition: { duration: 2, repeat: Number.POSITIVE_INFINITY, repeatType: "loop" },
     },
   }
-
+  
   // ენის ელემენტის რენდერი თანმიმდევრული დაშორებით
   const renderLanguageItem = (language, index) => {
     const isSelected = language.code === currentLanguage
-
     return (
       <motion.button
         key={language.code}
@@ -275,7 +266,7 @@ const Header = () => {
       </motion.button>
     )
   }
-
+  
   // არჩეული ენის რენდერი თანმიმდევრული დაშორებით
   const renderSelectedLanguage = () => {
     return (
@@ -286,22 +277,21 @@ const Header = () => {
       </div>
     )
   }
-
+  
   // აქტიური მენიუს ელემენტის შემოწმება
   const isActiveLink = (url) => {
     if (url === "/" && pathname === "/") return true
     if (url !== "/" && pathname.startsWith(url)) return true
     return false
   }
-
+  
   // დროფდაუნის საერთო სტილები
   const dropdownStyles = "rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
-
+  
   return (
     <>
       {/* სივრცის შემნახველი დივი */}
       <div style={{ height: `${headerHeightState}px` }} />
-
       {/* ჰედერი */}
       <motion.header
         ref={headerRef}
@@ -323,7 +313,7 @@ const Header = () => {
               </motion.div>
               <span className="text-xl font-bold text-gray-900">JC Dental</span>
             </Link>
-
+            
             {/* მობილური მენიუს ღილაკი */}
             <motion.button
               type="button"
@@ -380,7 +370,7 @@ const Header = () => {
                 />
               </motion.svg>
             </motion.button>
-
+            
             {/* დესკტოპის ნავიგაცია */}
             <nav className={isDesktop ? "flex items-center space-x-8" : "hidden"}>
               {localizedProducts.map((item, index) => (
@@ -412,7 +402,7 @@ const Header = () => {
                 </motion.p>
               </div>
             </nav>
-
+            
             {/* ენის არჩევანი და CTA */}
             <div className={isDesktop ? "flex items-center space-x-4" : "hidden"}>
               {/* ენის არჩევანი */}
@@ -427,7 +417,6 @@ const Header = () => {
                 >
                   {renderSelectedLanguage()}
                 </motion.button>
-
                 <AnimatePresence>
                   {isLangMenuOpen && (
                     <motion.div
@@ -446,20 +435,43 @@ const Header = () => {
                   )}
                 </AnimatePresence>
               </div>
-
-              {/* შესვლის ღილაკი - დესკტოპი */}
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  href="/pages/authorization/log_in"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  {translations?.login?.login || "Login"}
-                </Link>
-              </motion.div>
+              
+              {/* Authentication - Desktop */}
+              {isAuthenticated ? (
+                <div className="relative group">
+                  <motion.button 
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>{session.user.name}</span>
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </motion.button>
+                  <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <button
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {translations?.header?.logout || "Logout"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href="/pages/authorization/log_in"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  >
+                    {translations?.login?.login || "Login"}
+                  </Link>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
-
+        
         {/* მობილური მენიუ ანიმაციით */}
         <AnimatePresence>
           {isMobileMenuOpen && (
@@ -514,7 +526,6 @@ const Header = () => {
                     >
                       {renderSelectedLanguage()}
                     </motion.button>
-
                     <AnimatePresence>
                       {isMobileLangMenuOpen && (
                         <motion.div
@@ -547,21 +558,36 @@ const Header = () => {
                       )}
                     </AnimatePresence>
                   </div>
-
-                  {/* შესვლის ღილაკი - მობილური */}
-                  <Link
-                    href="/pages/authorization/log_in"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {translations?.login?.login || "Login"}
-                  </Link>
+                  
+                  {/* Authentication - Mobile */}
+                  {isAuthenticated ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm font-medium text-gray-700">{session.user.name}</span>
+                      <button
+                        onClick={() => {
+                          signOut({ callbackUrl: '/' });
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="text-sm text-red-600 hover:text-red-700 mt-1"
+                      >
+                        {translations?.header?.logout || "Logout"}
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/pages/authorization/log_in"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {translations?.login?.login || "Login"}
+                    </Link>
+                  )}
                 </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-
+        
         {/* სქროლის პროგრესის ინდიკატორი */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600 origin-left"
