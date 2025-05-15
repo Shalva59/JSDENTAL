@@ -368,7 +368,7 @@ export default function BookingPage() {
       // Prepare booking data
       const bookingData = {
         doctor: selectedDoctor,
-        doctorName: dentists.find((d) => d.id === selectedDoctor)?.name || selectedDoctor,
+        doctorName: dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor,
         service: selectedService,
         serviceName: t.services[selectedService] || selectedService,
         date: selectedDate ? formatDate(selectedDate) : "",
