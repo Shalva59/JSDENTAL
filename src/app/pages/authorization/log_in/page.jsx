@@ -29,7 +29,11 @@ const LoginPage = () => {
     rememberMe: false,
   })
 
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    general: ""  // Added general error field
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loginSuccess, setLoginSuccess] = useState(false)
@@ -49,6 +53,14 @@ const LoginPage = () => {
         [name]: "",
       })
     }
+    
+    // Also clear general error when user starts typing
+    if (errors.general) {
+      setErrors({
+        ...errors,
+        general: ""
+      });
+    }
   }
 
   const validateForm = () => {
@@ -63,7 +75,7 @@ const LoginPage = () => {
       newErrors.email = t.emailInvalid
     }
 
-    setErrors(newErrors)
+    setErrors({...errors, ...newErrors})
     return Object.keys(newErrors).length === 0
   }
 
@@ -79,17 +91,21 @@ const LoginPage = () => {
           password: formData.password,
         });
   
-        if (result.error) {
-          throw new Error("Invalid email or password");
+        if (result?.error) {
+          // Handle error without throwing
+          setErrors({
+            ...errors,
+            general: t.invalidCredentials || "Invalid email or password"
+          });
+        } else {
+          // Show success message
+          setLoginSuccess(true);
         }
-  
-        // Show success message
-        setLoginSuccess(true);
       } catch (error) {
         console.error("Login error:", error);
         setErrors({
           ...errors,
-          general: error.message
+          general: error.message || "Login failed. Please try again."
         });
       } finally {
         setIsSubmitting(false);
@@ -178,6 +194,13 @@ const LoginPage = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* General Error Message - Added this section */}
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" data-aos="fade-up">
+                  <p>{errors.general}</p>
+                </div>
+              )}
+
               {/* Email */}
               <div data-aos="fade-up" data-aos-delay="500">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
