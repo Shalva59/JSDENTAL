@@ -113,29 +113,29 @@ const RegistrationPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     if (validateForm()) {
-      setIsSubmitting(true);
+      setIsSubmitting(true)
       try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        });
-  
-        const data = await response.json();
-  
+        })
+
+        const data = await response.json()
+
         if (!response.ok) {
           // Show more specific error message
-          throw new Error(data.error || 'Registration failed');
+          throw new Error(data.error || "Registration failed")
         }
-  
+
         // Show success message
-        setRegistrationSuccess(true);
-  
+        setRegistrationSuccess(true)
+
         // Reset form
         setFormData({
           firstName: "",
@@ -145,20 +145,20 @@ const RegistrationPage = () => {
           password: "",
           confirmPassword: "",
           agreeToTerms: false,
-        });
+        })
       } catch (error) {
-        console.error("Registration error:", error);
-        
+        console.error("Registration error:", error)
+
         // Add a general error to display at the top of the form
         setErrors({
           ...errors,
-          general: error.message
-        });
+          general: error.message,
+        })
       } finally {
-        setIsSubmitting(false);
+        setIsSubmitting(false)
       }
     }
-  };
+  }
 
   return (
     <div
@@ -251,12 +251,12 @@ const RegistrationPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* First Name */}
                 <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="700">
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="firstName" className="block text-sm   font-medium text-gray-700 mb-1">
                     {t.firstName}
                   </label>
                   <div className={`relative rounded-md shadow-sm ${errors.firstName ? "ring-1 ring-red-500" : ""}`}>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className={`h-5 w-5 ${focusedField === "firstName" ? "text-blue-500" : "text-gray-400"}`} />
+                      <User className={`h-5  w-5 ${focusedField === "firstName" ? "text-blue-500" : "text-gray-400"}`} />
                     </div>
                     <input
                       id="firstName"
@@ -266,7 +266,7 @@ const RegistrationPage = () => {
                       onChange={handleChange}
                       onFocus={() => setFocusedField("firstName")}
                       onBlur={() => setFocusedField(null)}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${
+                      className={`block text-black w-full pl-10 pr-3 py-2.5 border ${
                         errors.firstName
                           ? "border-red-300"
                           : focusedField === "firstName"
@@ -296,7 +296,7 @@ const RegistrationPage = () => {
                       onChange={handleChange}
                       onFocus={() => setFocusedField("lastName")}
                       onBlur={() => setFocusedField(null)}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${
+                      className={`block w-full text-black pl-10 pr-3 py-2.5 border ${
                         errors.lastName
                           ? "border-red-300"
                           : focusedField === "lastName"
@@ -327,7 +327,7 @@ const RegistrationPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-3 py-2.5 border ${
+                    className={`block text-black w-full pl-10 pr-3 py-2.5 border ${
                       errors.email ? "border-red-300" : focusedField === "email" ? "border-blue-500" : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                     style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
@@ -370,7 +370,7 @@ const RegistrationPage = () => {
                     }}
                     onFocus={() => setFocusedField("phone")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-3 py-2.5 border text-left ${
+                    className={`block text-black w-full pl-10 pr-3 py-2.5 border text-left ${
                       errors.phone ? "border-red-300" : focusedField === "phone" ? "border-blue-500" : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                       direction === "rtl" ? "text-right" : "text-left"
@@ -398,7 +398,7 @@ const RegistrationPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-10 py-2.5 border ${
+                    className={`block text-black w-full pl-10 pr-10 py-2.5 border ${
                       errors.password
                         ? "border-red-300"
                         : focusedField === "password"
@@ -442,7 +442,7 @@ const RegistrationPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("confirmPassword")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-10 py-2.5 border ${
+                    className={`block w-full text-black pl-10 pr-10 py-2.5 border ${
                       errors.confirmPassword
                         ? "border-red-300"
                         : focusedField === "confirmPassword"
@@ -491,7 +491,7 @@ const RegistrationPage = () => {
               {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>}
 
               {/* Submit Button */}
-              <div data-aos="zoom-in"  data-aos-duration="500" data-aos-delay="300">
+              <div data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
                 <button
                   type="submit"
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-[1.01]"

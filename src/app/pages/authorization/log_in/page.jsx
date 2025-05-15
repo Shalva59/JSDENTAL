@@ -218,10 +218,10 @@ const LoginPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-3 py-2.5 border ${
+                    className={`block w-full text-black pl-10 pr-3 py-2.5 border ${
                       errors.email ? "border-red-300" : focusedField === "email" ? "border-blue-500" : "border-gray-300"
                     } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder={t.emailPlaceholder}
+                    placeholder={t.emailPlaceholder} 
                     style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
                   />
                 </div>
@@ -245,7 +245,7 @@ const LoginPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full pl-10 pr-10 py-2.5 border ${
+                    className={`block w-full text-black pl-10 pr-10 py-2.5 border ${
                       errors.password
                         ? "border-red-300"
                         : focusedField === "password"
