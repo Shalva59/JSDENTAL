@@ -367,7 +367,7 @@ export default function DentalSlider() {
               <li className="flex justify-between items-center">
                 <span>{translations?.slider?.mondayFriday || "ორშაბათი-პარასკევი"}</span>
                 <span dir="ltr" className="font-medium text-gray-700">
-                  11:00 - 20:00
+                  10:00 - 20:00
                 </span>
               </li>
               <li className="flex justify-between items-center">
@@ -378,7 +378,7 @@ export default function DentalSlider() {
               <li className="flex justify-between items-center">
                 <span>{translations?.slider?.sunday || "კვირა"}</span>
                 <span dir="ltr" className="font-medium text-gray-700">
-                  11:00 - 20:00
+                  10:00 - 20:00
                 </span>
               </li>
             </ul>
