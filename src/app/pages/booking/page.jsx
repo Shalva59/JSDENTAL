@@ -6,13 +6,15 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
 import { motion } from "framer-motion"
 import Link from "next/link"
-// import { sendBookingEmail } from "../../js/sendEmail"
+import { useSession } from "next-auth/react" // Add this import
 
 export default function BookingPage() {
   const router = useRouter()
   const { currentLanguage, direction } = useLanguage()
   const dentists = useLocalizedDentists()
   const isRTL = direction === "rtl"
+  const { data: session, status } = useSession() // Get session information
+  const isAuthenticated = status === "authenticated"
 
   // Form state
   const [selectedDate, setSelectedDate] = useState(null)
@@ -35,6 +37,20 @@ export default function BookingPage() {
   const [error, setError] = useState("")
   const [availableTimes, setAvailableTimes] = useState([])
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0)
+
+  // Pre-fill user information if authenticated
+  useEffect(() => {
+    if (isAuthenticated && session.user) {
+      // Extract first and last name from full name
+      const nameParts = session.user.name ? session.user.name.split(' ') : ['', ''];
+      const userFirstName = nameParts[0] || '';
+      const userLastName = nameParts.slice(1).join(' ') || '';
+      
+      setFirstName(userFirstName);
+      setLastName(userLastName);
+      setEmail(session.user.email || '');
+    }
+  }, [isAuthenticated, session]);
 
   // Track window resize for responsive adjustments
   useEffect(() => {
@@ -108,6 +124,7 @@ export default function BookingPage() {
       invalidEmail: "არასწორი ელ-ფოსტის ფორმატი",
       invalidPhone: "არასწორი ტელეფონის ფორმატი",
       mustAgreeToTerms: "გთხოვთ, დაეთანხმოთ წესებს და პირობებს",
+      autofilled: "ავტომატურად შეივსო თქვენი ანგარიშიდან",
       services: {
         cleaning: "კბილების პროფესიული წმენდა",
         whitening: "კბილების გათეთრება",
@@ -162,6 +179,7 @@ export default function BookingPage() {
       invalidEmail: "Invalid email format",
       invalidPhone: "Invalid phone format",
       mustAgreeToTerms: "You must agree to the terms and conditions",
+      autofilled: "Auto-filled from your account",
       services: {
         cleaning: "Professional Teeth Cleaning",
         whitening: "Teeth Whitening",
@@ -216,6 +234,7 @@ export default function BookingPage() {
       invalidEmail: "Неверный формат эл. почты",
       invalidPhone: "Неверный формат телефона",
       mustAgreeToTerms: "Вы должны согласиться с правилами и условиями",
+      autofilled: "Автоматически заполнено из вашей учетной записи",
       services: {
         cleaning: "Профессиональная чистка зубов",
         whitening: "Отбеливание зубов",
@@ -270,6 +289,7 @@ export default function BookingPage() {
       invalidEmail: 'פורמט דוא"ל לא חוקי',
       invalidPhone: "פורמט טלפון לא חוקי",
       mustAgreeToTerms: "עליך להסכים לתנאים ולהגבלות",
+      autofilled: "מולא אוטומטית מהחשבון שלך",
       services: {
         cleaning: "ניקוי שיניים מקצועי",
         whitening: "הלבנת שיניים",
@@ -355,7 +375,7 @@ export default function BookingPage() {
         doctorName: dentists.find((d) => d.id === selectedDoctor)?.name || selectedDoctor,
         service: selectedService,
         serviceName: t.services[selectedService] || selectedService,
-        date: selectedDate,
+        date: selectedDate ? formatDate(selectedDate) : "",
         time: selectedTime,
         patientInfo: {
           firstName,
@@ -370,8 +390,8 @@ export default function BookingPage() {
 
       console.log("Sending booking details:", bookingData)
 
-      // Call the client-side function that will call our API route
-      const response = await fetch("/api/sendbookingemail", {
+      // Call the API route
+      const response = await fetch("/api/booking", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -770,9 +790,17 @@ export default function BookingPage() {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
+                        disabled={isAuthenticated}
                         required
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isAuthenticated ? "bg-gray-100" : ""
+                        }`}
                       />
+                      {isAuthenticated && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {t.autofilled}
+                        </p>
+                      )}
                     </motion.div>
 
                     {/* Last name */}
@@ -785,9 +813,17 @@ export default function BookingPage() {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                        disabled={isAuthenticated}
                         required
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isAuthenticated ? "bg-gray-100" : ""
+                        }`}
                       />
+                      {isAuthenticated && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {t.autofilled}
+                        </p>
+                      )}
                     </motion.div>
 
                     {/* Phone */}
@@ -815,8 +851,16 @@ export default function BookingPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={isAuthenticated}
+                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isAuthenticated ? "bg-gray-100" : ""
+                        }`}
                       />
+                      {isAuthenticated && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {t.autofilled}
+                        </p>
+                      )}
                     </motion.div>
 
                     {/* Notes */}
