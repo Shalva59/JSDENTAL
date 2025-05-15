@@ -256,7 +256,9 @@ const RegistrationPage = () => {
                   </label>
                   <div className={`relative rounded-md shadow-sm ${errors.firstName ? "ring-1 ring-red-500" : ""}`}>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className={`h-5  w-5 ${focusedField === "firstName" ? "text-blue-500" : "text-gray-400"}`} />
+                      <User
+                        className={`h-5  w-5 ${focusedField === "firstName" ? "text-blue-500" : "text-gray-400"}`}
+                      />
                     </div>
                     <input
                       id="firstName"
@@ -484,7 +486,9 @@ const RegistrationPage = () => {
                     htmlFor="agreeToTerms"
                     className={`font-medium ${errors.agreeToTerms ? "text-red-600" : "text-gray-700"}`}
                   >
-                    {t.termsAndConditions}
+                    <Link href="/terms" className="text-blue-600 hover:underline">
+                      {t.termsAndConditions || "წესებს და პირობებს"}
+                    </Link>
                   </label>
                 </div>
               </div>

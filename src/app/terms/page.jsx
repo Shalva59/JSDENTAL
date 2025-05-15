@@ -473,7 +473,7 @@ export default function TermsAndConditionsPage() {
             </motion.h1>
 
             <motion.p className="text-sm text-gray-500 mb-8 text-center" variants={slideUp}>
-              {t.lastUpdated} May 15, 2024
+              {t.lastUpdated} May 15, 2025
             </motion.p>
 
             <motion.div className="space-y-8" variants={staggerContainer} initial="hidden" animate="visible">
