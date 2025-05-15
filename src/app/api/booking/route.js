@@ -56,7 +56,7 @@ export async function POST(request) {
             <p><strong>Patient Type:</strong> ${patientInfo.isNewPatient === 'new' ? 'New Patient' : 'Returning Patient'}</p>
           </div>
           
-          <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 15px 0;">
+          <div style="background-color: #f9fafb; padding: 15px; border-radiu s: 5px; margin: 15px 0;">
             <h3 style="margin-top: 0;">Patient Information</h3>
             <p><strong>Name:</strong> ${patientFullName}</p>
             <p><strong>Phone:</strong> ${patientInfo.phone}</p>

@@ -494,25 +494,25 @@ export default function BookingPage() {
                 <h2 className="text-lg font-medium text-gray-800 mb-4">{t.appointmentSummary}</h2>
                 <div className="grid grid-cols-2 gap-4 text-left">
                   <div>
-                    <p className="text-sm text-gray-500">{t.doctor}</p>
-                    <p className="font-medium">
-                      {dentists.find((d) => d.id === selectedDoctor)?.name || selectedDoctor}
+                    <p className="text-sm text-black text-gray-500">{t.doctor}</p>
+                    <p className="font-medium text-black">
+                     {dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">{t.service}</p>
-                    <p className="font-medium">{t.services[selectedService] || selectedService}</p>
+                    <p className="text-sm text-gray-500 text-black">{t.service}</p>
+                    <p className="font-medium text-black">{t.services[selectedService] || selectedService}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">{t.date}</p>
-                    <p className="font-medium">{selectedDate ? formatDate(selectedDate) : ""}</p>
+                    <p className="text-sm text-gray-500 text-black">{t.date}</p>
+                    <p className="font-medium text-black">{selectedDate ? formatDate(selectedDate) : ""}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">{t.time}</p>
-                    <p className="font-medium">{selectedTime}</p>
+                    <p className="text-sm text-gray-500 text-black">{t.time}</p>
+                    <p className="font-medium text-black">{selectedTime}</p>
                   </div>
-                  <div className="col-span-2">
-                    <p className="text-sm text-gray-500">{isUrgent ? t.urgentCase : t.notUrgent}</p>
+                  <div className="col-span-2 text-black">
+                    <p className="text-sm text-gray-500 text-black">{isUrgent ? t.urgentCase : t.notUrgent}</p>
                   </div>
                 </div>
               </motion.div>
@@ -630,7 +630,7 @@ export default function BookingPage() {
                         id="doctor"
                         value={selectedDoctor}
                         onChange={(e) => setSelectedDoctor(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-black p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">{t.selectDoctor}</option>
                         {dentists.map((dentist) => (
@@ -650,7 +650,7 @@ export default function BookingPage() {
                         id="service"
                         value={selectedService}
                         onChange={(e) => setSelectedService(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">{t.selectService}</option>
                         {Object.entries(t.services).map(([key, value]) => (
@@ -672,7 +672,7 @@ export default function BookingPage() {
                         onChange={(e) => setSelectedDate(e.target.value ? new Date(e.target.value) : null)}
                         min={new Date().toISOString().split("T")[0]}
                         max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-black p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </motion.div>
 
@@ -686,7 +686,7 @@ export default function BookingPage() {
                         value={selectedTime}
                         onChange={(e) => setSelectedTime(e.target.value)}
                         disabled={!selectedDate || availableTimes.length === 0}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">{t.selectTime}</option>
                         {availableTimes.length > 0 ? (
@@ -711,7 +711,7 @@ export default function BookingPage() {
                           id="urgent"
                           checked={isUrgent}
                           onChange={(e) => setIsUrgent(e.target.checked)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-black text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
                         <label htmlFor="urgent" className="font-normal cursor-pointer text-gray-700">
                           {t.isUrgent}
@@ -731,7 +731,7 @@ export default function BookingPage() {
                             value="new"
                             checked={isNewPatient === "new"}
                             onChange={() => setIsNewPatient("new")}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            className="h-4 w-4 text-black text-blue-600 focus:ring-blue-500 border-gray-300"
                           />
                           <label htmlFor="new-patient" className="font-normal cursor-pointer text-gray-700">
                             {t.newPatient}
@@ -788,7 +788,7 @@ export default function BookingPage() {
                         onChange={(e) => setFirstName(e.target.value)}
                         disabled={isAuthenticated}
                         required
-                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        className={`w-full text-black p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
@@ -811,7 +811,7 @@ export default function BookingPage() {
                         onChange={(e) => setLastName(e.target.value)}
                         disabled={isAuthenticated}
                         required
-                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        className={`w-full p-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
@@ -833,7 +833,7 @@ export default function BookingPage() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         required
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </motion.div>
 
@@ -848,7 +848,7 @@ export default function BookingPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={isAuthenticated}
-                        className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        className={`w-full p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
@@ -869,7 +869,7 @@ export default function BookingPage() {
                         placeholder={t.notesPlaceholder}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                        className="w-full p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                       />
                     </motion.div>
 
@@ -882,7 +882,7 @@ export default function BookingPage() {
                           checked={agreedToTerms}
                           onChange={(e) => setAgreedToTerms(e.target.checked)}
                           required
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-black text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
                         <label htmlFor="terms" className="font-normal cursor-pointer text-gray-700">
                           {t.agreeToTerms}
