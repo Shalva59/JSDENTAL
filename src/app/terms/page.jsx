@@ -399,7 +399,7 @@ export default function TermsAndConditionsPage() {
   const renderPhoneNumber = () => {
     return (
       <div className="flex items-center">
-        <span className={isRTL ? "ml-1" : "mr-1"}>{t.phone}</span>
+        <span className={isRTL ? "ml-1 text-black" : "mr-1 text-black"}>{t.phone}</span>
         <a
           href={`tel:${phoneNumber}`}
           className="text-blue-600 hover:underline"
@@ -415,7 +415,7 @@ export default function TermsAndConditionsPage() {
   const renderEmail = () => {
     return (
       <div className="flex items-center">
-        <span className={isRTL ? "ml-1" : "mr-1"}>{t.email}</span>
+        <span className={isRTL ? "ml-1 text-black" : "mr-1 text-black"}>{t.email}</span>
         <a
           href={`mailto:${email}`}
           className="text-blue-600 hover:underline"
