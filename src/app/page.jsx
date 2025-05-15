@@ -13,7 +13,7 @@ export default function Home() {
       <SliderMain />
       <MainText />
       <DentalServices />
-      <Packageprices /> 
+      {/* <Packageprices />  */}
       {/* <Price /> */}
       <Doctors />
 

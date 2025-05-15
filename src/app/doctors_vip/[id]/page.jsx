@@ -300,7 +300,7 @@ export default function DoctorDetailPage() {
   const getTabs = () => {
     // Default tabs for all screen sizes
     const tabs = [
-      { id: "about", label: t.about },
+      // { id: "about", label: t.about },
       { id: "education", label: t.education },
       { id: "certifications", label: t.certifications },
       { id: "services", label: t.services },
