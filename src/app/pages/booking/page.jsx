@@ -42,15 +42,15 @@ export default function BookingPage() {
   useEffect(() => {
     if (isAuthenticated && session.user) {
       // Extract first and last name from full name
-      const nameParts = session.user.name ? session.user.name.split(' ') : ['', ''];
-      const userFirstName = nameParts[0] || '';
-      const userLastName = nameParts.slice(1).join(' ') || '';
-      
-      setFirstName(userFirstName);
-      setLastName(userLastName);
-      setEmail(session.user.email || '');
+      const nameParts = session.user.name ? session.user.name.split(" ") : ["", ""]
+      const userFirstName = nameParts[0] || ""
+      const userLastName = nameParts.slice(1).join(" ") || ""
+
+      setFirstName(userFirstName)
+      setLastName(userLastName)
+      setEmail(session.user.email || "")
     }
-  }, [isAuthenticated, session]);
+  }, [isAuthenticated, session])
 
   // Track window resize for responsive adjustments
   useEffect(() => {
@@ -64,29 +64,29 @@ export default function BookingPage() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-    // Generate available times when date is selected
-    useEffect(() => {
-      if (selectedDate) {
-        // Generate time slots from 10:00 to 20:00 with 1-hour intervals
-        const times = []
-        const startHour = 10
-        const endHour = 21  // Using 21 to include 20:00 in the loop
+  // Generate available times when date is selected
+  useEffect(() => {
+    if (selectedDate) {
+      // Generate time slots from 10:00 to 20:00 with 1-hour intervals
+      const times = []
+      const startHour = 10
+      const endHour = 21 // Using 21 to include 20:00 in the loop
 
-        for (let hour = startHour; hour < endHour; hour++) {
-          // Only add times for the full hour (minute = 0)
-          const timeString = `${hour.toString().padStart(2, "0")}:00`
-          times.push(timeString)
-        }
-
-        // Use all times (no random filtering)
-        setAvailableTimes(times)
-      } else {
-        setAvailableTimes([])
+      for (let hour = startHour; hour < endHour; hour++) {
+        // Only add times for the full hour (minute = 0)
+        const timeString = `${hour.toString().padStart(2, "0")}:00`
+        times.push(timeString)
       }
-      
-      // Clear selected time when date changes
-      setSelectedTime("")
-    }, [selectedDate])
+
+      // Use all times (no random filtering)
+      setAvailableTimes(times)
+    } else {
+      setAvailableTimes([])
+    }
+
+    // Clear selected time when date changes
+    setSelectedTime("")
+  }, [selectedDate])
   // Translations for all supported languages
   const texts = {
     ka: {
@@ -108,7 +108,8 @@ export default function BookingPage() {
       patientType: "პაციენტის ტიპი",
       newPatient: "ახალი პაციენტი",
       returningPatient: "დაბრუნებული პაციენტი",
-      agreeToTerms: "ვეთანხმები წესებს და პირობებს",
+      agreeToTerms: "ვეთანხმები ",
+      termsAndConditionsText: "წესებს და პირობებს",
       bookAppointment: "დაჯავშნა",
       submitting: "მიმდინარეობს...",
       successTitle: "ჯავშანი წარმატებით შეიქმნა!",
@@ -163,7 +164,8 @@ export default function BookingPage() {
       patientType: "Patient Type",
       newPatient: "New Patient",
       returningPatient: "Returning Patient",
-      agreeToTerms: "I agree to the terms and conditions",
+      agreeToTerms: "I agree to the ",
+      termsAndConditionsText: "terms and conditions",
       bookAppointment: "Book Appointment",
       submitting: "Submitting...",
       successTitle: "Appointment Booked Successfully!",
@@ -218,7 +220,8 @@ export default function BookingPage() {
       patientType: "Тип пациента",
       newPatient: "Новый пациент",
       returningPatient: "Возвращающийся пациент",
-      agreeToTerms: "Я согласен с правилами и условиями",
+      agreeToTerms: "Я согласен с ",
+      termsAndConditionsText: "правилами и условиями",
       bookAppointment: "Записаться на прием",
       submitting: "Отправка...",
       successTitle: "Запись успешно создана!",
@@ -273,7 +276,8 @@ export default function BookingPage() {
       patientType: "סוג מטופל",
       newPatient: "מטופל חדש",
       returningPatient: "מטופל חוזר",
-      agreeToTerms: "אני מסכים לתנאים ולהגבלות",
+      agreeToTerms: "אני מסכים ",
+      termsAndConditionsText: "לתנאים ולהגבלות",
       bookAppointment: "קבע תור",
       submitting: "שולח...",
       successTitle: "התור נקבע בהצלחה!",
@@ -496,7 +500,7 @@ export default function BookingPage() {
                   <div>
                     <p className="text-sm text-black text-gray-500">{t.doctor}</p>
                     <p className="font-medium text-black">
-                     {dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor}
+                      {dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor}
                     </p>
                   </div>
                   <div>
@@ -792,11 +796,7 @@ export default function BookingPage() {
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
-                      {isAuthenticated && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {t.autofilled}
-                        </p>
-                      )}
+                      {isAuthenticated && <p className="text-xs text-gray-500 mt-1">{t.autofilled}</p>}
                     </motion.div>
 
                     {/* Last name */}
@@ -815,11 +815,7 @@ export default function BookingPage() {
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
-                      {isAuthenticated && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {t.autofilled}
-                        </p>
-                      )}
+                      {isAuthenticated && <p className="text-xs text-gray-500 mt-1">{t.autofilled}</p>}
                     </motion.div>
 
                     {/* Phone */}
@@ -852,11 +848,7 @@ export default function BookingPage() {
                           isAuthenticated ? "bg-gray-100" : ""
                         }`}
                       />
-                      {isAuthenticated && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {t.autofilled}
-                        </p>
-                      )}
+                      {isAuthenticated && <p className="text-xs text-gray-500 mt-1">{t.autofilled}</p>}
                     </motion.div>
 
                     {/* Notes */}
@@ -886,6 +878,9 @@ export default function BookingPage() {
                         />
                         <label htmlFor="terms" className="font-normal cursor-pointer text-gray-700">
                           {t.agreeToTerms}
+                          <Link href="/terms" className="text-blue-600 hover:underline">
+                            {t.termsAndConditionsText}
+                          </Link>
                         </label>
                       </div>
                     </motion.div>
