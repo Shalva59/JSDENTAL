@@ -64,33 +64,29 @@ export default function BookingPage() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Generate available times when date is selected
-  useEffect(() => {
-    if (selectedDate) {
-      // This would typically come from an API based on doctor availability
-      // For now, we'll generate some sample times
-      const times = []
-      const startHour = 10
-      const endHour = 18
+    // Generate available times when date is selected
+    useEffect(() => {
+      if (selectedDate) {
+        // Generate time slots from 10:00 to 20:00 with 1-hour intervals
+        const times = []
+        const startHour = 10
+        const endHour = 21  // Using 21 to include 20:00 in the loop
 
-      for (let hour = startHour; hour < endHour; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-          const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
+        for (let hour = startHour; hour < endHour; hour++) {
+          // Only add times for the full hour (minute = 0)
+          const timeString = `${hour.toString().padStart(2, "0")}:00`
           times.push(timeString)
         }
+
+        // Use all times (no random filtering)
+        setAvailableTimes(times)
+      } else {
+        setAvailableTimes([])
       }
-
-      // Simulate some times being unavailable
-      const availableTimes = times.filter(() => Math.random() > 0.3)
-      setAvailableTimes(availableTimes)
-    } else {
-      setAvailableTimes([])
-    }
-
-    // Clear selected time when date changes
-    setSelectedTime("")
-  }, [selectedDate])
-
+      
+      // Clear selected time when date changes
+      setSelectedTime("")
+    }, [selectedDate])
   // Translations for all supported languages
   const texts = {
     ka: {
