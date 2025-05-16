@@ -194,7 +194,7 @@ export default function DoctorDetailPage() {
       email: "Эл. почта",
       portfolio: "Портфолио",
       viewPortfolio: "Смотреть портфолио",
-      bookAppointment: "Запис��ться на прием",
+      bookAppointment: "Записаться на прием",
       about: "О враче",
       services: "Услуги",
       reviews: "Отзывы",

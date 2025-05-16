@@ -83,10 +83,13 @@ export default function DoctorsPage() {
     if (parts.length < 2) return str
     const label = parts[0]
     const time = parts.slice(1).join(":").trim()
-    const reversedTime = time.split("-").map(s => s.trim()).reverse().join(" - ")
+    const reversedTime = time
+      .split("-")
+      .map((s) => s.trim())
+      .reverse()
+      .join(" - ")
     return `${reversedTime} :${label}`
   }
-
 
   // მიმდინარე ენის სპეციალობები და სამუშაო დღეები
   const currentSpecialties = specialties[currentLanguage] || specialties.ka
@@ -695,24 +698,33 @@ export default function DoctorsPage() {
           padding: 3rem 0;
           text-align: center;
         }
+
+        .rtl-card .primary-specialty {
+          flex-direction: row-reverse;
+        }
+
+        .rtl-card .working-days {
+          flex-direction: row-reverse;
+        }
+
+        .rtl-card .doctor-info {
+          text-align: right;
+        }
       `}</style>
 
       <div className="jc-dental-page">
         {/* Header section with teal gradient background */}
         <div className="teal-gradient-bg">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-bold text-white mb-4">JC Dental - ჩვენი ექიმები</h1>
-            <p className="text-lg text-white mb-8 max-w-3xl mx-auto">
-              გაიცანით ჩვენი მაღალკვალიფიციური სტომატოლოგები, რომლებიც ზრუნავენ თქვენი ღიმილის ჯანმრთელობასა და
-              სილამაზეზე
-            </p>
+            <h1 className="text-4xl font-bold text-white mb-4">{t.title}</h1>
+            <p className="text-lg text-white mb-8 max-w-3xl mx-auto">{t.subtitle}</p>
 
             {/* Search bar - centered with shadow */}
             <div className="flex justify-center mb-4">
               <div className="relative w-full max-w-xl">
                 <input
                   type="text"
-                  placeholder="მოძებნეთ ექიმი სახელით ან სპეციალობით"
+                  placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full py-3 px-12 rounded-full border-0 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -728,7 +740,9 @@ export default function DoctorsPage() {
         {/* Main content */}
         <div className="container mx-auto px-4 py-8">
           {/* "See 4 doctors" title */}
-          <h2 className="text-2xl font-bold text-[#2563a0] mb-6">ნახეთ {filteredDentists.length} ექიმი</h2>
+          <h2 className="text-2xl font-bold text-[#2563a0] mb-6">
+            {t.sectionTitle} {filteredDentists.length} {t.doctors}
+          </h2>
 
           {/* Filter controls with reduced width */}
           <div className="flex gap-4 mb-8 justify-start">
@@ -796,11 +810,13 @@ export default function DoctorsPage() {
                     <div className="specialty-badge-container">
                       {dentist.specialties.length > 0 && (
                         <div
-                          className={`primary-specialty flex items-center gap-2 ${hoveredDentist === dentist.id ? "badge-active" : ""}`}
+                          className={`primary-specialty flex items-center ${isRTL ? "flex-row-reverse" : ""} gap-2 ${hoveredDentist === dentist.id ? "badge-active" : ""}`}
                         >
                           <span>{dentist.specialties[0]}</span>
                           {dentist.specialties.length > 1 && (
-                            <span className="additional-count">+{dentist.specialties.length - 1}</span>
+                            <span className={`additional-count ${isRTL ? "mr-1" : "ml-1"}`}>
+                              +{dentist.specialties.length - 1}
+                            </span>
                           )}
                         </div>
                       )}
@@ -808,8 +824,9 @@ export default function DoctorsPage() {
 
                     {/* Additional specialties on hover */}
                     <div
-                      className={`specialties-popup ${hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
-                        } ${isRTL ? "rtl-popup" : ""}`}
+                      className={`specialties-popup ${
+                        hoveredDentist === dentist.id && dentist.specialties.length > 1 ? "popup-visible" : ""
+                      } ${isRTL ? "rtl-popup" : ""}`}
                     >
                       {dentist.specialties.slice(1).map((specialty, index) => (
                         <div key={index} className="popup-specialty">
@@ -881,7 +898,9 @@ export default function DoctorsPage() {
                 <div className="text-3xl text-[#2563a0]">📞</div>
                 <div>
                   <p className="font-semibold text-gray-700">{t.phone}</p>
-                  <p dir="ltr" className="text-gray-600">+995 500 50 20 62</p>
+                  <p dir="ltr" className="text-gray-600">
+                    +995 500 50 20 62
+                  </p>
                 </div>
               </div>
 
@@ -893,18 +912,15 @@ export default function DoctorsPage() {
                 </div>
               </div>
 
-
-              <div className={`flex items-center gap-4 ${isRTL ? "" : "text-left"}`}>
+              <div className={`flex items-center gap-4 ${isRTL ? "" : ""}`}>
                 <div className="text-3xl text-[#2563a0]">🕒</div>
-                <div>
+                <div className={isRTL ? "text-right" : ""}>
                   <p className="font-semibold text-gray-700">{t.workingHours}</p>
-                  <p className={`${isRTL ? "ltr" : "ltr"} text-gray-600`}>
+                  <p className={`text-gray-600 ${isRTL ? "text-right" : ""}`} dir={isRTL ? "rtl" : "ltr"}>
                     {isRTL ? reverseTime(t.workingHoursValue) : t.workingHoursValue}
                   </p>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
