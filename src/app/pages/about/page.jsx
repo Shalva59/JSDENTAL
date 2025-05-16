@@ -189,95 +189,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-12" data-aos="zoom-in">
-          <h2 className="text-3xl font-bold mb-4" style={{ color: colors.primary }}>
-            {translations?.about?.teamTitle || "გაიცანით ჩვენი გუნდი"}
-          </h2>
-          <div className="w-20 h-1 mx-auto mb-6" style={{ backgroundColor: colors.primary }}></div>
-          <p className="text-lg max-w-3xl mx-auto">
-            {translations?.about?.teamDesc ||
-              "ჩვენი მაღალკვალიფიციური სტომატოლოგების გუნდი ვალდებულია მოგაწოდოთ პერსონალიზებული მზრუნველობა კომფორტულ გარემოში."}
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Dentist 1 */}
-          <div
-            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            data-aos="zoom-in"
-          >
-            <div className="relative h-[300px]">
-              <img
-                src="https://th.bing.com/th/id/R.c8cea7c2e3c3c8a190a652f3d9b79313?rik=91fbcpNU7DhRow&pid=ImgRaw&r=0"
-                alt={translations?.about?.doctor1Alt || "დოქტორი გაბრიელ ჯანაშვილი"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className={`p-6 ${isRTL ? "text-right" : "text-left"}`}>
-              <h3 className="text-xl font-bold mb-2">
-                {translations?.about?.doctor1Name || "დოქტორი გაბრიელ ჯანაშვილი"}
-              </h3>
-              <p className="font-medium mb-3" style={{ color: colors.primary }}>
-                {translations?.about?.doctor1Title || "დამფუძნებელი და წამყვანი სტომატოლოგი"}
-              </p>
-              <p className="mb-4">
-                {translations?.about?.doctor1Desc ||
-                  "20 წელზე მეტი გამოცდილებით, დოქტორი ჯანაშვილი სპეციალიზდება კოსმეტიკურ სტომატოლოგიაში და კომპლექსურ აღდგენით პროცედურებში."}
-              </p>
-            </div>
-          </div>
-
-          {/* Dentist 2 */}
-          <div
-            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            data-aos="zoom-in"
-          >
-            <div className="relative h-[300px]">
-              <img
-                src="https://th.bing.com/th/id/OIP.TXtt652cB_RZ2KZThaujvwHaE8?rs=1&pid=ImgDetMain"
-                alt={translations?.about?.doctor2Alt || "დოქტორი ნინო მაისურაძე"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className={`p-6 ${isRTL ? "text-right" : "text-left"}`}>
-              <h3 className="text-xl font-bold mb-2">{translations?.about?.doctor2Name || "დოქტორი ნინო მაისურაძე"}</h3>
-              <p className="font-medium mb-3" style={{ color: colors.primary }}>
-                {translations?.about?.doctor2Title || "ზოგადი სტომატოლოგი"}
-              </p>
-              <p className="mb-4">
-                {translations?.about?.doctor2Desc ||
-                  "დოქტორი მაისურაძე ფოკუსირებულია პრევენციულ მზრუნველობაზე და ცნობილია თავისი ნაზი მიდგომით შფოთვიანი პაციენტების მიმართ."}
-              </p>
-            </div>
-          </div>
-
-          {/* Specialist */}
-          <div
-            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            data-aos="zoom-in"
-          >
-            <div className="relative h-[300px]">
-              <img
-                src="https://img.freepik.com/premium-photo/dentist-doctor_873925-919177.jpg"
-                alt={translations?.about?.doctor3Alt || "დოქტორი ლევან ბერიძე"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className={`p-6 ${isRTL ? "text-right" : "text-left"}`}>
-              <h3 className="text-xl font-bold mb-2">{translations?.about?.doctor3Name || "დოქტორი ლევან ბერიძე"}</h3>
-              <p className="font-medium mb-3" style={{ color: colors.primary }}>
-                {translations?.about?.doctor3Title || "ორთოდონტი"}
-              </p>
-              <p className="mb-4">
-                {translations?.about?.doctor3Desc ||
-                  "დოქტორი ბერიძე არის ექსპერტი თანამედროვე ორთოდონტიულ მკურნალობაში, მათ შორის გამჭვირვალე კაპებსა და ტრადიციულ ბრეკეტებში."}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+  
 
       {/* Contact Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8" style={{ backgroundColor: colors.light }}>
@@ -377,14 +289,7 @@ export default function AboutPage() {
                     >
                       <Instagram className="w-5 h-5" style={{ color: colors.primary }} />
                     </Link>
-                    <Link
-                      href="https://twitter.com"
-                      className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                      style={{ backgroundColor: `${colors.light}` }}
-                      aria-label="Twitter"
-                    >
-                      <Twitter className="w-5 h-5" style={{ color: colors.primary }} />
-                    </Link>
+            
                   </div>
                   <div className={`${isRTL ? "text-right" : "text-left"}`}>
                     <h4 className="font-semibold">{translations?.contact?.followUs || "გამოგვყევით"}</h4>

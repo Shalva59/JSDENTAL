@@ -209,16 +209,7 @@ const ContactPage = () => {
                       </Link>
                     </div>
 
-                    <div data-aos="zoom-in" data-aos-delay="550" className="aos-init">
-                      <Link
-                        href="https://twitter.com"
-                        className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: `${colors.light}` }}
-                        aria-label="Twitter"
-                      >
-                        <Twitter className="w-5 h-5" style={{ color: colors.primary }} />
-                      </Link>
-                    </div>
+         
                   </div>
                 </div>
               </div>
