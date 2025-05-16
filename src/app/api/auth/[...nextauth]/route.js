@@ -25,19 +25,19 @@ export const authOptions = {
           const user = await getUserByEmail(credentials.email);
           if (!user) {
             console.log("No user found with email:", credentials.email);
-            return null;
+            throw new Error("Invalid email or password");
           }
       
           // Check if user is verified
           if (!user.isVerified) {
             console.log("User not verified:", credentials.email);
-            throw new Error("Email not verified. Please check your email to verify your account.");
+            throw new Error("not_verified");
           }
       
           const isValid = await compare(credentials.password, user.password);
           if (!isValid) {
             console.log("Invalid password for user:", credentials.email);
-            return null;
+            throw new Error("Invalid email or password");
           }
       
           console.log("User authenticated successfully:", user.email);
