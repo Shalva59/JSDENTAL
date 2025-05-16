@@ -113,29 +113,29 @@ const RegistrationPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (validateForm()) {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData),
-        })
-
-        const data = await response.json()
-
+        });
+  
+        const data = await response.json();
+  
         if (!response.ok) {
-          // Show more specific error message
-          throw new Error(data.error || "Registration failed")
+          // Show the specific error message from the server
+          throw new Error(data.error || 'Registration failed');
         }
-
+  
         // Show success message
-        setRegistrationSuccess(true)
-
+        setRegistrationSuccess(true);
+  
         // Reset form
         setFormData({
           firstName: "",
@@ -145,20 +145,28 @@ const RegistrationPage = () => {
           password: "",
           confirmPassword: "",
           agreeToTerms: false,
-        })
+        });
       } catch (error) {
-        console.error("Registration error:", error)
-
-        // Add a general error to display at the top of the form
-        setErrors({
-          ...errors,
-          general: error.message,
-        })
+        console.error("Registration error:", error);
+        
+        // Set the error message for the email field specifically if it's an email-related error
+        if (error.message.includes("email")) {
+          setErrors({
+            ...errors,
+            email: error.message
+          });
+        } else {
+          // For other errors, show a general error
+          setErrors({
+            ...errors,
+            general: error.message
+          });
+        }
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     }
-  }
+  };
 
   return (
     <div
@@ -248,6 +256,11 @@ const RegistrationPage = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                  <p>{errors.general}</p>
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* First Name */}
                 <div data-aos="zoom-in" data-aos-duration="600" data-aos-delay="700">
