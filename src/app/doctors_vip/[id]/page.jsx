@@ -109,6 +109,60 @@ export default function DoctorDetailPage() {
     window.requestAnimationFrame(step)
   }
 
+  // Service descriptions for each language and specialty
+  const serviceDescriptions = {
+    ka: {
+      ორთოპედი: "პროფესიონალური ორთოპედიული სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      იმპლანტოლოგი: "პროფესიონალური იმპლანტოლოგიური სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      პროთეზისტი: "პროფესიონალური პროთეზირების სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      თერაპევტი: "პროფესიონალური თერაპიული სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      "ბავშვთა სტომატოლოგი": "პროფესიონალური ბავშვთა სტომატოლოგიური სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      ქირურგი: "პროფესიონალური ქირურგიული სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      პაროდონტოლოგი: "პროფესიონალური პაროდონტოლოგიური სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+      ორთოდონტი: "პროფესიონალური ორთოდონტიული სერვისები უახლესი ტექნიკითა და აღჭურვილობით.",
+    },
+    en: {
+      Orthopedist: "Professional orthopedic services with the latest techniques and equipment.",
+      Implantologist: "Professional implantology services with the latest techniques and equipment.",
+      Prosthetist: "Professional prosthetic services with the latest techniques and equipment.",
+      Therapist: "Professional therapy services with the latest techniques and equipment.",
+      "Pediatric Dentist": "Professional pediatric dental services with the latest techniques and equipment.",
+      Surgeon: "Professional surgical services with the latest techniques and equipment.",
+      Periodontologist: "Professional periodontal services with the latest techniques and equipment.",
+      Orthodontist: "Professional orthodontic services with the latest techniques and equipment.",
+    },
+    ru: {
+      Ортопед: "Профессиональные ортопедические услуги с использованием новейших техник и оборудования.",
+      Имплантолог: "Профессиональные имплантологические услуги с использованием новейших техник и оборудования.",
+      Протезист: "Профессиональные протезные услуги с использованием новейших техник и оборудования.",
+      Терапевт: "Профессиональные терапевтические услуги с использованием новейших техник и оборудования.",
+      "Детский стоматолог":
+        "Профессиональные услуги детской стоматологии с использованием новейших техник и оборудования.",
+      Хирург: "Профессиональные хирургические услуги с использованием новейших техник и оборудования.",
+      Пародонтолог: "Профессиональные пародонтологические услуги с использованием новейших техник и оборудования.",
+      Ортодонт: "Профессиональные ортодонтические услуги с использованием новейших техник и оборудования.",
+    },
+    he: {
+      אורתופד: "שירותי אורתופדיה מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      שתלים: "שירותי שתלים מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      תותבות: "שירותי תותבות מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      מטפל: "שירותי טיפול מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      "רופא שיניים לילדים": "שירותי רפואת שיניים לילדים מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      מנתח: "שירותים כירורגיים מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      פריודונטולוג: "שירותי פריודונטיה מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+      אורתודונט: "שירותי אורתודונטיה מקצועיים עם הטכניקות והציוד המתקדמים ביותר.",
+    },
+  }
+
+  // Function to get localized service description
+  const getServiceDescription = (specialty) => {
+    const descriptions = serviceDescriptions[currentLanguage] || serviceDescriptions.en
+    return (
+      descriptions[specialty] ||
+      `Professional ${specialty.toLowerCase()} services with the latest techniques and equipment.`
+    )
+  }
+
   // Translations for all supported languages
   const texts = {
     ka: {
@@ -133,6 +187,9 @@ export default function DoctorDetailPage() {
       years: "წელი გამოცდილება",
       loading: "იტვირთება...",
       beforeAfter: "მკურნალობამდე და შემდეგ",
+      specialtyServices: "სპეციალიზებული სერვისები",
+      // commonServices: "ძირითადი სერვისები",
+      // price: "ფასი",
       // Education institutions
       tbilisiMedicalUniversity: "თბილისის სახელმწიფო სამედიცინო უნივერსიტეტი",
       dentiveri: "დენტივერი",
@@ -167,6 +224,9 @@ export default function DoctorDetailPage() {
       years: "years experience",
       loading: "Loading...",
       beforeAfter: "Before & After",
+      specialtyServices: "Specialty Services",
+      // commonServices: "Common Services",
+      // price: "Price",
       // Education institutions
       tbilisiMedicalUniversity: "Tbilisi State Medical University",
       dentiveri: "Dentiveri",
@@ -201,6 +261,9 @@ export default function DoctorDetailPage() {
       years: "лет опыта",
       loading: "Загрузка...",
       beforeAfter: "До и После",
+      specialtyServices: "Специализированные услуги",
+      // commonServices: "Основные услуги",
+      // price: "Цена",
       // Education institutions
       tbilisiMedicalUniversity: "Тбилисский государственный медицинский университет",
       dentiveri: "Дентивери",
@@ -235,6 +298,9 @@ export default function DoctorDetailPage() {
       years: "שנות ניסיון",
       loading: "טוען...",
       beforeAfter: "לפני ואחרי",
+      specialtyServices: "שירותים מתמחים",
+      // commonServices: "שירותים נפוצים",
+      // price: "מחיר",
       // Education institutions
       tbilisiMedicalUniversity: "האוניברסיטה הרפואית של טביליסי",
       dentiveri: "דנטיברי",
@@ -304,7 +370,7 @@ export default function DoctorDetailPage() {
       { id: "education", label: t.education },
       { id: "certifications", label: t.certifications },
       { id: "services", label: t.services },
-      
+
       // კონტაქტების ტაბი
       // { id: "contact", label: t.contactInfo },
     ]
@@ -712,62 +778,67 @@ export default function DoctorDetailPage() {
               {/* Services tab */}
               {activeTab === "services" && (
                 <motion.div key="services" initial="hidden" animate="visible" exit="exit" variants={tabContentVariants}>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">{t.services}</h2>
-                  <motion.div
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                      hidden: { opacity: 0 },
-                      visible: {
-                        opacity: 1,
-                        transition: {
-                          staggerChildren: 0.15,
-                          delayChildren: 0.1,
-                        },
-                      },
-                    }}
-                  >
-                    {doctor.specialties.map((specialty, index) => (
+                  <div className="space-y-8">
+                    {/* Specialty Services */}
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-4">{t.specialtyServices}</h3>
                       <motion.div
-                        key={index}
-                        className="border border-gray-200 rounded-lg p-5 bg-white hover:border-blue-400 transition-all"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                        initial="hidden"
+                        animate="visible"
                         variants={{
-                          hidden: { opacity: 0, y: 10 },
+                          hidden: { opacity: 0 },
                           visible: {
                             opacity: 1,
-                            y: 0,
                             transition: {
-                              duration: 0.6,
-                              ease: [0.25, 0.1, 0.25, 1], // Cubic bezier for a more natural motion
+                              staggerChildren: 0.15,
+                              delayChildren: 0.1,
                             },
                           },
                         }}
-                        whileHover={{
-                          scale: 1.02,
-                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-                          transition: { duration: 0.3, ease: "easeOut" },
-                        }}
                       >
-                        <motion.h3
-                          className="font-bold text-gray-800 mb-2"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-                        >
-                          {specialty}
-                        </motion.h3>
-                        <motion.p
-                          className="text-gray-600"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                        >
-                          Professional {specialty.toLowerCase()} services with the latest techniques and equipment.
-                        </motion.p>
+                        {doctor.specialties.map((specialty, index) => (
+                          <motion.div
+                            key={index}
+                            className="border border-gray-200 rounded-lg p-5 bg-white hover:border-blue-400 transition-all"
+                            variants={{
+                              hidden: { opacity: 0, y: 10 },
+                              visible: {
+                                opacity: 1,
+                                y: 0,
+                                transition: {
+                                  duration: 0.6,
+                                  ease: [0.25, 0.1, 0.25, 1], // Cubic bezier for a more natural motion
+                                },
+                              },
+                            }}
+                            whileHover={{
+                              scale: 1.02,
+                              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                              transition: { duration: 0.3, ease: "easeOut" },
+                            }}
+                          >
+                            <motion.h3
+                              className="font-bold text-gray-800 mb-2"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                            >
+                              {specialty}
+                            </motion.h3>
+                            <motion.p
+                              className="text-gray-600"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
+                            >
+                              {getServiceDescription(specialty)}
+                            </motion.p>
+                          </motion.div>
+                        ))}
                       </motion.div>
-                    ))}
-                  </motion.div>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
