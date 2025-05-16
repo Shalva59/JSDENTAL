@@ -17,22 +17,30 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log("Missing credentials");
           return null;
         }
-
+      
         try {
           const user = await getUserByEmail(credentials.email);
           if (!user) {
             console.log("No user found with email:", credentials.email);
             return null;
           }
-
+      
+          // Check if user is verified
+          if (!user.isVerified) {
+            console.log("User not verified:", credentials.email);
+            throw new Error("Email not verified. Please check your email to verify your account.");
+          }
+      
           const isValid = await compare(credentials.password, user.password);
           if (!isValid) {
             console.log("Invalid password for user:", credentials.email);
             return null;
           }
-
+      
+          console.log("User authenticated successfully:", user.email);
           return {
             id: user._id.toString(),
             email: user.email,
@@ -40,7 +48,7 @@ export const authOptions = {
           };
         } catch (error) {
           console.error("Authorization error:", error);
-          return null;
+          throw error;
         }
       }
     })

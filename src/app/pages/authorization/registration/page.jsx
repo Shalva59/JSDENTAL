@@ -123,7 +123,10 @@ const RegistrationPage = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            language: currentLanguage // Add this line to send the current language
+          }),
         });
   
         const data = await response.json();
@@ -238,23 +241,23 @@ const RegistrationPage = () => {
           </div>
 
           {registrationSuccess ? (
-            <div
-              className="bg-green-50 border border-green-200 text-green-700 px-6 py-8 rounded-lg mb-6 text-center"
-              data-aos="zoom-in"
-              data-aos-duration="800"
-              data-aos-delay="300"
-            >
-              <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-              <h3 className="text-lg font-medium mb-2">{t.successTitle}</h3>
-              <p>{t.registrationSuccess}</p>
-              <Link
-                href="/pages/authorization/log_in"
-                className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
+              <div
+                className="bg-green-50 border border-green-200 text-green-700 px-6 py-8 rounded-lg mb-6 text-center"
+                data-aos="zoom-in"
+                data-aos-duration="800"
+                data-aos-delay="300"
               >
-                {t.login}
-              </Link>
-            </div>
-          ) : (
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                <h3 className="text-lg font-medium mb-2">{t.successTitle}</h3>
+                <p>{t.registrationSuccess}</p>
+                <Link
+                  href="/pages/authorization/log_in"
+                  className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  {t.login}
+                </Link>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               {errors.general && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">

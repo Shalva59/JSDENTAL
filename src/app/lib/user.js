@@ -41,9 +41,8 @@ export async function getUserById(id) {
 }
 
 // Create new user
+// Create new user
 export async function createUser(userData) {
-  console.log("Creating user with data:", { ...userData, password: "[REDACTED]" });
-  
   try {
     const { firstName, lastName, email, phone, password } = userData;
     
@@ -55,6 +54,9 @@ export async function createUser(userData) {
       throw new Error("User already exists with this email");
     }
     
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    
     // Hash password
     const hashedPassword = await hash(password, 10);
     
@@ -65,15 +67,49 @@ export async function createUser(userData) {
       email: email.toLowerCase(),
       phone,
       password: hashedPassword,
+      isVerified: false,
+      verificationToken,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     
     const result = await db.collection(COLLECTION).insertOne(newUser);
-    console.log("User inserted with ID:", result.insertedId);
     return { ...newUser, _id: result.insertedId };
   } catch (error) {
     console.error("createUser error:", error);
+    throw error;
+  }
+}
+
+// Add a function to verify email
+export async function verifyUserEmail(token) {
+  try {
+    const db = await getDatabase();
+    
+    // Find user with token
+    const user = await db.collection(COLLECTION).findOne({
+      verificationToken: token
+    });
+    
+    if (!user) {
+      throw new Error("Invalid verification token");
+    }
+    
+    // Update user as verified
+    await db.collection(COLLECTION).updateOne(
+      { _id: user._id },
+      { 
+        $set: { 
+          isVerified: true,
+          updatedAt: new Date()
+        },
+        $unset: { verificationToken: "" }
+      }
+    );
+    
+    return true;
+  } catch (error) {
+    console.error("verifyUserEmail error:", error);
     throw error;
   }
 }

@@ -92,20 +92,22 @@ const LoginPage = () => {
         });
   
         if (result?.error) {
-          // Handle error without throwing
-          setErrors({
-            ...errors,
-            general: t.invalidCredentials || "Invalid email or password"
-          });
-        } else {
-          // Show success message
-          setLoginSuccess(true);
+          if (result.error === "not_verified") {
+            throw new Error("Your email is not verified. Please check your inbox for the verification link.");
+          } else if (result.error === "CredentialsSignin") {
+            throw new Error("Invalid email or password");
+          } else {
+            throw new Error(result.error);
+          }
         }
+  
+        // Show success message
+        setLoginSuccess(true);
       } catch (error) {
         console.error("Login error:", error);
         setErrors({
           ...errors,
-          general: error.message || "Login failed. Please try again."
+          general: error.message || "An error occurred during login"
         });
       } finally {
         setIsSubmitting(false);
@@ -193,13 +195,12 @@ const LoginPage = () => {
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* General Error Message - Added this section */}
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" data-aos="fade-up">
-                  <p>{errors.general}</p>
-                </div>
-              )}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <p>{errors.general}</p>
+                  </div>
+                )}
 
               {/* Email */}
               <div data-aos="fade-up" data-aos-delay="500">
