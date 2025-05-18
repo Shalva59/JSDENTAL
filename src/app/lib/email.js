@@ -1,22 +1,18 @@
 import nodemailer from 'nodemailer';
 
-// Create reusable transporter
 export async function createTransporter() {
-  // For port 587, we need explicit TLS configuration
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_SERVER_HOST,
     port: parseInt(process.env.EMAIL_SERVER_PORT),
-    secure: false, // true for 465, false for other ports like 587
+    secure: true, // true for 465
     auth: {
       user: process.env.EMAIL_SERVER_USER,
       pass: process.env.EMAIL_SERVER_PASSWORD,
     },
-    requireTLS: true, // Force using TLS
-    tls: {
-      // Do not fail on invalid certs
-      rejectUnauthorized: false,
-      minVersion: 'TLSv1.2'
-    },
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
+    debug: true, // Enable debugging
   });
   
   return transporter;
