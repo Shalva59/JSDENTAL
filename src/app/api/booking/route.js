@@ -23,20 +23,17 @@ export async function POST(request) {
     }
 
     // Create a transporter using the same config as your password reset
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SERVER_HOST,
-    port: parseInt(process.env.EMAIL_SERVER_PORT),
-    secure: false, // For port 587
-    auth: {
-      user: process.env.EMAIL_SERVER_USER,
-      pass: process.env.EMAIL_SERVER_PASSWORD,
-    },
-    tls: {
-      // Add these TLS options to resolve the SSL error
-      rejectUnauthorized: true,
-      minVersion: 'TLSv1.2',
-    }
-  });
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD
+      },
+      logger: true, // Enable logging to see detailed connection info
+      debug: true   // This will output more verbose logs
+    });
 
     // Format a nice email
     const patientFullName = `${patientInfo.firstName} ${patientInfo.lastName}`;
