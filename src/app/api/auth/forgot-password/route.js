@@ -1,6 +1,6 @@
 import { getUserByEmail, createResetToken } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import { sendEmail } from "../../../lib/email"; // Replace nodemailer import with our helper
+import nodemailer from "nodemailer";
 
 export async function POST(request) {
   try {
@@ -27,10 +27,21 @@ export async function POST(request) {
     // Create reset token
     const token = await createResetToken(email);
 
-    // Use our sendEmail helper instead of direct nodemailer usage
+    // Send email with reset link
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_SERVER_HOST,
+      port: process.env.EMAIL_SERVER_PORT,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
+    });
+
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
-    
-    await sendEmail({
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
       to: email,
       subject: "Password Reset Request",
       text: `Please click the following link to reset your password: ${resetUrl}`,
@@ -54,7 +65,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Password reset error:", error);
     return NextResponse.json(
-      { error: "Failed to send password reset email: " + error.message },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
