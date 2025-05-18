@@ -3,16 +3,17 @@ import nodemailer from 'nodemailer';
 export async function createTransporter() {
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_SERVER_HOST,
-    port: parseInt(process.env.EMAIL_SERVER_PORT),
-    secure: true, // true for 465
+    port: 465, // Force port 465
+    secure: true, // Force SSL for port 465
     auth: {
       user: process.env.EMAIL_SERVER_USER,
       pass: process.env.EMAIL_SERVER_PASSWORD,
     },
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-    debug: true, // Enable debugging
+    tls: {
+      // Do not fail on invalid certs
+      rejectUnauthorized: false
+    },
+    debug: true, // Enable for troubleshooting
   });
   
   return transporter;
