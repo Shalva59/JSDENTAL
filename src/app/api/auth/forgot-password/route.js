@@ -30,8 +30,9 @@ export async function POST(request) {
     // Send email with reset link
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
-      port: process.env.EMAIL_SERVER_PORT,
-      secure: true,
+      port: parseInt(process.env.EMAIL_SERVER_PORT), // Add parseInt here
+      secure: false,
+      requireTLS: true,
       auth: {
         user: process.env.EMAIL_SERVER_USER,
         pass: process.env.EMAIL_SERVER_PASSWORD,
