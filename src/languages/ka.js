@@ -94,7 +94,7 @@ export const ka = {
       modernEquipment: "თანამედროვე აღჭურვილობა და ტექნოლოგიები",
       experiencedDoctors: "გამოცდილი და მზრუნველი სტომატოლოგები",
       comfortableEnvironment: "კომფორტული და მშვიდი გარემო",
-      individualTreatment: "ინდივიდუალური მკურნალობის გეგმები",
+      individualTreatment: "ინდივიდუალური მკურნალობის გეგმა",
       flexibleSchedule: "მოქნილი განრიგი და გადაუდებელი დახმარება",
     },
     therapy: {

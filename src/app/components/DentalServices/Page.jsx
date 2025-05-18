@@ -33,7 +33,7 @@ const ServicesSection = () => {
               data-aos="zoom-in" // ✅ AOS "zoom-in" ეფექტი
               className="bg-white shadow-lg p-6 rounded-lg text-center transform transition-transform duration-300 ease-in-out serviceCards"
             >
-              <div className="text-4xl text-teal-500 mb-4">{service.icon}</div>
+              <div className="text-4xl text-teal-500 mb-4 flex justify-center">{service.icon}</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.title}</h3>
               <p className="text-gray-600">{service.description}</p>
               <Link href="/pages/dentalservise" className="mt-4 block text-teal-500 font-semibold">

@@ -182,7 +182,7 @@ export default function ServicesPage() {
           "კბილების პროფესიული წმენდა",
           "ფტორირება",
         ],
-        icon: <DrillIcon className="h-16 w-16" />,
+        icon: <img src="/tooth_folder/therapy2.png" alt="" srcSet="" />
       },
       orthopedics: {
         id: 2,
@@ -201,7 +201,8 @@ export default function ServicesPage() {
           "მოსახსნელი პროთეზები",
           "ინლეი და ონლეი",
         ],
-        icon: <ToothIcon className="h-16 w-16" />,
+        // icon: <ToothIcon className="h-16 w-16" />,
+        icon: <img src="/tooth_folder/ortopedia.png" alt="" srcSet="" />
       },
       implantology: {
         id: 3,
@@ -219,7 +220,7 @@ export default function ServicesPage() {
           "ძვლის აუგმენტაცია",
           "სინუს ლიფტინგი",
         ],
-        icon: <ImplantIcon className="h-16 w-16" />,
+        icon: <img src="/tooth_folder/implant.png" alt="" srcSet="" />
       },
       orthodontics: {
         id: 4,
@@ -237,7 +238,7 @@ export default function ServicesPage() {
           "ლინგვალური ბრეკეტები",
           "რეტეინერები",
         ],
-        icon: <BraceIcon className="h-16 w-16" />,
+        icon: <img src="/tooth_folder/ortodontia.png" alt="" srcSet="" />
       },
       periodontology: {
         id: 5,
@@ -255,7 +256,7 @@ export default function ServicesPage() {
           "ღრძილების რეცესიის მკურნალობა",
           "პაროდონტიტის მკურნალობა",
         ],
-        icon: <GumIcon className="h-16 w-16" />,
+        icon: <img src="/tooth_folder/periodontology.png" alt="" srcSet="" />
       },
       "pediatric-dentistry": {
         id: 6,
@@ -273,7 +274,7 @@ export default function ServicesPage() {
           "ჰერმეტიზაცია",
           "სარძევე კბილების მკურნალობა",
         ],
-        icon: <ChildToothIcon className="h-16 w-16" />,
+        icon: <img className="h-20 w-20" src="/tooth_folder/kid.png" alt="" srcSet="" />
       },
     }
 
@@ -458,7 +459,7 @@ export default function ServicesPage() {
                         </svg>
                       </div>
                       <span className="text-gray-700 text-sm">
-                        {translations?.services?.benefits?.individualTreatment || "ინდივიდუალური მკურნალობის გეგმები"}
+                        {translations?.services?.benefits?.individualTreatment || "ინდივიდუალური მკურნალობის გეგმა"}
                       </span>
                     </li>
                     <li
