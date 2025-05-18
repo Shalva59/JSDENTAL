@@ -29,15 +29,13 @@ export async function POST(request) {
 
     // Send email with reset link
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      port: 587,
-      secure: false,
+      host: process.env.EMAIL_SERVER_HOST,
+      port: process.env.EMAIL_SERVER_PORT,
+      secure: true,
       auth: {
         user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD
+        pass: process.env.EMAIL_SERVER_PASSWORD,
       },
-      logger: true, // Enable logging to see detailed connection info
-      debug: true   // This will output more verbose logs
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
