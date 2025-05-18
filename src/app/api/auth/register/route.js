@@ -1,12 +1,12 @@
 import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../../../lib/email"; // Replace nodemailer import
 
 export async function POST(request) {
   try {
     const body = await request.json();
     const { firstName, lastName, email, phone, password, confirmPassword, language } = body;
-
+    
     // Basic validation
     if (!firstName || !lastName || !email || !phone || !password) {
       return NextResponse.json(
@@ -14,17 +14,17 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
+    
     if (password !== confirmPassword) {
       return NextResponse.json(
         { error: "Passwords do not match" },
         { status: 400 }
       );
     }
-
+    
     // Default language if none provided
     const userLanguage = language || 'en';
-
+    
     // Create user
     const user = await createUser({
       firstName,
@@ -33,7 +33,7 @@ export async function POST(request) {
       phone,
       password
     });
-
+    
     // Send verification email in the user's language
     const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${user.verificationToken}`;
     
@@ -84,26 +84,15 @@ export async function POST(request) {
         </div>
       `;
     }
-
-    // Create email transporter and send email
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST,
-      port: parseInt(process.env.EMAIL_SERVER_PORT),
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    
+    // Use our sendEmail helper instead of direct nodemailer usage
+    await sendEmail({
       to: email,
       subject: emailSubject,
       text: emailText,
       html: emailHtml,
     });
-
+    
     // Return success response
     return NextResponse.json(
       { 
@@ -122,7 +111,7 @@ export async function POST(request) {
         { status: 409 }
       );
     }
-
+    
     return NextResponse.json(
       { 
         error: "Registration failed: " + error.message 
