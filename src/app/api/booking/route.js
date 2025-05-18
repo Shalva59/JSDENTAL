@@ -26,7 +26,8 @@ export async function POST(request) {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
       port: parseInt(process.env.EMAIL_SERVER_PORT),
-      secure: true,
+      secure: false, // Change from true to false for port 587
+      requireTLS: true, // Add this to ensure encryption
       auth: {
         user: process.env.EMAIL_SERVER_USER,
         pass: process.env.EMAIL_SERVER_PASSWORD,
