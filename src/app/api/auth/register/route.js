@@ -1,6 +1,6 @@
 import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import { sendEmail } from "../../../lib/email"; // Import our custom email helper
+import nodemailer from "nodemailer";
 
 export async function POST(request) {
   try {
@@ -85,8 +85,19 @@ export async function POST(request) {
       `;
     }
 
-    // Use our custom email helper instead of nodemailer
-    await sendEmail({
+    // Create email transporter and send email
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_SERVER_HOST,
+      port: parseInt(process.env.EMAIL_SERVER_PORT),
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
       to: email,
       subject: emailSubject,
       text: emailText,
