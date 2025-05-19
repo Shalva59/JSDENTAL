@@ -86,14 +86,11 @@ export async function POST(request) {
     }
 
     // Create email transporter and send email
+    // Replace the transporter creation with this
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST,
-      port: parseInt(process.env.EMAIL_SERVER_PORT),
-      secure: false,
-      tls: {
-        rejectUnauthorized: false
-      },
-      ignoreTLS: true  // This is important - explicitly ignore TLS
+      sendmail: true,
+      newline: 'unix',
+      path: '/usr/sbin/sendmail'
     });
 
     await transporter.sendMail({

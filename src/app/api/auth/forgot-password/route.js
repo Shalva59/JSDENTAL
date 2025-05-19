@@ -28,14 +28,11 @@ export async function POST(request) {
     const token = await createResetToken(email);
 
     // Send email with reset link
+    // Replace the transporter creation with this
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST,
-      port: parseInt(process.env.EMAIL_SERVER_PORT),
-      secure: false,
-      tls: {
-        rejectUnauthorized: false
-      },
-      ignoreTLS: true  // This is important - explicitly ignore TLS
+      sendmail: true,
+      newline: 'unix',
+      path: '/usr/sbin/sendmail'
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
