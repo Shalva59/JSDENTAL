@@ -18,12 +18,12 @@ const GALLERY_DATA = {
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terapevtis_skamis_ukana_xedi-BAERsoRFjEEalOHBb9D4LgaQIN1JUT.jpeg",
     },
-    {
-      src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terapevtis_skami_wina_xedi-gszcN6jm9e7KsSWOyF6YWTkiW60EZu.jpeg",
-    },
-    {
-      src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/implantis_skamis_sinaxedi-3E7fNY4itTTrQyAHWllXW1ImO9VafG.jpeg",
-    },
+    // {
+    //   src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terapevtis_skami_wina_xedi-gszcN6jm9e7KsSWOyF6YWTkiW60EZu.jpeg",
+    // },
+    // {
+    //   src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/implantis_skamis_sinaxedi-3E7fNY4itTTrQyAHWllXW1ImO9VafG.jpeg",
+    // },
   ],
   reception: [
     {
@@ -37,12 +37,12 @@ const GALLERY_DATA = {
     {
       src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/63f071d5-8660-4cb0-92d6-8f64c24405f9-elyMdYa0y9Lxmqi5G5bk8AcKPA4QaY.jpeg",
     },
-    {
-      src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ac2b6672-637a-4b71-b631-46e2d1600c97-Cj44x6cxncjMJs1o60A3VV7hRuvjMN.jpeg",
-    },
-    {
-      src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3939f448-add2-4e1a-9757-1e74ae78ec4f-EFY7TcWxuDfJDztxpPoZ1draHyo1y2.jpeg",
-    },
+    // {
+    //   src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ac2b6672-637a-4b71-b631-46e2d1600c97-Cj44x6cxncjMJs1o60A3VV7hRuvjMN.jpeg",
+    // },
+    // {
+    //   src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3939f448-add2-4e1a-9757-1e74ae78ec4f-EFY7TcWxuDfJDztxpPoZ1draHyo1y2.jpeg",
+    // },
   ],
 }
 
@@ -64,26 +64,28 @@ const galleryTranslations = {
     bookAppointment: "Book Appointment",
     gallery: {
       clinic: [
+        // {
+        //   alt: "JC Dental - Treatment Room",
+        //   title: "Treatment Room",
+        //   description: "Modern dental chair and equipment",
+        // },
+        // {
+        //   alt: "JC Dental - Therapist's Chair",
+        //   title: "Therapist's Chair",
+        //   description: "Rear view of therapist's chair",
+        // },
+
         {
-          alt: "JC Dental - Treatment Room",
-          title: "Treatment Room",
-          description: "Modern dental chair and equipment",
-        },
-        {
-          alt: "JC Dental - Therapist's Chair",
-          title: "Therapist's Chair",
-          description: "Rear view of therapist's chair",
+          alt: "JC Dental - Implant Chair",
+          title: "Implant Chair",
+          description: "Full view of implant chair",
         },
         {
           alt: "JC Dental - Therapist's Chair",
           title: "Therapist's Chair",
           description: "Front view of therapist's chair",
         },
-        {
-          alt: "JC Dental - Implant Chair",
-          title: "Implant Chair",
-          description: "Full view of implant chair",
-        },
+
       ],
       reception: [
         {
@@ -132,26 +134,29 @@ const galleryTranslations = {
     bookAppointment: "დაჯავშნეთ ვიზიტი",
     gallery: {
       clinic: [
-        {
-          alt: "JC Dental - სამკურნალო ოთახი",
-          title: "სამკურნალო ოთახი",
-          description: "თანამედროვე სტომატოლოგიური სავარძელი და აღჭურვილობა",
-        },
-        {
-          alt: "JC Dental - თერაპევტის სავარძელი",
-          title: "თერაპევტის სავარძელი",
-          description: "უკანა ხედი თერაპევტის სავარძლის",
-        },
-        {
-          alt: "JC Dental - თერაპევტის სავარძელი",
-          title: "თერაპევტის სავარძელი",
-          description: "წინა ხედი თერაპევტის სავარძლის",
-        },
+        // {
+        //   alt: "JC Dental - სამკურნალო ოთახი",
+        //   title: "სამკურნალო ოთახი",
+        //   description: "თანამედროვე სტომატოლოგიური სავარძელი და აღჭურვილობა",
+        // },
+        // {
+        //   alt: "JC Dental - თერაპევტის სავარძელი",
+        //   title: "თერაპევტის სავარძელი",
+        //   description: "უკანა ხედი თერაპევტის სავარძლის",
+        // },
+
         {
           alt: "JC Dental - იმპლანტის სავარძელი",
           title: "იმპლანტის სავარძელი",
           description: "სრული ხედი იმპლანტის სავარძლის",
         },
+
+        {
+          alt: "JC Dental - თერაპევტის სავარძელი",
+          title: "თერაპევტის სავარძელი",
+          description: "წინა ხედი თერაპევტის სავარძლის",
+        },
+
       ],
       reception: [
         {
@@ -200,26 +205,28 @@ const galleryTranslations = {
     bookAppointment: "Записаться на приём",
     gallery: {
       clinic: [
+        // {
+        //   alt: "JC Dental - Лечебный кабинет",
+        //   title: "Лечебный кабинет",
+        //   description: "Современное стоматологическое кресло и оборудование",
+        // },
+        // {
+        //   alt: "JC Dental - Кресло терапевта",
+        //   title: "Кресло терапевта",
+        //   description: "Вид сзади кресла терапевта",
+        // },
+
         {
-          alt: "JC Dental - Лечебный кабинет",
-          title: "Лечебный кабинет",
-          description: "Современное стоматологическое кресло и оборудование",
-        },
-        {
-          alt: "JC Dental - Кресло терапевта",
-          title: "Кресло терапевта",
-          description: "Вид сзади кресла терапевта",
+          alt: "JC Dental - Кресло для имплантации",
+          title: "Кресло для имплантации",
+          description: "Полный вид кресла для имплантации",
         },
         {
           alt: "JC Dental - Кресло терапевта",
           title: "Кресло терапевта",
           description: "Вид спереди кресла терапевта",
         },
-        {
-          alt: "JC Dental - Кресло для имплантации",
-          title: "Кресло для имплантации",
-          description: "Полный вид кресла для имплантации",
-        },
+
       ],
       reception: [
         {
@@ -268,26 +275,29 @@ const galleryTranslations = {
     bookAppointment: "קביעת תור",
     gallery: {
       clinic: [
-        {
-          alt: "JC Dental - חדר טיפול",
-          title: "חדר טיפול",
-          description: "כיסא וציוד דנטלי מודרני",
-        },
-        {
-          alt: "JC Dental - כיסא המטפל",
-          title: "כיסא המטפל",
-          description: "מבט אחורי של כיסא המטפל",
-        },
-        {
-          alt: "JC Dental - כיסא המטפל",
-          title: "כיסא המטפל",
-          description: "מבט קדמי של כיסא המטפל",
-        },
+        // {
+        //   alt: "JC Dental - חדר טיפול",
+        //   title: "חדר טיפול",
+        //   description: "כיסא וציוד דנטלי מודרני",
+        // },
+        // {
+        //   alt: "JC Dental - כיסא המטפל",
+        //   title: "כיסא המטפל",
+        //   description: "מבט אחורי של כיסא המטפל",
+        // },
+
         {
           alt: "JC Dental - כיסא השתלות",
           title: "כיסא השתלות",
           description: "מבט מלא של כיסא השתלות",
         },
+
+        {
+          alt: "JC Dental - כיסא המטפל",
+          title: "כיסא המטפל",
+          description: "מבט קדמי של כיסא המטפל",
+        },
+
       ],
       reception: [
         {
@@ -595,11 +605,10 @@ export default function GalleryPage() {
               <motion.button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className={`flex items-center gap-2 cursor-pointer rounded-lg px-6 py-3 font-medium transition-all duration-300 ${
-                  currentCategory === category.id
-                    ? "bg-[#00A0B0] text-white shadow-md"
-                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`flex items-center gap-2 cursor-pointer rounded-lg px-6 py-3 font-medium transition-all duration-300 ${currentCategory === category.id
+                  ? "bg-[#00A0B0] text-white shadow-md"
+                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                  }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
               >

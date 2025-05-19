@@ -199,10 +199,10 @@ const beforeAfterCases = [
     doctorId: 4,
     category: "therapeutic",
     title: {
-      ka: "კარიესის მკურნალობა",
-      en: "Caries Treatment",
-      ru: "Лечение кариеса",
-      he: "טיפול בעששת"
+      ka: "მხატვრული რესტავრაცია",
+      en: "Aesthetic Restoration",
+      ru: "Художественная реставрация",
+      he: "שחזור אסתטי"
     },
     beforeImage: "/JC_namushevrebi/ana_patchkoria/5/BeforeImage.jpg",
     afterImage: "/JC_namushevrebi/ana_patchkoria/5/AfterImage.jpg",
@@ -213,10 +213,10 @@ const beforeAfterCases = [
     doctorId: 4,
     category: "therapeutic",
     title: {
-      ka: "კარიესის მკურნალობა",
-      en: "Caries Treatment",
-      ru: "Лечение кариеса",
-      he: "טיפול בעששת"
+      ka: "მხატვრული რესტავრაცია",
+      en: "Aesthetic Restoration",
+      ru: "Художественная реставрация",
+      he: "שחזור אסתטי"
     },
     beforeImage: "/JC_namushevrebi/ana_patchkoria/6/BeforeImage2.jpg",
     afterImage: "/JC_namushevrebi/ana_patchkoria/6/AfterImage2.jpg",
@@ -243,10 +243,10 @@ const beforeAfterCases = [
     doctorId: 4,
     category: "therapeutic",
     title: {
-      ka: "კარიესის მკურნალობა",
-      en: "Caries Treatment",
-      ru: "Лечение кариеса",
-      he: "טיפול בעששת"
+      ka: "მხატვრული რესტავრაცია",
+      en: "Aesthetic Restoration",
+      ru: "Художественная реставрация",
+      he: "שחזור אסתטי"
     },
     beforeImage: "/JC_namushevrebi/ana_patchkoria/8/BeforeImage3.jpg",
     afterImage: "/JC_namushevrebi/ana_patchkoria/8/AfterImage3.jpg",
@@ -258,10 +258,10 @@ const beforeAfterCases = [
     doctorId: 4,
     category: "therapeutic",
     title: {
-      ka: "კარიესის მკურნალობა",
-      en: "Caries Treatment",
-      ru: "Лечение кариеса",
-      he: "טיפול בעששת"
+      ka: "მხატვრული რესტავრაცია",
+      en: "Aesthetic Restoration",
+      ru: "Художественная реставрация",
+      he: "שחזור אסתטי"
     },
     beforeImage: "/JC_namushevrebi/ana_patchkoria/9/Before.jpg",
     afterImage: "/JC_namushevrebi/ana_patchkoria/9/After.jpg",
