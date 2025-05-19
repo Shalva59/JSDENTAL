@@ -1,6 +1,6 @@
 import { getUserByEmail, createResetToken } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../../../lib/email"; // Import the helper
 
 export async function POST(request) {
   try {
@@ -27,18 +27,10 @@ export async function POST(request) {
     // Create reset token
     const token = await createResetToken(email);
 
-    // Send email with reset link
-    // Replace the transporter creation with this
-    const transporter = nodemailer.createTransport({
-      sendmail: true,
-      newline: 'unix',
-      path: '/usr/sbin/sendmail'
-    });
-
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    // Use the new email helper instead of nodemailer
+    await sendEmail({
       to: email,
       subject: "Password Reset Request",
       text: `Please click the following link to reset your password: ${resetUrl}`,

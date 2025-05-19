@@ -1,6 +1,6 @@
 import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../../../lib/email"; // Import the helper instead of nodemailer
 
 export async function POST(request) {
   try {
@@ -85,16 +85,8 @@ export async function POST(request) {
       `;
     }
 
-    // Create email transporter and send email
-    // Replace the transporter creation with this
-    const transporter = nodemailer.createTransport({
-      sendmail: true,
-      newline: 'unix',
-      path: '/usr/sbin/sendmail'
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    // Use our email helper instead of nodemailer
+    await sendEmail({
       to: email,
       subject: emailSubject,
       text: emailText,
