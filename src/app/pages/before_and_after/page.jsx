@@ -676,7 +676,7 @@ export default function BeforeAfterPage() {
       exploreTransformations: "აღმოაჩინეთ ტრანსფორმაციები",
       viewAll: "ყველას ნახვა",
       ourResults: "ჩვენი შედეგები",
-      transformationGallery: "ტრანსფორმაციის გალერეა",
+      transformationGallery: "ღიმილის გალერეა",
     },
     en: {
       title: "Cases",
@@ -726,7 +726,7 @@ export default function BeforeAfterPage() {
       exploreTransformations: "Explore Transformations",
       viewAll: "View All",
       ourResults: "Our Results",
-      transformationGallery: "Transformation Gallery",
+      transformationGallery: "Smile Gallery",
     },
     ru: {
       title: "Случаи",
@@ -776,7 +776,7 @@ export default function BeforeAfterPage() {
       exploreTransformations: "Исследуйте трансформации",
       viewAll: "Смотреть все",
       ourResults: "Наши результаты",
-      transformationGallery: "Галерея трансформаций",
+      transformationGallery: "Галерея улыбок",
     },
     he: {
       title: "מקרים",
@@ -824,7 +824,7 @@ export default function BeforeAfterPage() {
       exploreTransformations: "חקור טרנספורמציות",
       viewAll: "צפה בהכל",
       ourResults: "התוצאות שלנו",
-      transformationGallery: "גלריית טרנספורמציות",
+      transformationGallery: "גלריית חיוכים",
     },
   }
 

@@ -13,7 +13,7 @@ export const metadata = {
   title: "JC Dental",
   description: "JC Dental website",
   icons: {
-    icon: "favicon.ico",
+    icon: "/favicon.ico",
   },
 };
 
