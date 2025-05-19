@@ -1,4 +1,3 @@
-'use client';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header/Page";
@@ -9,6 +8,14 @@ import { LanguageProvider } from "../context/LanguageContext";
 import { AuthProvider } from './providers/AuthProvider';
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
+
+export const metadata = {
+  title: "JC Dental",
+  description: "JC Dental website",
+  icons: {
+    icon: "favicon.ico",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (

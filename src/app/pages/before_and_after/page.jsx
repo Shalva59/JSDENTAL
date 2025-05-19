@@ -112,6 +112,7 @@ const categories = [
   { id: "veneers", name: { ka: "ვინირები", en: "Veneers", ru: "Виниры", he: "ציפויים" } },
   { id: "orthodontics", name: { ka: "ორთოდონტია", en: "Orthodontics", ru: "Ортодонтия", he: "אורתודונטיה" } },
   { id: "crowns", name: { ka: "გვირგვინები", en: "Crowns", ru: "Коронки", he: "כתרים" } },
+  { id: "therapeutic", name: { ka: "თერაპიული სტომატოლოგია", en: "Therapeutic Dentistry", ru: "Терапевтическая стоматология", he: "רפואת שיניים טיפולית" } },
 ]
 
 // Custom Before-After Slider Component
@@ -1193,7 +1194,7 @@ export default function BeforeAfterPage() {
 
                           <motion.button
                             onClick={() => handleViewCase(caseItem)}
-                            className="w-full bg-[#1E6FB0] hover:bg-[#1a5f96] text-white py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-1 transition-colors shadow-md"
+                            className="w-full bg-[#1E6FB0] hover:bg-[#1a5f96]  text-white py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-1 transition-colors shadow-md"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           >

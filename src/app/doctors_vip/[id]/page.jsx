@@ -18,7 +18,7 @@ export default function DoctorDetailPage() {
 
   const [doctor, setDoctor] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("education") // Set education as default tab
+  const [activeTab, setActiveTab] = useState(doctor?.id === 2 ? "services" : "education") // Set default tab based on doctor ID
   const [countStarted, setCountStarted] = useState(false)
   const [count, setCount] = useState(0)
   const countRef = useRef(null)
@@ -138,7 +138,7 @@ export default function DoctorDetailPage() {
       Терапевт: "Профессиональные терапевтические услуги с использованием новейших техник и оборудования.",
       "Детский стоматолог":
         "Профессиональные услуги детской стоматологии с использованием новейших техник и оборудования.",
-      Хирург: "Профессиональные хирургические услуги с использованием новейших техник и оборудования.",
+      Хирург: "Профессиональные Хирургические услуги с использованием новейших техник и оборудования.",
       Пародонтолог: "Профессиональные пародонтологические услуги с использованием новейших техник и оборудования.",
       Ортодонт: "Профессиональные ортодонтические услуги с использованием новейших техник и оборудования.",
     },
@@ -201,6 +201,7 @@ export default function DoctorDetailPage() {
       pediatricDentistry: "ბავშვთა სტომატოლოგია",
       endodontics: "ენდოდონტია",
       dentalSurgery: "დენტალური ქირურგია",
+      infoComingSoon: "ინფორმაცია ვერ მოიძებნა",
     },
     en: {
       title: "Doctor Profile",
@@ -238,6 +239,7 @@ export default function DoctorDetailPage() {
       pediatricDentistry: "Pediatric Dentistry",
       endodontics: "Endodontics",
       dentalSurgery: "Dental Surgery",
+      infoComingSoon: "Information not found",
     },
     ru: {
       title: "Профиль врача",
@@ -275,6 +277,7 @@ export default function DoctorDetailPage() {
       pediatricDentistry: "Детская стоматология",
       endodontics: "Эндодонтия",
       dentalSurgery: "Дентальная хирургия",
+      infoComingSoon: "Информация не найдена",
     },
     he: {
       title: "פרופיל רופא",
@@ -312,6 +315,7 @@ export default function DoctorDetailPage() {
       pediatricDentistry: "רפואת שיניים לילדים",
       endodontics: "טיפולי שורש",
       dentalSurgery: "כירורגיית פה ולסת",
+      infoComingSoon: "המידע לא נמצא",
     },
   }
 
@@ -370,7 +374,6 @@ export default function DoctorDetailPage() {
       { id: "education", label: t.education },
       { id: "certifications", label: t.certifications },
       { id: "services", label: t.services },
-
       // კონტაქტების ტაბი
       // { id: "contact", label: t.contactInfo },
     ]
@@ -672,7 +675,7 @@ export default function DoctorDetailPage() {
                         whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
                       >
                         <h3 className="font-bold text-gray-800">{t.tbilisiMedicalUniversity}</h3>
-                        <p className="text-gray-600">2016-2021</p>
+                        <p className="text-gray-600">{doctor.id === 2 ? "2002" : "2016-2021"}</p>
                       </motion.div>
 
                       {/* Additional education based on doctor ID */}
@@ -687,7 +690,20 @@ export default function DoctorDetailPage() {
                         </motion.div>
                       )}
 
-                      {(doctor.id === 2 || doctor.id === 3 || doctor.id === 4) && (
+                      {/* Unident for doctor ID 2 with year 2002 */}
+                      {doctor.id === 2 && (
+                        <motion.div
+                          className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
+                          variants={slideUp}
+                          whileHover={{ x: isRTL ? -5 : 5, transition: { duration: 0.2 } }}
+                        >
+                          <h3 className="font-bold text-gray-800">{t.unident}</h3>
+                          <p className="text-gray-600">2002</p>
+                        </motion.div>
+                      )}
+
+                      {/* Unident for doctors 3 and 4 with years 2021-2022 */}
+                      {(doctor.id === 3 || doctor.id === 4) && (
                         <motion.div
                           className={`border-blue-500 py-2 ${isRTL ? "border-r-4 pr-4" : "border-l-4 pl-4"}`}
                           variants={slideUp}
@@ -730,7 +746,7 @@ export default function DoctorDetailPage() {
                             <h3 className="font-bold text-gray-800 mb-1">{t.tbilisiMedicalUniversity}</h3>
                           </div>
                           <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                            2021
+                            {doctor.id === 2 ? "2002" : "2021"}
                           </span>
                         </div>
                       </motion.div>
@@ -753,8 +769,26 @@ export default function DoctorDetailPage() {
                         </motion.div>
                       )}
 
-                      {/* Unident certification for doctors 2, 3, 4 */}
-                      {(doctor.id === 2 || doctor.id === 3 || doctor.id === 4) && (
+                      {/* Unident certification for doctor 2 with year 2002 */}
+                      {doctor.id === 2 && (
+                        <motion.div
+                          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                          variants={slideUp}
+                          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-gray-800 mb-1">{t.unident}</h3>
+                            </div>
+                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                              2002
+                            </span>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Unident certification for doctors 3, 4 */}
+                      {(doctor.id === 3 || doctor.id === 4) && (
                         <motion.div
                           className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
                           variants={slideUp}
