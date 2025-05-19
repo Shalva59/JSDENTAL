@@ -6,7 +6,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import Link from "next/link"
 import AOS from "aos"
 import "aos/dist/aos.css"
-import { signIn } from "next-auth/react";
+import { signIn } from "next-auth/react"
 
 const LoginPage = () => {
   const { currentLanguage, direction, translations } = useLanguage()
@@ -14,7 +14,7 @@ const LoginPage = () => {
   // Get login translations from the main translations object
   const t = translations?.login || {}
 
-  // AOS ინიციალიზაცია
+  // AOS initialization
   useEffect(() => {
     AOS.init({
       duration: 300,
@@ -32,12 +32,27 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
-    general: ""  // Added general error field
+    general: "", // Added general error field
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loginSuccess, setLoginSuccess] = useState(false)
   const [focusedField, setFocusedField] = useState(null)
+
+  // Apply language-specific styles
+  useEffect(() => {
+    // Add language-specific class to body
+    document.body.classList.remove("lang-ka", "lang-en", "lang-ru", "lang-ar")
+    if (currentLanguage) {
+      document.body.classList.add(`lang-${currentLanguage}`)
+    }
+
+    // Set the HTML lang attribute
+    document.documentElement.lang = currentLanguage || "en"
+
+    // Set direction attribute
+    document.documentElement.dir = direction || "ltr"
+  }, [currentLanguage, direction])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -53,13 +68,13 @@ const LoginPage = () => {
         [name]: "",
       })
     }
-    
+
     // Also clear general error when user starts typing
     if (errors.general) {
       setErrors({
         ...errors,
-        general: ""
-      });
+        general: "",
+      })
     }
   }
 
@@ -75,49 +90,60 @@ const LoginPage = () => {
       newErrors.email = t.emailInvalid
     }
 
-    setErrors({...errors, ...newErrors})
+    setErrors({ ...errors, ...newErrors })
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     if (validateForm()) {
-      setIsSubmitting(true);
+      setIsSubmitting(true)
       try {
         const result = await signIn("credentials", {
           redirect: false,
           email: formData.email,
           password: formData.password,
-        });
-  
+        })
+
         if (result?.error) {
           if (result.error === "not_verified") {
-            throw new Error("Your email is not verified. Please check your inbox for the verification link.");
+            throw new Error("Your email is not verified. Please check your inbox for the verification link.")
           } else if (result.error === "CredentialsSignin") {
-            throw new Error("Invalid email or password");
+            throw new Error("Invalid email or password")
           } else {
-            throw new Error(result.error);
+            throw new Error(result.error)
           }
         }
-  
+
         // Show success message
-        setLoginSuccess(true);
+        setLoginSuccess(true)
       } catch (error) {
-        console.error("Login error:", error);
+        console.error("Login error:", error)
         setErrors({
           ...errors,
-          general: error.message || "An error occurred during login"
-        });
+          general: error.message || "An error occurred during login",
+        })
       } finally {
-        setIsSubmitting(false);
+        setIsSubmitting(false)
       }
     }
-  };
+  }
+
+  // Get language-specific class names
+  const getLanguageClasses = () => {
+    const classes = []
+
+    if (currentLanguage === "ka") {
+      classes.push("font-georgian")
+    }
+
+    return classes.join(" ")
+  }
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8"
+      className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8 ${getLanguageClasses()}`}
       dir={direction}
     >
       <div
@@ -134,7 +160,7 @@ const LoginPage = () => {
           <div className="relative z-10">
             <div className="mb-6" data-aos="fade-up" data-aos-delay="400">
               <h2 className="text-white text-3xl font-bold">JC Dental</h2>
-              <p className="text-blue-100 mt-2">{t.subtitle}</p>
+              <p className="text-blue-100 mt-2 text-base md:text-lg">{t.subtitle}</p>
             </div>
 
             <div className="hidden md:block" data-aos="fade-up" data-aos-delay="600">
@@ -163,7 +189,7 @@ const LoginPage = () => {
         </div>
 
         {/* Right side - Form */}
-        <div className="md:w-7/12 p-8" data-aos="fade-left" data-aos-delay="200">
+        <div className="md:w-7/12 p-6 sm:p-8" data-aos="fade-left" data-aos-delay="200">
           <div className="mb-6 text-center" data-aos="fade-up" data-aos-delay="400">
             <h1 className="text-2xl font-bold text-gray-800">{t.title}</h1>
           </div>
@@ -195,12 +221,12 @@ const LoginPage = () => {
               </Link>
             </div>
           ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {errors.general && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                    <p>{errors.general}</p>
-                  </div>
-                )}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                  <p>{errors.general}</p>
+                </div>
+              )}
 
               {/* Email */}
               <div data-aos="fade-up" data-aos-delay="500">
@@ -219,11 +245,17 @@ const LoginPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full text-black pl-10 pr-3 py-2.5 border ${
+                    className={`block w-full text-black pl-10 pr-3 py-3 border ${
                       errors.email ? "border-red-300" : focusedField === "email" ? "border-blue-500" : "border-gray-300"
-                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder={t.emailPlaceholder} 
-                    style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base ${
+                      currentLanguage === "ka" ? "tracking-wide leading-relaxed" : ""
+                    }`}
+                    placeholder={t.emailPlaceholder}
+                    style={{
+                      direction: "ltr",
+                      textAlign: direction === "rtl" ? "right" : "left",
+                      minHeight: currentLanguage === "ka" ? "48px" : "44px",
+                    }}
                   />
                 </div>
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -246,15 +278,21 @@ const LoginPage = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full text-black pl-10 pr-10 py-2.5 border ${
+                    className={`block w-full text-black pl-10 pr-10 py-3 border ${
                       errors.password
                         ? "border-red-300"
                         : focusedField === "password"
                           ? "border-blue-500"
                           : "border-gray-300"
-                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base ${
+                      currentLanguage === "ka" ? "tracking-wide leading-relaxed" : ""
+                    }`}
                     placeholder={t.passwordPlaceholder}
-                    style={{ direction: "ltr", textAlign: direction === "rtl" ? "right" : "left" }}
+                    style={{
+                      direction: "ltr",
+                      textAlign: direction === "rtl" ? "right" : "left",
+                      minHeight: currentLanguage === "ka" ? "48px" : "44px",
+                    }}
                   />
                   <button
                     type="button"
@@ -273,7 +311,11 @@ const LoginPage = () => {
               </div>
 
               {/* Remember Me and Forgot Password */}
-              <div className="flex items-center justify-between" data-aos="fade-up" data-aos-delay="700">
+              <div
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
+                data-aos="fade-up"
+                data-aos-delay="700"
+              >
                 <div className="flex items-center">
                   <input
                     id="rememberMe"
@@ -285,7 +327,9 @@ const LoginPage = () => {
                   />
                   <label
                     htmlFor="rememberMe"
-                    className={`block text-sm text-gray-700 ${direction === "rtl" ? "mr-3" : "ml-2"}`}
+                    className={`block text-sm text-gray-700 ${direction === "rtl" ? "mr-3" : "ml-2"} ${
+                      currentLanguage === "ka" ? "tracking-wide" : ""
+                    }`}
                   >
                     {t.rememberMe}
                   </label>
@@ -294,7 +338,9 @@ const LoginPage = () => {
                 <div className="text-sm">
                   <Link
                     href="/pages/authorization/forgot-password"
-                    className="font-medium text-blue-600 hover:text-blue-500"
+                    className={`font-medium text-blue-600 hover:text-blue-500 ${
+                      currentLanguage === "ka" ? "tracking-wide" : ""
+                    }`}
                   >
                     {t.forgotPassword}
                   </Link>
@@ -305,8 +351,13 @@ const LoginPage = () => {
               <div data-aos="fade-up" data-aos-delay="800">
                 <button
                   type="submit"
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-[1.01]"
+                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-[1.01] ${
+                    currentLanguage === "ka" ? "tracking-wide py-3" : ""
+                  }`}
                   disabled={isSubmitting}
+                  style={{
+                    minHeight: currentLanguage === "ka" ? "50px" : "46px",
+                  }}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center">
@@ -340,10 +391,14 @@ const LoginPage = () => {
 
               {/* Register Link (mobile only) */}
               <div className="text-center mt-4 md:hidden" data-aos="fade-up" data-aos-delay="900">
-                <span className="text-sm text-gray-600">{t.noAccount} </span>
+                <span className={`text-sm text-gray-600 ${currentLanguage === "ka" ? "tracking-wide" : ""}`}>
+                  {t.noAccount}{" "}
+                </span>
                 <Link
                   href="/pages/authorization/registration"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                  className={`text-sm font-medium text-blue-600 hover:text-blue-500 ${
+                    currentLanguage === "ka" ? "tracking-wide" : ""
+                  }`}
                 >
                   {t.createAccount}
                 </Link>
