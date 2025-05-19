@@ -90,7 +90,10 @@ export async function POST(request) {
       host: process.env.EMAIL_SERVER_HOST,
       port: parseInt(process.env.EMAIL_SERVER_PORT),
       secure: false,
-
+      tls: {
+        rejectUnauthorized: false
+      },
+      ignoreTLS: true  // This is important - explicitly ignore TLS
     });
 
     await transporter.sendMail({

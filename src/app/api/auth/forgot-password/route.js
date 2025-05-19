@@ -30,9 +30,12 @@ export async function POST(request) {
     // Send email with reset link
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
-      port: process.env.EMAIL_SERVER_PORT,
+      port: parseInt(process.env.EMAIL_SERVER_PORT),
       secure: false,
-
+      tls: {
+        rejectUnauthorized: false
+      },
+      ignoreTLS: true  // This is important - explicitly ignore TLS
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
