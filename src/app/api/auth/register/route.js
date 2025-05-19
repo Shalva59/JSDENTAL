@@ -2,6 +2,9 @@ import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+// Track if primary account failed (persists between requests)
+let primaryAccountFailed = false;
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -85,24 +88,77 @@ export async function POST(request) {
       `;
     }
 
-    // Create email transporter and send email
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST,
-      port: parseInt(process.env.EMAIL_SERVER_PORT),
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: emailSubject,
-      text: emailText,
-      html: emailHtml,
-    });
+    // Try to send email with primary or backup account
+    let emailSent = false;
+    let lastError = null;
+    
+    // Determine which account to try first
+    const accountsToTry = primaryAccountFailed ? 
+      ['backup', 'primary'] : 
+      ['primary', 'backup'];
+    
+    for (const accountType of accountsToTry) {
+      if (emailSent) break;
+      
+      try {
+        const username = accountType === 'primary' ? 
+          process.env.EMAIL_SERVER_USER : 
+          process.env.EMAIL_SERVER_USER_BACKUP;
+          
+        const password = accountType === 'primary' ? 
+          process.env.EMAIL_SERVER_PASSWORD : 
+          process.env.EMAIL_SERVER_PASSWORD_BACKUP;
+          
+        const fromEmail = accountType === 'primary' ? 
+          process.env.EMAIL_FROM : 
+          process.env.EMAIL_FROM_BACKUP;
+        
+        // Skip if backup credentials are not configured
+        if (accountType === 'backup' && (!username || !password)) {
+          console.log('Backup email not configured, skipping');
+          continue;
+        }
+        
+        const transporter = nodemailer.createTransport({
+          host: process.env.EMAIL_SERVER_HOST,
+          port: parseInt(process.env.EMAIL_SERVER_PORT),
+          secure: false,
+          auth: {
+            user: username,
+            pass: password,
+          },
+          tls: {
+            minVersion: 'TLSv1.2',
+          },
+        });
+        
+        await transporter.sendMail({
+          from: fromEmail,
+          to: email,
+          subject: emailSubject,
+          text: emailText,
+          html: emailHtml,
+        });
+        
+        // Email sent successfully
+        emailSent = true;
+        primaryAccountFailed = (accountType === 'backup');
+        console.log(`Verification email sent successfully using ${accountType} account`);
+        
+      } catch (err) {
+        lastError = err;
+        console.error(`Failed to send verification email with ${accountType} account:`, err);
+        
+        // Update failure tracking
+        if (accountType === 'primary') {
+          primaryAccountFailed = true;
+        }
+      }
+    }
+    
+    if (!emailSent) {
+      throw lastError || new Error('Failed to send email with all accounts');
+    }
 
     // Return success response
     return NextResponse.json(
