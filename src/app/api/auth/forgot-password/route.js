@@ -36,6 +36,11 @@ export async function POST(request) {
         user: process.env.EMAIL_SERVER_USER,
         pass: process.env.EMAIL_SERVER_PASSWORD,
       },
+tls: {
+    minVersion: 'TLSv1.2', // Enforce TLS 1.2 or higher
+  },
+  debug: true,
+  logger: true,
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
