@@ -1,22 +1,26 @@
 import { exec } from 'child_process';
+import { writeFile, unlink } from 'fs/promises';
 import { promisify } from 'util';
 
 const execPromise = promisify(exec);
 
-export async function sendEmail({ to, subject, text, html }) {
+export async function sendEmail({ to, subject, html, text }) {
   try {
-    console.log(`Sending email to ${to} with subject: ${subject}`);
+    console.log(`Sending email to ${to}`);
     
-    // Create email content
-    const content = `To: ${to}\nSubject: ${subject}\nContent-Type: text/html\n\n${html}`;
+    // Create a temporary file for the email body
+    const tempFilePath = `/tmp/email-${Date.now()}.html`;
     
-    // Write to a temp file and pipe to sendmail
-    const tempFile = `/tmp/email-${Date.now()}.txt`;
-    await execPromise(`echo '${content.replace(/'/g, "'\\''")}' > ${tempFile}`);
-    await execPromise(`cat ${tempFile} | /usr/sbin/sendmail -t`);
-    await execPromise(`rm ${tempFile}`);
+    // Write the HTML content to the temp file
+    await writeFile(tempFilePath, html);
     
-    console.log('Email sent successfully using sendmail');
+    // Use the mail command directly
+    await execPromise(`mail -s "${subject}" -a "Content-Type: text/html" ${to} < ${tempFilePath}`);
+    
+    // Clean up the temp file
+    await unlink(tempFilePath);
+    
+    console.log('Email sent successfully using system mail command');
     return { success: true };
   } catch (error) {
     console.error('Failed to send email:', error);

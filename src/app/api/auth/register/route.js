@@ -1,6 +1,6 @@
 import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import { sendEmail } from "../../../lib/email"; // Import the helper instead of nodemailer
+import { sendEmail } from "../../../lib/email"; // Import our custom email helper
 
 export async function POST(request) {
   try {
@@ -85,7 +85,7 @@ export async function POST(request) {
       `;
     }
 
-    // Use our email helper instead of nodemailer
+    // Use our custom email helper instead of nodemailer
     await sendEmail({
       to: email,
       subject: emailSubject,

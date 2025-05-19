@@ -1,6 +1,6 @@
 import { getUserByEmail, createResetToken } from "../../../lib/user";
 import { NextResponse } from "next/server";
-import { sendEmail } from "../../../lib/email"; // Import the helper
+import { sendEmail } from "../../../lib/email"; // Import our custom email helper
 
 export async function POST(request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request) {
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/pages/authorization/reset-password?token=${token}`;
 
-    // Use the new email helper instead of nodemailer
+    // Use our custom email helper instead of nodemailer
     await sendEmail({
       to: email,
       subject: "Password Reset Request",

@@ -23,11 +23,14 @@ export async function POST(request) {
     }
 
     // Create a transporter using the same config as your password reset
-    // Replace the transporter creation with this
     const transporter = nodemailer.createTransport({
-      sendmail: true,
-      newline: 'unix',
-      path: '/usr/sbin/sendmail'
+      host: process.env.EMAIL_SERVER_HOST,
+      port: parseInt(process.env.EMAIL_SERVER_PORT),
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
     });
 
     // Format a nice email
