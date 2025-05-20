@@ -120,6 +120,9 @@ export default function BookingPage() {
       autofilled: "ავტომატურად შეივსო თქვენი ანგარიშიდან",
       dailyLimitReached: "დღის ლიმიტი (5 ჯავშანი) ამოიწურა",
       loginRequired: "ჯავშნისთვის საჭიროა ავტორიზაცია",
+      loginMessage: "გთხოვთ შეხვიდეთ ანგარიშში ჯავშნის შესაქმნელად",
+      login: "შესვლა",
+      register: "რეგისტრაცია",
       services: {
         cleaning: "კბილების პროფესიული წმენდა",
         whitening: "კბილების გათეთრება",
@@ -170,6 +173,9 @@ export default function BookingPage() {
       autofilled: "Auto-filled from your account",
       dailyLimitReached: "Daily limit (5 appointments) reached",
       loginRequired: "Please log in to book an appointment",
+      loginMessage: "Please log in to your account to create an appointment",
+      login: "Login",
+      register: "Register",
       services: {
         cleaning: "Professional Teeth Cleaning",
         whitening: "Teeth Whitening",
@@ -220,6 +226,9 @@ export default function BookingPage() {
       autofilled: "Автоматически заполнено из вашей учетной записи",
       dailyLimitReached: "Дневной лимит (5 записей) достигнут",
       loginRequired: "Пожалуйста, войдите в систему для записи на прием",
+      loginMessage: "Пожалуйста, войдите в свой аккаунт для создания записи",
+      login: "Войти",
+      register: "Регистрация",
       services: {
         cleaning: "Профессиональная чистка зубов",
         whitening: "Отбеливание зубов",
@@ -270,6 +279,9 @@ export default function BookingPage() {
       autofilled: "מולא אוטומטית מהחשבון שלך",
       dailyLimitReached: "הגעת למגבלה יומית (5 תורים)",
       loginRequired: "אנא התחבר כדי לקבוע תור",
+      loginMessage: "אנא התחבר לחשבון שלך כדי ליצור תור",
+      login: "התחבר",
+      register: "הרשמה",
       services: {
         cleaning: "ניקוי שיניים מקצועי",
         whitening: "הלבנת שיניים",
@@ -497,20 +509,20 @@ export default function BookingPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">{t.loginRequired}</h1>
-            <p className="text-gray-600 mb-6">გთხოვთ შეხვიდეთ ანგარიშში ჯავშნის შესაქმნელად</p>
+            <p className="text-gray-600 mb-6">{t.loginMessage}</p>
             <div className="flex gap-4 justify-center">
-              <Link
-                href="/pages/authorization/log_in"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                შესვლა
-              </Link>
-              <Link
-                href="/pages/authorization/registration"
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                რეგისტრაცია
-              </Link>
+            <Link
+              href="/pages/authorization/log_in"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              {t.login}
+            </Link>
+            <Link
+              href="/pages/authorization/registration"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {t.register}
+            </Link>
             </div>
           </div>
         </div>

@@ -81,6 +81,12 @@ export default function AppointmentsPage() {
       refresh: "განახლება",
       backToHome: "მთავარზე დაბრუნება",
       loginRequired: "საჭიროა ავტორიზაცია",
+      doctorSubtitle: "მართეთ თქვენთვის მიმართული ჯავშნები",
+      userSubtitle: "ნახეთ თქვენი ჯავშნების სია და სტატუსი",
+      noAppointmentsDoctor: "თქვენთვის ჯერ არ არის მიმართული ჯავშნები",
+      noAppointmentsUser: "თქვენ ჯერ არ გაქვთ ჯავშნები",
+      createNewAppointment: "ახალი ჯავშნის შექმნა",
+      login: "შესვლა",
       statuses: {
         pending: "მოლოდინში",
         approved: "დამტკიცებული",
@@ -126,6 +132,12 @@ export default function AppointmentsPage() {
       refresh: "Refresh",
       backToHome: "Back to Home",
       loginRequired: "Login Required",
+      doctorSubtitle: "Manage appointments assigned to you",
+      userSubtitle: "View your appointments list and status",
+      noAppointmentsDoctor: "No appointments have been assigned to you yet",
+      noAppointmentsUser: "You don't have any appointments yet",
+      createNewAppointment: "Create New Appointment",
+      login: "Login",
       statuses: {
         pending: "Pending",
         approved: "Approved",
@@ -171,6 +183,12 @@ export default function AppointmentsPage() {
       refresh: "Обновить",
       backToHome: "На главную",
       loginRequired: "Необходима авторизация",
+      doctorSubtitle: "Управляйте записями, назначенными вам",
+      userSubtitle: "Просмотрите список ваших записей и их статус",
+      noAppointmentsDoctor: "Вам еще не назначены записи",
+      noAppointmentsUser: "У вас пока нет записей",
+      createNewAppointment: "Создать новую запись",
+      login: "Войти",
       statuses: {
         pending: "В ожидании",
         approved: "Одобрено",
@@ -216,6 +234,12 @@ export default function AppointmentsPage() {
       refresh: "רענן",
       backToHome: "חזרה לעמוד הראשי",
       loginRequired: "נדרשת התחברות",
+      doctorSubtitle: "נהל תורים שהוקצו לך",
+      userSubtitle: "צפה ברשימת התורים שלך ובסטטוס",
+      noAppointmentsDoctor: "עדיין לא הוקצו לך תורים",
+      noAppointmentsUser: "אין לך תורים עדיין",
+      createNewAppointment: "צור תור חדש",
+      login: "התחבר",
       statuses: {
         pending: "ממתין",
         approved: "מאושר",
@@ -386,7 +410,7 @@ export default function AppointmentsPage() {
             href="/pages/authorization/log_in"
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
-            შესვლა
+            {t.login}
           </Link>
         </div>
       </div>
@@ -404,8 +428,8 @@ export default function AppointmentsPage() {
             </h1>
             <p className="text-gray-600 mt-2">
               {userIsDoctor 
-                ? "მართეთ თქვენთვის მიმართული ჯავშნები" 
-                : "ნახეთ თქვენი ჯავშნების სია და სტატუსი"
+                ? t.doctorSubtitle
+                : t.userSubtitle
               }
             </p>
           </div>
@@ -449,8 +473,8 @@ export default function AppointmentsPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">{t.noAppointments}</h3>
             <p className="text-gray-600 mb-6">
               {userIsDoctor 
-                ? "თქვენთვის ჯერ არ არის მიმართული ჯავშნები" 
-                : "თქვენ ჯერ არ გაქვთ ჯავშნები"
+                ? t.noAppointmentsDoctor
+                : t.noAppointmentsUser
               }
             </p>
             {!userIsDoctor && (
@@ -458,7 +482,7 @@ export default function AppointmentsPage() {
                 href="/pages/booking"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                ახალი ჯავშნის შექმნა
+                {t.createNewAppointment}
               </Link>
             )}
           </div>
