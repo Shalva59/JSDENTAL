@@ -1,172 +1,104 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
-
-// Track if primary account failed (persists between requests)
-let primaryAccountFailed = false;
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(request) {
   try {
+    // Get session to check if user is authenticated
+    const session = await getServerSession(authOptions);
+    
+    if (!session) {
+      return NextResponse.json(
+        { 
+          error: "Authentication required", 
+          message: "Please log in to book an appointment.",
+          redirect: "/pages/authorization/log_in"
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { 
-      doctor, 
       doctorName, 
-      service, 
       serviceName, 
       date, 
       time, 
       patientInfo 
     } = body;
 
-    // Validate required fields
-    if (!doctorName || !serviceName || !date || !time || !patientInfo.firstName || !patientInfo.lastName || !patientInfo.phone) {
+    // Log the attempt for debugging
+    console.log("Old booking system accessed:", {
+      user: session.user.email,
+      doctorName,
+      serviceName,
+      date,
+      time,
+      timestamp: new Date().toISOString()
+    });
+
+    // Validate required fields for better error messages
+    if (!doctorName || !serviceName || !date || !time || !patientInfo?.firstName || !patientInfo?.lastName || !patientInfo?.phone) {
       return NextResponse.json(
-        { error: "Missing required booking information" },
+        { 
+          error: "Missing required booking information",
+          message: "Please fill in all required fields and try again.",
+          redirect: "/pages/booking"
+        },
         { status: 400 }
       );
     }
-    
-    // Format a nice email
-    const patientFullName = `${patientInfo.firstName} ${patientInfo.lastName}`;
-    
-    const clinicEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <h2 style="color: #3b82f6;">New Appointment Booking</h2>
-        <p>A new appointment has been booked with the following details:</p>
-        
-        <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 15px 0;">
-          <h3 style="margin-top: 0;">Appointment Details</h3>
-          <p><strong>Doctor:</strong> ${doctorName}</p>
-          <p><strong>Service:</strong> ${serviceName}</p>
-          <p><strong>Date:</strong> ${date}</p>
-          <p><strong>Time:</strong> ${time}</p>
-          <p><strong>Urgent Case:</strong> ${patientInfo.isUrgent ? 'Yes' : 'No'}</p>
-          <p><strong>Patient Type:</strong> ${patientInfo.isNewPatient === 'new' ? 'New Patient' : 'Returning Patient'}</p>
-        </div>
-        
-        <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 15px 0;">
-          <h3 style="margin-top: 0;">Patient Information</h3>
-          <p><strong>Name:</strong> ${patientFullName}</p>
-          <p><strong>Phone:</strong> ${patientInfo.phone}</p>
-          <p><strong>Email:</strong> ${patientInfo.email || 'Not provided'}</p>
-          <p><strong>Notes:</strong> ${patientInfo.notes || 'None'}</p>
-        </div>
-        
-        <p>Please confirm this appointment with the patient.</p>
-      </div>
-    `;
-    
-    const patientEmailHtml = patientInfo.email ? `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <h2 style="color: #3b82f6;">Appointment Confirmation</h2>
-        <p>Dear ${patientFullName},</p>
-        <p>Thank you for booking an appointment with JC Dental. Your appointment details are as follows:</p>
-        
-        <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 15px 0;">
-          <p><strong>Doctor:</strong> ${doctorName}</p>
-          <p><strong>Service:</strong> ${serviceName}</p>
-          <p><strong>Date:</strong> ${date}</p>
-          <p><strong>Time:</strong> ${time}</p>
-        </div>
-        
-        <p>Our clinic will contact you shortly to confirm this appointment.</p>
-        <p>If you need to cancel or reschedule, please contact us as soon as possible.</p>
-        
-        <p style="margin-top: 30px;">Best regards,</p>
-        <p><strong>JC Dental Team</strong></p>
-      </div>
-    ` : null;
-    
-    // Try to send email with primary or backup account
-    let emailSent = false;
-    let lastError = null;
-    
-    // Determine which account to try first
-    const accountsToTry = primaryAccountFailed ? 
-      ['backup', 'primary'] : 
-      ['primary', 'backup'];
-    
-    for (const accountType of accountsToTry) {
-      if (emailSent) break;
-      
-      try {
-        const username = accountType === 'primary' ? 
-          process.env.EMAIL_SERVER_USER : 
-          process.env.EMAIL_SERVER_USER_BACKUP;
-          
-        const password = accountType === 'primary' ? 
-          process.env.EMAIL_SERVER_PASSWORD : 
-          process.env.EMAIL_SERVER_PASSWORD_BACKUP;
-          
-        const fromEmail = accountType === 'primary' ? 
-          process.env.EMAIL_FROM : 
-          process.env.EMAIL_FROM_BACKUP;
-        
-        // Skip if backup credentials are not configured
-        if (accountType === 'backup' && (!username || !password)) {
-          console.log('Backup email not configured, skipping');
-          continue;
-        }
-        
-        const transporter = nodemailer.createTransport({
-          host: process.env.EMAIL_SERVER_HOST,
-          port: parseInt(process.env.EMAIL_SERVER_PORT),
-          secure: false,
-          auth: {
-            user: username,
-            pass: password,
-          },
-          tls: {
-            minVersion: 'TLSv1.2',
-          },
-        });
-        
-        // Email to clinic
-        await transporter.sendMail({
-          from: fromEmail,
-          to: process.env.EMAIL_TO || process.env.EMAIL_SERVER_USER,
-          subject: `New Dental Appointment - ${patientFullName}`,
-          html: clinicEmailHtml,
-        });
-        
-        // Confirmation email to patient (if email is provided)
-        if (patientInfo.email && patientEmailHtml) {
-          await transporter.sendMail({
-            from: fromEmail,
-            to: patientInfo.email,
-            subject: "Your Dental Appointment Confirmation",
-            html: patientEmailHtml,
-          });
-        }
-        
-        // Email sent successfully
-        emailSent = true;
-        primaryAccountFailed = (accountType === 'backup');
-        console.log(`Booking email sent successfully using ${accountType} account`);
-        
-      } catch (err) {
-        lastError = err;
-        console.error(`Failed to send booking email with ${accountType} account:`, err);
-        
-        // Update failure tracking
-        if (accountType === 'primary') {
-          primaryAccountFailed = true;
-        }
-      }
-    }
-    
-    if (!emailSent) {
-      throw lastError || new Error('Failed to send email with all accounts');
-    }
 
+    // Return redirect response to new appointment system
     return NextResponse.json(
-      { success: true, message: "Booking email sent successfully" },
-      { status: 200 }
+      { 
+        success: false,
+        error: "Booking system has been updated", 
+        message: "We've upgraded our booking system! Please use the new appointment management system for better service and real-time updates.",
+        redirect: "/pages/booking",
+        data: {
+          // Pass the form data so it can be pre-filled in the new system
+          doctorName,
+          serviceName,
+          date,
+          time,
+          patientInfo
+        }
+      },
+      { status: 400 }
     );
+
   } catch (error) {
-    console.error("Booking email error:", error);
+    console.error("Booking system redirect error:", error);
+    
     return NextResponse.json(
-      { error: "Failed to send booking email" },
+      { 
+        error: "System error",
+        message: "Please use the updated appointment system for booking.", 
+        redirect: "/pages/booking"
+      },
       { status: 500 }
     );
   }
+}
+
+// Handle GET requests with information about the new system
+export async function GET(request) {
+  return NextResponse.json(
+    {
+      message: "Booking system has been updated",
+      description: "We now use a new appointment management system with real-time notifications and doctor approval workflow.",
+      newBookingUrl: "/pages/booking",
+      appointmentsUrl: "/appointments",
+      features: [
+        "Real-time appointment status updates",
+        "Doctor approval system", 
+        "Counter-offer functionality",
+        "Daily appointment limits",
+        "Instant notifications",
+        "Better appointment management"
+      ]
+    },
+    { status: 200 }
+  );
 }

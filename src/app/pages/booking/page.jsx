@@ -6,14 +6,14 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { useSession } from "next-auth/react" // Add this import
+import { useSession } from "next-auth/react"
 
 export default function BookingPage() {
   const router = useRouter()
   const { currentLanguage, direction } = useLanguage()
   const dentists = useLocalizedDentists()
   const isRTL = direction === "rtl"
-  const { data: session, status } = useSession() // Get session information
+  const { data: session, status } = useSession()
   const isAuthenticated = status === "authenticated"
 
   // Form state
@@ -41,7 +41,6 @@ export default function BookingPage() {
   // Pre-fill user information if authenticated
   useEffect(() => {
     if (isAuthenticated && session.user) {
-      // Extract first and last name from full name
       const nameParts = session.user.name ? session.user.name.split(" ") : ["", ""]
       const userFirstName = nameParts[0] || ""
       const userLastName = nameParts.slice(1).join(" ") || ""
@@ -67,26 +66,23 @@ export default function BookingPage() {
   // Generate available times when date is selected
   useEffect(() => {
     if (selectedDate) {
-      // Generate time slots from 10:00 to 20:00 with 1-hour intervals
       const times = []
       const startHour = 10
-      const endHour = 21 // Using 21 to include 20:00 in the loop
+      const endHour = 21
 
       for (let hour = startHour; hour < endHour; hour++) {
-        // Only add times for the full hour (minute = 0)
         const timeString = `${hour.toString().padStart(2, "0")}:00`
         times.push(timeString)
       }
 
-      // Use all times (no random filtering)
       setAvailableTimes(times)
     } else {
       setAvailableTimes([])
     }
 
-    // Clear selected time when date changes
     setSelectedTime("")
   }, [selectedDate])
+
   // Translations for all supported languages
   const texts = {
     ka: {
@@ -113,15 +109,17 @@ export default function BookingPage() {
       bookAppointment: "დაჯავშნა",
       submitting: "მიმდინარეობს...",
       successTitle: "ჯავშანი წარმატებით შეიქმნა!",
-      successMessage: "თქვენი ჯავშანი დადასტურებულია. მალე დაგიკავშირდებით.",
+      successMessage: "თქვენი ჯავშანი გაიგზავნა ექიმისთვის დასამტკიცებლად. მიიღებთ შეტყობინებას როდესაც ექიმი გაგიპასუხებთ.",
       backToHome: "მთავარ გვერდზე დაბრუნება",
-      bookAnother: "ახალი ჯავშანი",
+      viewAppointments: "ჯავშნების ნახვა",
       errorMessage: "შეცდომა დაჯავშნისას. გთხოვთ, სცადოთ მოგვიანებით.",
       requiredField: "აუცილებელი ველი",
       invalidEmail: "არასწორი ელ-ფოსტის ფორმატი",
       invalidPhone: "არასწორი ტელეფონის ფორმატი",
       mustAgreeToTerms: "გთხოვთ, დაეთანხმოთ წესებს და პირობებს",
       autofilled: "ავტომატურად შეივსო თქვენი ანგარიშიდან",
+      dailyLimitReached: "დღის ლიმიტი (5 ჯავშანი) ამოიწურა",
+      loginRequired: "ჯავშნისთვის საჭიროა ავტორიზაცია",
       services: {
         cleaning: "კბილების პროფესიული წმენდა",
         whitening: "კბილების გათეთრება",
@@ -136,14 +134,6 @@ export default function BookingPage() {
       },
       appointmentDetails: "ჯავშნის დეტალები",
       patientInformation: "პაციენტის ინფორმაცია",
-      appointmentSummary: "ჯავშნის შეჯამება",
-      doctor: "ექიმი",
-      service: "სერვისი",
-      date: "თარიღი",
-      time: "დრო",
-      urgentCase: "გადაუდებელი შემთხვევა",
-      notUrgent: "არ არის გადაუდებელი",
-      patientName: "პაციენტის სახელი",
     },
     en: {
       title: "Book Appointment",
@@ -168,16 +158,18 @@ export default function BookingPage() {
       termsAndConditionsText: "terms and conditions",
       bookAppointment: "Book Appointment",
       submitting: "Submitting...",
-      successTitle: "Appointment Booked Successfully!",
-      successMessage: "Your appointment has been confirmed. We will contact you shortly.",
+      successTitle: "Appointment Request Sent!",
+      successMessage: "Your appointment request has been sent to the doctor for approval. You will receive a notification when the doctor responds.",
       backToHome: "Back to Home",
-      bookAnother: "Book Another Appointment",
+      viewAppointments: "View Appointments",
       errorMessage: "Error booking appointment. Please try again later.",
       requiredField: "This field is required",
       invalidEmail: "Invalid email format",
       invalidPhone: "Invalid phone format",
       mustAgreeToTerms: "You must agree to the terms and conditions",
       autofilled: "Auto-filled from your account",
+      dailyLimitReached: "Daily limit (5 appointments) reached",
+      loginRequired: "Please log in to book an appointment",
       services: {
         cleaning: "Professional Teeth Cleaning",
         whitening: "Teeth Whitening",
@@ -192,14 +184,6 @@ export default function BookingPage() {
       },
       appointmentDetails: "Appointment Details",
       patientInformation: "Patient Information",
-      appointmentSummary: "Appointment Summary",
-      doctor: "Doctor",
-      service: "Service",
-      date: "Date",
-      time: "Time",
-      urgentCase: "Urgent Case",
-      notUrgent: "Not Urgent",
-      patientName: "Patient Name",
     },
     ru: {
       title: "Записаться на прием",
@@ -224,16 +208,18 @@ export default function BookingPage() {
       termsAndConditionsText: "правилами и условиями",
       bookAppointment: "Записаться на прием",
       submitting: "Отправка...",
-      successTitle: "Запись успешно создана!",
-      successMessage: "Ваша запись подтверждена. Мы свяжемся с вами в ближайшее время.",
+      successTitle: "Запрос на прием отправлен!",
+      successMessage: "Ваш запрос на прием отправлен врачу для утверждения. Вы получите уведомление, когда врач ответит.",
       backToHome: "Вернуться на главную",
-      bookAnother: "Создать новую запись",
+      viewAppointments: "Просмотр записей",
       errorMessage: "Ошибка при создании записи. Пожалуйста, попробуйте позже.",
       requiredField: "Обязательное поле",
       invalidEmail: "Неверный формат эл. почты",
       invalidPhone: "Неверный формат телефона",
       mustAgreeToTerms: "Вы должны согласиться с правилами и условиями",
       autofilled: "Автоматически заполнено из вашей учетной записи",
+      dailyLimitReached: "Дневной лимит (5 записей) достигнут",
+      loginRequired: "Пожалуйста, войдите в систему для записи на прием",
       services: {
         cleaning: "Профессиональная чистка зубов",
         whitening: "Отбеливание зубов",
@@ -248,14 +234,6 @@ export default function BookingPage() {
       },
       appointmentDetails: "Детали записи",
       patientInformation: "Информация о пациенте",
-      appointmentSummary: "Сводка записи",
-      doctor: "Врач",
-      service: "Услуга",
-      date: "Дата",
-      time: "Время",
-      urgentCase: "Срочный случай",
-      notUrgent: "Не срочно",
-      patientName: "Имя пациента",
     },
     he: {
       title: "קביעת תור",
@@ -280,16 +258,18 @@ export default function BookingPage() {
       termsAndConditionsText: "לתנאים ולהגבלות",
       bookAppointment: "קבע תור",
       submitting: "שולח...",
-      successTitle: "התור נקבע בהצלחה!",
-      successMessage: "התור שלך אושר. ניצור איתך קשר בקרוב.",
+      successTitle: "בקשת התור נשלחה!",
+      successMessage: "בקשת התור שלך נשלחה לרופא לאישור. תקבל הודעה כאשר הרופא יענה.",
       backToHome: "חזרה לדף הבית",
-      bookAnother: "קבע תור נוסף",
+      viewAppointments: "צפה בתורים",
       errorMessage: "שגיאה בקביעת התור. אנא נסה שוב מאוחר יותר.",
       requiredField: "שדה חובה",
       invalidEmail: 'פורמט דוא"ל לא חוקי',
       invalidPhone: "פורמט טלפון לא חוקי",
       mustAgreeToTerms: "עליך להסכים לתנאים ולהגבלות",
       autofilled: "מולא אוטומטית מהחשבון שלך",
+      dailyLimitReached: "הגעת למגבלה יומית (5 תורים)",
+      loginRequired: "אנא התחבר כדי לקבוע תור",
       services: {
         cleaning: "ניקוי שיניים מקצועי",
         whitening: "הלבנת שיניים",
@@ -304,18 +284,9 @@ export default function BookingPage() {
       },
       appointmentDetails: "פרטי התור",
       patientInformation: "פרטי המטופל",
-      appointmentSummary: "סיכום התור",
-      doctor: "רופא",
-      service: "שירות",
-      date: "תאריך",
-      time: "שעה",
-      urgentCase: "מקרה דחוף",
-      notUrgent: "לא דחוף",
-      patientName: "שם המטופל",
     },
   }
 
-  // Get translations for current language
   const t = texts[currentLanguage] || texts.ka
 
   // Format date to string based on locale
@@ -323,10 +294,8 @@ export default function BookingPage() {
     if (!date) return ""
 
     try {
-      // Create options for different locales
       const options = { year: "numeric", month: "long", day: "numeric" }
 
-      // Get locale code based on current language
       let localeCode = "ka-GE"
       if (currentLanguage === "en") localeCode = "en-US"
       if (currentLanguage === "ru") localeCode = "ru-RU"
@@ -334,13 +303,13 @@ export default function BookingPage() {
 
       return date.toLocaleDateString(localeCode, options)
     } catch (error) {
-      // Fallback to simple date format if there's an error
       return date.toLocaleDateString()
     }
   }
 
   // Form validation
   const validateForm = () => {
+    if (!isAuthenticated) return t.loginRequired
     if (!selectedDoctor) return t.selectDoctor
     if (!selectedService) return t.selectService
     if (!selectedDate) return t.selectDate
@@ -369,14 +338,14 @@ export default function BookingPage() {
     setIsSubmitting(true)
 
     try {
-      // Prepare booking data
-      const bookingData = {
-        doctor: selectedDoctor,
+      // Prepare appointment data
+      const appointmentData = {
+        doctorId: selectedDoctor,
         doctorName: dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor,
         service: selectedService,
         serviceName: t.services[selectedService] || selectedService,
-        date: selectedDate ? formatDate(selectedDate) : "",
-        time: selectedTime,
+        requestedDate: selectedDate ? formatDate(selectedDate) : "",
+        requestedTime: selectedTime,
         patientInfo: {
           firstName,
           lastName,
@@ -386,28 +355,35 @@ export default function BookingPage() {
           isUrgent,
           notes,
         },
+        notes,
+        isUrgent,
       }
 
-      console.log("Sending booking details:", bookingData)
+      console.log("Sending appointment data:", appointmentData)
 
       // Call the API route
-      const response = await fetch("/api/booking", {
+      const response = await fetch("/api/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(bookingData),
+        body: JSON.stringify(appointmentData),
       })
 
       const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error || "Failed to send booking")
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error(t.dailyLimitReached)
+        }
+        throw new Error(result.error || "Failed to create appointment")
       }
+
       // Set success state to show confirmation screen
       setIsSuccess(true)
     } catch (error) {
       console.error("Error submitting form:", error)
-      setError(t.errorMessage)
+      setError(error.message || t.errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -493,34 +469,6 @@ export default function BookingPage() {
                 {t.successMessage}
               </motion.p>
 
-              {/* Appointment summary */}
-              <motion.div className="w-full bg-gray-50 rounded-lg p-6 mb-8" variants={slideUp}>
-                <h2 className="text-lg font-medium text-gray-800 mb-4">{t.appointmentSummary}</h2>
-                <div className="grid grid-cols-2 gap-4 text-left">
-                  <div>
-                    <p className="text-sm text-black text-gray-500">{t.doctor}</p>
-                    <p className="font-medium text-black">
-                      {dentists.find((d) => String(d.id) === String(selectedDoctor))?.name || selectedDoctor}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 text-black">{t.service}</p>
-                    <p className="font-medium text-black">{t.services[selectedService] || selectedService}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 text-black">{t.date}</p>
-                    <p className="font-medium text-black">{selectedDate ? formatDate(selectedDate) : ""}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 text-black">{t.time}</p>
-                    <p className="font-medium text-black">{selectedTime}</p>
-                  </div>
-                  <div className="col-span-2 text-black">
-                    <p className="text-sm text-gray-500 text-black">{isUrgent ? t.urgentCase : t.notUrgent}</p>
-                  </div>
-                </div>
-              </motion.div>
-
               <motion.div className="flex flex-col sm:flex-row gap-4" variants={slideUp}>
                 <button
                   onClick={() => router.push("/")}
@@ -529,14 +477,42 @@ export default function BookingPage() {
                   {t.backToHome}
                 </button>
                 <button
-                  onClick={resetForm}
+                  onClick={() => router.push("/appointments")}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
-                  {t.bookAnother}
+                  {t.viewAppointments}
                 </button>
               </motion.div>
             </motion.div>
           </motion.div>
+        </div>
+      </div>
+    )
+  }
+
+  // If not authenticated, show login message
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8" dir={direction}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">{t.loginRequired}</h1>
+            <p className="text-gray-600 mb-6">გთხოვთ შეხვიდეთ ანგარიშში ჯავშნის შესაქმნელად</p>
+            <div className="flex gap-4 justify-center">
+              <Link
+                href="/pages/authorization/log_in"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                შესვლა
+              </Link>
+              <Link
+                href="/pages/authorization/registration"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                რეგისტრაცია
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     )

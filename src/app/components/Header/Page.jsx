@@ -9,6 +9,7 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
+import NotificationsDropdown from "../NotificationsDropdown" // Add this line
 
 const languages = [
   // საქართველოს დროშა
@@ -435,7 +436,8 @@ const Header = () => {
                   )}
                 </AnimatePresence>
               </div>
-              
+              {isAuthenticated && <NotificationsDropdown />}
+
               {/* Authentication - Desktop */}
               {isAuthenticated ? (
                 <div className="relative group">
@@ -558,7 +560,8 @@ const Header = () => {
                       )}
                     </AnimatePresence>
                   </div>
-                  
+                  {isAuthenticated && <NotificationsDropdown />}
+
                   {/* Authentication - Mobile */}
                   {isAuthenticated ? (
                     <div className="flex flex-col items-end">

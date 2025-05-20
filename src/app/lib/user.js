@@ -40,8 +40,7 @@ export async function getUserById(id) {
   }
 }
 
-// Create new user
-// Create new user
+// Create new user (updated with isDoctor field)
 export async function createUser(userData) {
   try {
     const { firstName, lastName, email, phone, password } = userData;
@@ -68,6 +67,7 @@ export async function createUser(userData) {
       phone,
       password: hashedPassword,
       isVerified: false,
+      isDoctor: false, // Add this line for the appointment system
       verificationToken,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -167,6 +167,28 @@ export async function resetPassword(token, newPassword) {
     return true;
   } catch (error) {
     console.error("resetPassword error:", error);
+    throw error;
+  }
+}
+
+// Update user doctor status (new function for appointment system)
+export async function updateUserDoctorStatus(userId, isDoctorStatus) {
+  try {
+    const db = await getDatabase();
+    
+    const result = await db.collection(COLLECTION).updateOne(
+      { _id: new ObjectId(userId) },
+      { 
+        $set: { 
+          isDoctor: isDoctorStatus,
+          updatedAt: new Date()
+        }
+      }
+    );
+    
+    return result;
+  } catch (error) {
+    console.error("updateUserDoctorStatus error:", error);
     throw error;
   }
 }

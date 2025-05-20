@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import Script from 'next/script';
 import { LanguageProvider } from "../context/LanguageContext";
 import { AuthProvider } from './providers/AuthProvider';
+import { NotificationsProvider } from "../context/NotificationsContext";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -23,13 +24,16 @@ export default function RootLayout({ children }) {
       <body className={inter.className} style={{background:"white"}}>
         {/* Wrap everything with SessionProvider */}
         <AuthProvider>
-        {/* Language context provider */}
-        <LanguageProvider>
-          <Header />
-          {children}
-          <Footer />
-        </LanguageProvider>
-      </AuthProvider>
+          {/* Language context provider */}
+          <LanguageProvider>
+            {/* Notifications context provider */}
+            <NotificationsProvider>
+              <Header />
+              {children}
+              <Footer />
+            </NotificationsProvider>
+          </LanguageProvider>
+        </AuthProvider>
         
         {/* LiveChat script */}
         <Script
