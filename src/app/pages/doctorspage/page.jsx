@@ -20,7 +20,7 @@ export default function DoctorsPage() {
       once: true,
       easing: "ease-in-out",
     })
-  }, [])
+  }, []) 
 
   // სტომატოლოგიური სპეციალობები მრავალენოვანი
   const specialties = {
@@ -135,7 +135,7 @@ export default function DoctorsPage() {
       phone: "ტელეფონი",
       email: "ელ-ფოსტა",
       workingHours: "სამუშაო საათები",
-      workingHoursValue: "ორშ-შაბ: 10:00 - 20:00",
+      workingHoursValue: "კვი-პარ: 10:00 - 20:00",
     },
     en: {
       title: "JC Dental - Our Doctors",
@@ -153,7 +153,7 @@ export default function DoctorsPage() {
       phone: "Phone",
       email: "Email",
       workingHours: "Working hours",
-      workingHoursValue: "Mon-Sat: 10:00 - 20:00",
+      workingHoursValue: "Sun–Fri: 10:00 - 20:00",
     },
     ru: {
       title: "JC Dental - Наши врачи",
@@ -172,7 +172,7 @@ export default function DoctorsPage() {
       phone: "Телефон",
       email: "Эл. почта",
       workingHours: "Часы работы",
-      workingHoursValue: "Пн-Сб: 10:00 - 20:00",
+      workingHoursValue: "Вс–Пт: 10:00 - 20:00",
     },
     he: {
       title: "JC Dental - הרופאים שלנו",
@@ -190,7 +190,7 @@ export default function DoctorsPage() {
       phone: "טלפון",
       email: "אימייל",
       workingHours: "שעות עבודה",
-      workingHoursValue: "שני-שבת: 10:00 - 20:00",
+      workingHoursValue: "א׳–ו׳: 10:00 - 20:00"
     },
   }
 
