@@ -7,6 +7,7 @@ import {
   createNotification
 } from "../../../lib/appointments";
 import { getUserByEmail } from "../../../lib/user";
+import { getDoctorByDoctorId } from "../../../lib/user"; // Add import
 
 export async function PUT(request, { params }) {
   try {
@@ -108,44 +109,63 @@ export async function PUT(request, { params }) {
         };
         break;
 
-      case "accept_counter":
-        // Patient accepting doctor's counter offer
-        if (appointment.userId.toString() !== user._id.toString()) {
-          return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 403 }
-          );
-        }
-        updateData = {
-          status: "approved",
-          requestedDate: appointment.counterOfferDate,
-          requestedTime: appointment.counterOfferTime
-        };
-        notificationData = {
-          // Notify the doctor
-          type: "counter_offer_accepted",
-          title: "Counter Offer Accepted",
-          message: `Patient ${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName} accepted your counter offer.`,
-          appointmentId: appointment._id
-        };
-        break;
-
-      case "decline_counter":
-        // Patient declining doctor's counter offer
-        if (appointment.userId.toString() !== user._id.toString()) {
-          return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 403 }
-          );
-        }
-        updateData = { status: "declined" };
-        notificationData = {
-          type: "counter_offer_declined",
-          title: "Counter Offer Declined",
-          message: `Patient ${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName} declined your counter offer.`,
-          appointmentId: appointment._id
-        };
-        break;
+        case "accept_counter":
+            // Patient accepting doctor's counter offer
+            if (appointment.userId.toString() !== user._id.toString()) {
+              return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 403 }
+              );
+            }
+            updateData = {
+              status: "approved",
+              requestedDate: appointment.counterOfferDate,
+              requestedTime: appointment.counterOfferTime
+            };
+            
+            // Find the doctor user
+            try {
+              const doctorUser = await getDoctorByDoctorId(appointment.doctorId);
+              if (doctorUser) {
+                notificationData = {
+                  userId: doctorUser._id, // Add the missing userId
+                  type: "counter_offer_accepted",
+                  title: "Counter Offer Accepted",
+                  message: `Patient ${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName} accepted your counter offer.`,
+                  appointmentId: appointment._id
+                };
+              }
+            } catch (error) {
+              console.error("Error finding doctor for notification:", error);
+            }
+            break;
+          
+          case "decline_counter":
+            // Patient declining doctor's counter offer
+            if (appointment.userId.toString() !== user._id.toString()) {
+              return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 403 }
+              );
+            }
+            updateData = { status: "declined" };
+            
+            // Find the doctor user
+            try {
+              const doctorUser = await getDoctorByDoctorId(appointment.doctorId);
+              if (doctorUser) {
+                notificationData = {
+                  userId: doctorUser._id, // Add the missing userId
+                  type: "counter_offer_declined",
+                  title: "Counter Offer Declined",
+                  message: `Patient ${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName} declined your counter offer.`,
+                  appointmentId: appointment._id
+                };
+              }
+            } catch (error) {
+              console.error("Error finding doctor for notification:", error);
+            }
+            break;
 
       case "cancel":
         // Either party can cancel

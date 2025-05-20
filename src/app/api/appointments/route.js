@@ -8,7 +8,7 @@ import {
   getUserAppointmentsToday,
   createNotification
 } from "../../lib/appointments";
-import { getUserByEmail } from "../../lib/user";
+import { getUserByEmail, getDoctorByDoctorId } from "../../lib/user"; // Add import
 
 export async function GET(request) {
   try {
@@ -130,6 +130,22 @@ export async function POST(request) {
       appointmentId: appointment._id
     });
 
+    try {
+        const doctorUser = await getDoctorByDoctorId(doctorId);
+        if (doctorUser) {
+          await createNotification({
+            userId: doctorUser._id,
+            type: "new_appointment_request",
+            title: "New Appointment Request",
+            message: `You have a new appointment request from ${patientInfo.firstName} ${patientInfo.lastName} for ${serviceName}.`,
+            appointmentId: appointment._id
+          });
+        }
+      } catch (error) {
+        console.error("Error notifying doctor:", error);
+        // Don't fail the appointment creation if notification fails
+      }
+      
     return NextResponse.json({
       success: true,
       appointment,

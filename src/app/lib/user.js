@@ -192,3 +192,17 @@ export async function updateUserDoctorStatus(userId, isDoctorStatus) {
     throw error;
   }
 }
+
+// Get doctor user by doctorId
+export async function getDoctorByDoctorId(doctorId) {
+  try {
+    const db = await getDatabase();
+    return db.collection(COLLECTION).findOne({ 
+      doctorId: parseInt(doctorId),
+      isDoctor: true 
+    });
+  } catch (error) {
+    console.error("getDoctorByDoctorId error:", error);
+    throw error;
+  }
+}
