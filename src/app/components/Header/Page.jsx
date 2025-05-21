@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
-import NotificationsDropdown from "../NotificationsDropdown" // Add this line
+import NotificationsDropdown from "../NotificationsDropdown" // Keep this line
 
 const languages = [
   // საქართველოს დროშა
@@ -84,22 +84,19 @@ const languages = [
 const Header = () => {
   const { currentLanguage, changeLanguage, translations, direction } = useLanguage()
   const localizedProducts = useLocalizedNavigation()
-  const { data: session, status } = useSession()  // Add this line
-  const isAuthenticated = status === "authenticated"  // Add this line
+  const { data: session, status } = useSession() // Add this line
+  const isAuthenticated = status === "authenticated" // Add this line
   const selectedLanguage = languages.find((lang) => lang.code === currentLanguage)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isMobileLangMenuOpen, setIsMobileLangMenuOpen] = useState(false)
   const isRTL = direction === "rtl"
   const headerRef = useRef(null)
   const [headerHeightState, setHeaderHeight] = useState(0)
   const langMenuRef = useRef(null)
   const langButtonRef = useRef(null)
-  const mobileLangMenuRef = useRef(null)
-  const mobileLangButtonRef = useRef(null)
   const pathname = usePathname()
   const [isDesktop, setIsDesktop] = useState(true)
-  
+
   // სქროლის პროგრესის გამოთვლა
   const { scrollYProgress } = useScroll()
   // სქროლის ინდიკატორის ტრანსფორმაცია - თავიდან ცარიელი, შემდეგ ივსება
@@ -113,14 +110,14 @@ const Header = () => {
     ["0 0 0 rgba(0,0,0,0)", "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"],
   )
   const logoSize = useTransform(scrollYProgress, [0, 0.1], [50, 40])
-  
+
   // მხოლოდ ჰედერის სიმაღლის გაზომვა
   useEffect(() => {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight)
     }
   }, [])
-  
+
   // Check if screen width is less than 1200px
   useEffect(() => {
     const checkScreenWidth = () => {
@@ -135,7 +132,7 @@ const Header = () => {
       window.removeEventListener("resize", checkScreenWidth)
     }
   }, [])
-  
+
   // ენის მენიუს დახურვა გარე კლიკზე
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -148,33 +145,25 @@ const Header = () => {
       ) {
         setIsLangMenuOpen(false)
       }
-      // მობილურის ენის მენიუსთვის
-      if (
-        mobileLangMenuRef.current &&
-        !mobileLangMenuRef.current.contains(event.target) &&
-        mobileLangButtonRef.current &&
-        !mobileLangButtonRef.current.contains(event.target)
-      ) {
-        setIsMobileLangMenuOpen(false)
-      }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
-  
+
   const handleLanguageChange = (code) => {
     changeLanguage(code)
     setIsLangMenuOpen(false)
-    setIsMobileLangMenuOpen(false)
+    // Close mobile menu when language is changed
+    setIsMobileMenuOpen(false)
   }
-  
+
   // დროფდაუნის პოზიციის გამოთვლა ენის მიმართულების მიხედვით
   const getDesktopDropdownPosition = () => {
     return isRTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
   }
-  
+
   // დროფდაუნის ანიმაციის ვარიანტები
   const dropdownVariants = {
     hidden: {
@@ -196,18 +185,7 @@ const Header = () => {
       transition: { duration: 0.1 },
     },
   }
-  
-  // ენის ელემენტების ანიმაციის ვარიანტები
-  const itemVariants = {
-    hidden: { opacity: 0, x: isRTL ? 10 : -10 },
-    visible: (i) => ({
-      opacity: 1,
-      x: 0,
-      transition: { delay: i * 0.03, duration: 0.2 },
-    }),
-    exit: { opacity: 0, transition: { duration: 0.05 } },
-  }
-  
+
   // მობილური მენიუს ანიმაციის ვარიანტები
   const mobileMenuVariants = {
     hidden: {
@@ -226,14 +204,14 @@ const Header = () => {
       transition: { duration: 0.2, when: "afterChildren" },
     },
   }
-  
+
   // მობილური მენიუს ელემენტების ანიმაციის ვარიანტები
   const mobileMenuItemVariants = {
     hidden: { opacity: 0, y: -5, transition: { duration: 0.1 } },
     visible: { opacity: 1, y: 0, transition: { duration: 0.1 } },
     exit: { opacity: 0, y: -5, transition: { duration: 0.1 } },
   }
-  
+
   // "Coming Soon" ტექსტის ციმციმის ანიმაცია
   const blinkVariants = {
     animate: {
@@ -241,54 +219,14 @@ const Header = () => {
       transition: { duration: 2, repeat: Number.POSITIVE_INFINITY, repeatType: "loop" },
     },
   }
-  
-  // ენის ელემენტის რენდერი თანმიმდევრული დაშორებით
-  const renderLanguageItem = (language, index) => {
-    const isSelected = language.code === currentLanguage
-    return (
-      <motion.button
-        key={language.code}
-        custom={index}
-        variants={itemVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        onClick={() => handleLanguageChange(language.code)}
-        className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors justify-between ${
-          isSelected ? "bg-white text-gray-900" : "text-gray-700 hover:bg-gray-50"
-        }`}
-        dir="ltr"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
-          <span>{language.nativeName}</span>
-        </div>
-        {isSelected && <Check className="h-4 w-4 text-gray-700" />}
-      </motion.button>
-    )
-  }
-  
-  // არჩეული ენის რენდერი თანმიმდევრული დაშორებით
-  const renderSelectedLanguage = () => {
-    return (
-      <div className="flex items-center gap-3">
-        <Globe className="h-4 w-4 flex-shrink-0 text-gray-600" />
-        <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{selectedLanguage?.flag}</div>
-        <span>{selectedLanguage?.nativeName}</span>
-      </div>
-    )
-  }
-  
+
   // აქტიური მენიუს ელემენტის შემოწმება
   const isActiveLink = (url) => {
     if (url === "/" && pathname === "/") return true
     if (url !== "/" && pathname.startsWith(url)) return true
     return false
   }
-  
-  // დროფდაუნის საერთო სტილები
-  const dropdownStyles = "rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
-  
+
   return (
     <>
       {/* სივრცის შემნახველი დივი */}
@@ -314,64 +252,7 @@ const Header = () => {
               </motion.div>
               <span className="text-xl font-bold text-gray-900">JC Dental</span>
             </Link>
-            
-            {/* მობილური მენიუს ღილაკი */}
-            <motion.button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={
-                isDesktop
-                  ? "hidden"
-                  : "inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-              }
-              aria-expanded={isMobileMenuOpen}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="sr-only">Open main menu</span>
-              <motion.svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <motion.path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16"
-                  animate={{
-                    d: isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16",
-                    opacity: isMobileMenuOpen ? 1 : 1,
-                  }}
-                  transition={{ duration: 0.1 }}
-                />
-                <motion.path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 12h16"
-                  animate={{
-                    opacity: isMobileMenuOpen ? 0 : 1,
-                  }}
-                  transition={{ duration: 0.1 }}
-                />
-                <motion.path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 18h16"
-                  animate={{
-                    d: isMobileMenuOpen ? "M6 6l12 12" : "M4 18h16",
-                    opacity: isMobileMenuOpen ? 1 : 1,
-                  }}
-                  transition={{ duration: 0.1 }}
-                />
-              </motion.svg>
-            </motion.button>
-            
+
             {/* დესკტოპის ნავიგაცია */}
             <nav className={isDesktop ? "flex items-center space-x-8" : "hidden"}>
               {localizedProducts.map((item, index) => (
@@ -403,8 +284,8 @@ const Header = () => {
                 </motion.p>
               </div>
             </nav>
-            
-            {/* ენის არჩევანი და CTA */}
+
+            {/* ენის არჩევანი და CTA - Desktop */}
             <div className={isDesktop ? "flex items-center space-x-4" : "hidden"}>
               {/* ენის არჩევანი */}
               <div className="relative">
@@ -412,17 +293,21 @@ const Header = () => {
                   type="button"
                   ref={langButtonRef}
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
                   whileHover={{ backgroundColor: "#f9fafb" }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {renderSelectedLanguage()}
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 flex-shrink-0 text-gray-600" />
+                    <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{selectedLanguage?.flag}</div>
+                    <span>{selectedLanguage?.nativeName}</span>
+                  </div>
                 </motion.button>
                 <AnimatePresence>
                   {isLangMenuOpen && (
                     <motion.div
                       ref={langMenuRef}
-                      className={`absolute mt-2 w-48 z-10 ${dropdownStyles}`}
+                      className="absolute mt-2 w-48 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
                       style={getDesktopDropdownPosition()}
                       variants={dropdownVariants}
                       initial="hidden"
@@ -430,32 +315,58 @@ const Header = () => {
                       exit="exit"
                     >
                       <div className="py-1">
-                        {languages.map((language, index) => renderLanguageItem(language, index))}
+                        {languages.map((language) => (
+                          <button
+                            key={language.code}
+                            onClick={() => handleLanguageChange(language.code)}
+                            className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors justify-between ${
+                              language.code === currentLanguage
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                            dir="ltr" // Force LTR direction for all language buttons
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
+                              <span className={language.code === currentLanguage ? "text-blue-600" : "text-gray-700"}>
+                                {language.nativeName}
+                              </span>
+                            </div>
+                            {language.code === currentLanguage && <Check className="h-4 w-4 text-blue-600" />}
+                          </button>
+                        ))}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-             
+
+              {/* Notifications - Desktop */}
               {isAuthenticated && <NotificationsDropdown />}
 
               {/* Authentication - Desktop */}
               {isAuthenticated ? (
                 <div className="relative group">
-                  <motion.button 
+                  <motion.button
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 group"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>{session.user.name}</span>
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <span>{session?.user?.name || "Shalva Kokuashvili"}</span>
+                    <svg
+                      className="w-4 h-4 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </motion.button>
                   <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <button
-                      onClick={() => signOut({ callbackUrl: '/' })}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       {translations?.header?.logout || "Logout"}
                     </button>
@@ -472,9 +383,71 @@ const Header = () => {
                 </motion.div>
               )}
             </div>
+
+            {/* Mobile - Only Notifications and Burger Menu */}
+            <div className={isDesktop ? "hidden" : "flex items-center"}>
+              {isAuthenticated && (
+                <div className="mr-2">
+                  <NotificationsDropdown />
+                </div>
+              )}
+
+              {/* მობილური მენიუს ღილაკი */}
+              <motion.button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                aria-expanded={isMobileMenuOpen}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="sr-only">Open main menu</span>
+                <motion.svg
+                  className="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16"
+                    animate={{
+                      d: isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16",
+                      opacity: isMobileMenuOpen ? 1 : 1,
+                    }}
+                    transition={{ duration: 0.1 }}
+                  />
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 12h16"
+                    animate={{
+                      opacity: isMobileMenuOpen ? 0 : 1,
+                    }}
+                    transition={{ duration: 0.1 }}
+                  />
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 18h16"
+                    animate={{
+                      d: isMobileMenuOpen ? "M6 6l12 12" : "M4 18h16",
+                      opacity: isMobileMenuOpen ? 1 : 1,
+                    }}
+                    transition={{ duration: 0.1 }}
+                  />
+                </motion.svg>
+              </motion.button>
+            </div>
           </div>
         </div>
-        
+
         {/* მობილური მენიუ ანიმაციით */}
         <AnimatePresence>
           {isMobileMenuOpen && (
@@ -515,83 +488,78 @@ const Header = () => {
                   </motion.p>
                 </motion.div>
               </div>
-              <motion.div variants={mobileMenuItemVariants} className="pt-4 pb-3 border-t border-gray-200">
-                <div className="flex items-center justify-between px-4">
-                  <div className="relative">
-                    <motion.button
-                      type="button"
-                      ref={mobileLangButtonRef}
-                      onClick={() => setIsMobileLangMenuOpen(!isMobileLangMenuOpen)}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                      dir="ltr"
-                      whileHover={{ backgroundColor: "#f9fafb" }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {renderSelectedLanguage()}
-                    </motion.button>
-                    <AnimatePresence>
-                      {isMobileLangMenuOpen && (
-                        <motion.div
-                          ref={mobileLangMenuRef}
-                          className={`fixed w-48 z-[100] ${dropdownStyles}`}
-                          style={{
-                            top: mobileLangButtonRef.current
-                              ? mobileLangButtonRef.current.getBoundingClientRect().bottom + 5
-                              : "auto",
-                            left: isRTL
-                              ? "auto"
-                              : mobileLangButtonRef.current
-                                ? mobileLangButtonRef.current.getBoundingClientRect().left
-                                : 16,
-                            right: isRTL
-                              ? mobileLangButtonRef.current
-                                ? window.innerWidth - mobileLangButtonRef.current.getBoundingClientRect().right
-                                : 16
-                              : "auto",
-                          }}
-                          variants={dropdownVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                        >
-                          <div className="py-1">
-                            {languages.map((language, index) => renderLanguageItem(language, index))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  {isAuthenticated && <NotificationsDropdown />}
 
-                  {/* Authentication - Mobile */}
-                  {isAuthenticated ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-sm font-medium text-gray-700">{session.user.name}</span>
+              {/* Language section in mobile menu - Fixed for RTL */}
+              <motion.div variants={mobileMenuItemVariants} className="border-t border-gray-200 mt-2">
+                <div className="px-4 py-3">
+                  <h3 className="text-sm font-medium text-gray-500">{translations?.header?.language || "Language"}</h3>
+                </div>
+                <div className="pb-2">
+                  {languages.map((language) => (
+                    <button
+                      key={language.code}
+                      onClick={() => {
+                        handleLanguageChange(language.code)
+                      }}
+                      className={`w-full flex items-center px-4 py-3 text-base ${
+                        language.code === currentLanguage ? "bg-blue-50" : "hover:bg-gray-50"
+                      }`}
+                      // style={{ direction: "ltr" }} // Force LTR direction for language items
+                    >
+                      <div className="flex-1 flex items-center">
+                        <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
+                        <span
+                          className={`${
+                            language.code === currentLanguage ? "font-medium text-blue-600" : "text-gray-700"
+                          } mx-3`}
+                        >
+                          {language.nativeName}
+                        </span>
+                      </div>
+                      {language.code === currentLanguage && <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* User info section */}
+              {isAuthenticated && (
+                <motion.div variants={mobileMenuItemVariants} className="border-t border-gray-200">
+                  <div className="px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-medium text-gray-900">
+                        {session?.user?.name || "Shalva Kokuashvili"}
+                      </span>
                       <button
                         onClick={() => {
-                          signOut({ callbackUrl: '/' });
-                          setIsMobileMenuOpen(false);
+                          signOut({ callbackUrl: "/" })
+                          setIsMobileMenuOpen(false)
                         }}
-                        className="text-sm text-red-600 hover:text-red-700 mt-1"
+                        className="text-sm text-red-600 hover:text-red-700 font-medium"
                       >
                         {translations?.header?.logout || "Logout"}
                       </button>
                     </div>
-                  ) : (
-                    <Link
-                      href="/pages/authorization/log_in"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {translations?.login?.login || "Login"}
-                    </Link>
-                  )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Login button for non-authenticated users */}
+              {!isAuthenticated && (
+                <div className="px-4 py-3 border-t border-gray-200">
+                  <Link
+                    href="/pages/authorization/log_in"
+                    className="block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {translations?.login?.login || "Login"}
+                  </Link>
                 </div>
-              </motion.div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {/* სქროლის პროგრესის ინდიკატორი */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600 origin-left"
