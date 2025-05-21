@@ -6,22 +6,7 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
 import Link from "next/link"
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  Phone, 
-  Mail, 
-  FileText, 
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  Eye,
-  Edit,
-  Trash2,
-  MessageSquare
-} from "lucide-react"
+import { Calendar, Clock, User, Phone, Mail, AlertCircle, CheckCircle, XCircle, RefreshCw, Trash2 } from "lucide-react"
 
 export default function AppointmentsPage() {
   const { data: session, status } = useSession()
@@ -92,8 +77,8 @@ export default function AppointmentsPage() {
         approved: "დამტკიცებული",
         declined: "უარყოფილი",
         cancelled: "გაუქმებული",
-        counter_offer: "ალტერნატივა"
-      }
+        counter_offer: "ალტერნატივა",
+      },
     },
     en: {
       title: "My Appointments",
@@ -143,8 +128,8 @@ export default function AppointmentsPage() {
         approved: "Approved",
         declined: "Declined",
         cancelled: "Cancelled",
-        counter_offer: "Counter Offer"
-      }
+        counter_offer: "Counter Offer",
+      },
     },
     ru: {
       title: "Мои записи",
@@ -194,8 +179,8 @@ export default function AppointmentsPage() {
         approved: "Одобрено",
         declined: "Отклонено",
         cancelled: "Отменено",
-        counter_offer: "Контрпредложение"
-      }
+        counter_offer: "Контрпредложение",
+      },
     },
     he: {
       title: "התורים שלי",
@@ -245,9 +230,9 @@ export default function AppointmentsPage() {
         approved: "מאושר",
         declined: "נדחה",
         cancelled: "בוטל",
-        counter_offer: "הצעה נגדית"
-      }
-    }
+        counter_offer: "הצעה נגדית",
+      },
+    },
   }
 
   const t = texts[currentLanguage] || texts.ka
@@ -265,14 +250,14 @@ export default function AppointmentsPage() {
   // Fetch appointments
   const fetchAppointments = async () => {
     if (!session) return
-    
+
     setLoading(true)
     try {
       const response = await fetch("/api/appointments")
       if (!response.ok) {
         throw new Error("Failed to fetch appointments")
       }
-      
+
       const data = await response.json()
       setAppointments(data.appointments || [])
       setUserIsDoctor(data.isDoctor || false)
@@ -301,15 +286,15 @@ export default function AppointmentsPage() {
         action: actionType,
         reason: actionReason || undefined,
         counterOfferDate: counterOfferDate || undefined,
-        counterOfferTime: counterOfferTime || undefined
+        counterOfferTime: counterOfferTime || undefined,
       }
 
       const response = await fetch(`/api/appointments/${selectedAppointment._id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -318,7 +303,7 @@ export default function AppointmentsPage() {
 
       // Refresh appointments
       await fetchAppointments()
-      
+
       // Close modal and reset state
       setShowActionModal(false)
       setSelectedAppointment(null)
@@ -326,7 +311,6 @@ export default function AppointmentsPage() {
       setActionReason("")
       setCounterOfferDate("")
       setCounterOfferTime("")
-      
     } catch (error) {
       console.error("Error performing action:", error)
       setError(error.message)
@@ -418,35 +402,30 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={direction}>
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8" dir={direction}>
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {userIsDoctor ? t.doctorTitle : t.title}
-            </h1>
-            <p className="text-gray-600 mt-2">
-              {userIsDoctor 
-                ? t.doctorSubtitle
-                : t.userSubtitle
-              }
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{userIsDoctor ? t.doctorTitle : t.title}</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
+              {userIsDoctor ? t.doctorSubtitle : t.userSubtitle}
             </p>
           </div>
-          
-          <div className="flex gap-4">
+
+          <div className="flex gap-2 sm:gap-4">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 text-sm"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
               {refreshing ? t.refreshing : t.refresh}
             </button>
-            
+
             <Link
               href="/"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
             >
               {t.backToHome}
             </Link>
@@ -462,25 +441,22 @@ export default function AppointmentsPage() {
 
         {/* Loading state */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">{t.loading}</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-3 sm:mb-4"></div>
+            <p className="text-sm sm:text-base text-gray-600">{t.loading}</p>
           </div>
         ) : appointments.length === 0 ? (
           /* No appointments */
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t.noAppointments}</h3>
-            <p className="text-gray-600 mb-6">
-              {userIsDoctor 
-                ? t.noAppointmentsDoctor
-                : t.noAppointmentsUser
-              }
+          <div className="text-center py-8 sm:py-12">
+            <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">{t.noAppointments}</h3>
+            <p className="text-sm text-gray-600 mb-4 sm:mb-6">
+              {userIsDoctor ? t.noAppointmentsDoctor : t.noAppointmentsUser}
             </p>
             {!userIsDoctor && (
               <Link
                 href="/pages/booking"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
               >
                 {t.createNewAppointment}
               </Link>
@@ -496,14 +472,16 @@ export default function AppointmentsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-lg shadow-md overflow-hidden"
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}
+                      >
                         {getStatusIcon(appointment.status)}
                         {t.statuses[appointment.status]}
                       </div>
-                      
+
                       {appointment.isUrgent && (
                         <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
                           <AlertCircle className="w-3 h-3" />
@@ -512,74 +490,73 @@ export default function AppointmentsPage() {
                       )}
                     </div>
 
-                    <div className="text-sm text-gray-500">
-                      {formatDate(appointment.createdAt)}
-                    </div>
+                    <div className="text-xs sm:text-sm text-gray-500">{formatDate(appointment.createdAt)}</div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Left column */}
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
                           {userIsDoctor ? t.patient : t.doctor}
                         </h3>
-                        <p className="text-gray-600">
-                          {userIsDoctor 
+                        <p className="text-sm sm:text-base text-gray-600">
+                          {userIsDoctor
                             ? `${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName}`
-                            : appointment.doctorName
-                          }
+                            : appointment.doctorName}
                         </p>
                       </div>
 
                       <div>
-                        <h4 className="font-medium text-gray-700 mb-1">{t.service}</h4>
-                        <p className="text-gray-600">{appointment.serviceName}</p>
+                        <h4 className="font-medium text-gray-700 mb-1 text-sm sm:text-base">{t.service}</h4>
+                        <p className="text-sm text-gray-600">{appointment.serviceName}</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">{t.date}</h4>
-                          <p className="text-gray-600">{appointment.requestedDate}</p>
+                          <h4 className="font-medium text-gray-700 mb-1 text-sm sm:text-base">{t.date}</h4>
+                          <p className="text-sm text-gray-600">{appointment.requestedDate}</p>
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">{t.time}</h4>
-                          <p className="text-gray-600">{appointment.requestedTime}</p>
+                          <h4 className="font-medium text-gray-700 mb-1 text-sm sm:text-base">{t.time}</h4>
+                          <p className="text-sm text-gray-600">{appointment.requestedTime}</p>
                         </div>
                       </div>
 
                       {/* Counter offer info */}
                       {appointment.status === "counter_offer" && appointment.counterOfferDate && (
-                        <div className="bg-blue-50 p-3 rounded-md">
-                          <h4 className="font-medium text-blue-900 mb-2">{t.counterOffer}</h4>
-                          <p className="text-blue-800 text-sm">
+                        <div className="bg-blue-50 p-2 sm:p-3 rounded-md">
+                          <h4 className="font-medium text-blue-900 mb-1 sm:mb-2 text-sm">{t.counterOffer}</h4>
+                          <p className="text-blue-800 text-xs sm:text-sm">
                             {appointment.counterOfferDate} at {appointment.counterOfferTime}
                           </p>
                           {appointment.doctorResponse && (
-                            <p className="text-blue-700 text-sm mt-1">{appointment.doctorResponse}</p>
+                            <p className="text-blue-700 text-xs sm:text-sm mt-1">{appointment.doctorResponse}</p>
                           )}
                         </div>
                       )}
                     </div>
 
                     {/* Right column */}
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {userIsDoctor && (
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-2">{t.contactInfo}</h4>
-                          <div className="space-y-2 text-sm">
+                          <h4 className="font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">
+                            {t.contactInfo}
+                          </h4>
+                          <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                             <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4 text-gray-400" />
+                              <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                               <span>{appointment.patientInfo.phone}</span>
                             </div>
                             {appointment.patientInfo.email && (
                               <div className="flex items-center gap-2">
-                                <Mail className="w-4 h-4 text-gray-400" />
+                                <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                                 <span>{appointment.patientInfo.email}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-2">
-                              <User className="w-4 h-4 text-gray-400" />
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                               <span>
                                 {appointment.patientInfo.isNewPatient === "new" ? t.newPatient : t.returningPatient}
                               </span>
@@ -590,44 +567,44 @@ export default function AppointmentsPage() {
 
                       {appointment.notes && (
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">{t.notes}</h4>
-                          <p className="text-gray-600 text-sm">{appointment.notes}</p>
+                          <h4 className="font-medium text-gray-700 mb-1 text-sm sm:text-base">{t.notes}</h4>
+                          <p className="text-gray-600 text-xs sm:text-sm">{appointment.notes}</p>
                         </div>
                       )}
 
                       {appointment.doctorResponse && appointment.status === "declined" && (
-                        <div className="bg-red-50 p-3 rounded-md">
-                          <h4 className="font-medium text-red-900 mb-1">{t.reason}</h4>
-                          <p className="text-red-800 text-sm">{appointment.doctorResponse}</p>
+                        <div className="bg-red-50 p-2 sm:p-3 rounded-md">
+                          <h4 className="font-medium text-red-900 mb-1 text-sm">{t.reason}</h4>
+                          <p className="text-red-800 text-xs sm:text-sm">{appointment.doctorResponse}</p>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
                     <div className="flex flex-wrap gap-2">
                       {userIsDoctor && appointment.status === "pending" && (
                         <>
                           <button
                             onClick={() => openActionModal(appointment, "approve")}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-xs sm:text-sm"
                           >
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                             {t.approve}
                           </button>
                           <button
                             onClick={() => openActionModal(appointment, "decline")}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-xs sm:text-sm"
                           >
-                            <XCircle className="w-4 h-4" />
+                            <XCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                             {t.decline}
                           </button>
                           <button
                             onClick={() => openActionModal(appointment, "counter_offer")}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs sm:text-sm"
                           >
-                            <RefreshCw className="w-4 h-4" />
+                            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
                             {t.counterOffer}
                           </button>
                         </>
@@ -637,16 +614,16 @@ export default function AppointmentsPage() {
                         <>
                           <button
                             onClick={() => openActionModal(appointment, "accept_counter")}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-xs sm:text-sm"
                           >
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                             {t.accept}
                           </button>
                           <button
                             onClick={() => openActionModal(appointment, "decline_counter")}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-xs sm:text-sm"
                           >
-                            <XCircle className="w-4 h-4" />
+                            <XCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                             {t.decline}
                           </button>
                         </>
@@ -655,9 +632,9 @@ export default function AppointmentsPage() {
                       {(appointment.status === "pending" || appointment.status === "approved") && (
                         <button
                           onClick={() => openActionModal(appointment, "cancel")}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm"
+                          className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-xs sm:text-sm"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           {t.cancel}
                         </button>
                       )}
@@ -676,42 +653,42 @@ export default function AppointmentsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50"
               onClick={closeActionModal}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-96 overflow-y-auto"
+                className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[85vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">{t.confirmAction}</h3>
-                  
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t.confirmAction}</h3>
+
                   {actionType === "counter_offer" && (
-                    <div className="space-y-4 mb-4">
+                    <div className="space-y-3 sm:space-y-4 mb-3 sm:mb-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t.selectDate}</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-1">{t.selectDate}</label>
                         <input
                           type="date"
                           value={counterOfferDate}
                           onChange={(e) => setCounterOfferDate(e.target.value)}
-                          min={new Date().toISOString().split('T')[0]}
-                          className="w-full p-2 border border-gray-300 rounded-md text-black"
+                          min={new Date().toISOString().split("T")[0]}
+                          className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t.selectTime}</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-1">{t.selectTime}</label>
                         <select
                           value={counterOfferTime}
                           onChange={(e) => setCounterOfferTime(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md text-black"
+                          className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
                         >
                           <option value="">{t.selectTime}</option>
                           {Array.from({ length: 11 }, (_, i) => {
                             const hour = 10 + i
-                            const time = `${hour.toString().padStart(2, '0')}:00`
+                            const time = `${hour.toString().padStart(2, "0")}:00`
                             return (
                               <option key={time} value={time}>
                                 {time}
@@ -724,29 +701,29 @@ export default function AppointmentsPage() {
                   )}
 
                   {(actionType === "decline" || actionType === "cancel" || actionType === "counter_offer") && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1">{t.reason}</label>
+                    <div className="mb-3 sm:mb-4">
+                      <label className="block text-xs sm:text-sm font-medium mb-1">{t.reason}</label>
                       <textarea
                         value={actionReason}
                         onChange={(e) => setActionReason(e.target.value)}
                         placeholder={t.reasonPlaceholder}
-                        className="w-full p-2 border border-gray-300 rounded-md text-black"
+                        className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
                         rows="3"
                       />
                     </div>
                   )}
 
-                  <div className="flex gap-3 justify-end">
+                  <div className="flex gap-2 sm:gap-3 justify-end">
                     <button
                       onClick={closeActionModal}
-                      className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
                     >
                       {t.close}
                     </button>
                     <button
                       onClick={handleAction}
                       disabled={isSubmitting}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
                     >
                       {isSubmitting ? "..." : t.submit}
                     </button>

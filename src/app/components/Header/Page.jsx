@@ -436,6 +436,7 @@ const Header = () => {
                   )}
                 </AnimatePresence>
               </div>
+             
               {isAuthenticated && <NotificationsDropdown />}
 
               {/* Authentication - Desktop */}
