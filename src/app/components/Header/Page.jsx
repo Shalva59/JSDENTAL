@@ -512,7 +512,7 @@ const Header = () => {
 
             {/* ენის არჩევანი და CTA - Desktop & Intermediate */}
             {(screenSize === "desktop" || screenSize === "intermediate") && (
-              <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-4" : "space-x-4"}`}>
+              <div className={`flex items-center ${isRTL ? " space-x-4" : "space-x-4"}`}>
                 {/* ენის არჩევანი */}
                 <div className="relative">
                   <motion.button
