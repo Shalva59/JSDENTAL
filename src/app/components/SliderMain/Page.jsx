@@ -246,6 +246,8 @@ export default function DentalSlider() {
                             >
                               {direction === "rtl" ? (
                                 <span className="relative z-10 flex items-center">
+                               {slide.buttonText}
+                              
                                   <svg
                                     className="mr-2 h-4 w-4 rotate-180 transition-transform duration-300 group-hover:-translate-x-1"
                                     fill="none"
@@ -259,7 +261,7 @@ export default function DentalSlider() {
                                       d="M14 5l7 7m0 0l-7 7m7-7H3"
                                     />
                                   </svg>
-                                  {slide.buttonText}
+                                 
                                 </span>
                               ) : (
                                 <span className="relative z-10 flex items-center">

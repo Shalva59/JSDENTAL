@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import logo from "../../Assets/logo.png"
-import { Globe, Check } from "lucide-react"
+import { Globe, Check, ChevronDown, LogOut } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedNavigation } from "@/hooks/useLocalizedNavigation"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
@@ -81,6 +81,23 @@ const languages = [
   },
 ]
 
+// Add a function to get user initials from name
+const getUserInitials = (name) => {
+  if (!name) return ""
+
+  // Split the name by spaces
+  const nameParts = name.split(" ")
+
+  // Get the first letter of each part and join them
+  const initials = nameParts
+    .filter((part) => part.length > 0)
+    .map((part) => part[0].toUpperCase())
+    .join("")
+
+  // Return the first two initials if there are more than two
+  return initials.length > 2 ? initials.substring(0, 2) : initials
+}
+
 const Header = () => {
   const { currentLanguage, changeLanguage, translations, direction } = useLanguage()
   const localizedProducts = useLocalizedNavigation()
@@ -89,13 +106,20 @@ const Header = () => {
   const selectedLanguage = languages.find((lang) => lang.code === currentLanguage)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false)
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+  const [isProfileHovered, setIsProfileHovered] = useState(false)
   const isRTL = direction === "rtl"
   const headerRef = useRef(null)
   const [headerHeightState, setHeaderHeight] = useState(0)
   const langMenuRef = useRef(null)
   const langButtonRef = useRef(null)
+  const navDropdownRef = useRef(null)
+  const navDropdownButtonRef = useRef(null)
+  const userDropdownRef = useRef(null)
+  const userDropdownButtonRef = useRef(null)
   const pathname = usePathname()
-  const [isDesktop, setIsDesktop] = useState(true)
+  const [screenSize, setScreenSize] = useState("desktop") // "mobile", "intermediate", "desktop"
   const [windowHeight, setWindowHeight] = useState(0)
   const mobileMenuRef = useRef(null)
 
@@ -137,10 +161,17 @@ const Header = () => {
     }
   }, [])
 
-  // Check if screen width is less than 1200px
+  // Check screen size and set appropriate mode
   useEffect(() => {
     const checkScreenWidth = () => {
-      setIsDesktop(window.innerWidth >= 1200)
+      const width = window.innerWidth
+      if (width >= 1400) {
+        setScreenSize("desktop")
+      } else if (width >= 1200) {
+        setScreenSize("intermediate")
+      } else {
+        setScreenSize("mobile")
+      }
     }
     // Initial check
     checkScreenWidth()
@@ -163,6 +194,26 @@ const Header = () => {
         !langButtonRef.current.contains(event.target)
       ) {
         setIsLangMenuOpen(false)
+      }
+
+      // Navigation dropdown menu
+      if (
+        navDropdownRef.current &&
+        !navDropdownRef.current.contains(event.target) &&
+        navDropdownButtonRef.current &&
+        !navDropdownButtonRef.current.contains(event.target)
+      ) {
+        setIsNavDropdownOpen(false)
+      }
+
+      // User dropdown menu
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target) &&
+        userDropdownButtonRef.current &&
+        !userDropdownButtonRef.current.contains(event.target)
+      ) {
+        setIsUserDropdownOpen(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -254,6 +305,62 @@ const Header = () => {
     return `${maxHeight}px`
   }
 
+  // Split navigation items for intermediate view
+  // First half will be visible, second half in dropdown
+  const splitNavItems = () => {
+    const middleIndex = Math.ceil(localizedProducts.length / 2)
+    return {
+      visibleItems: localizedProducts.slice(0, middleIndex),
+      dropdownItems: localizedProducts.slice(middleIndex),
+    }
+  }
+
+  const { visibleItems, dropdownItems } = splitNavItems()
+
+  // Get the translated "More" text
+  const getMoreText = () => {
+    if (translations?.header?.more) {
+      return translations.header.more
+    }
+
+    // Fallback translations for "More" in different languages
+    const moreTranslations = {
+      ka: "მეტი",
+      en: "More",
+      he: "עוד",
+      ru: "Ещё",
+    }
+
+    return moreTranslations[currentLanguage] || "More"
+  }
+
+  // Get user's full name or default
+  const getUserFullName = () => {
+    return session?.user?.name || "Shalva Kokuashvili"
+  }
+
+  // Get user's email or default
+  const getUserEmail = () => {
+    return session?.user?.email || "shakosmail123456789@gmail.com"
+  }
+
+  // Get translated logout text
+  const getLogoutText = () => {
+    if (translations?.header?.logout) {
+      return translations.header.logout
+    }
+
+    // Fallback translations for "Logout" in different languages
+    const logoutTranslations = {
+      ka: "გასვლა",
+      en: "Logout",
+      he: "התנתק",
+      ru: "Выход",
+    }
+
+    return logoutTranslations[currentLanguage] || "Logout"
+  }
+
   return (
     <>
       {/* სივრცის შემნახველი დივი */}
@@ -270,217 +377,340 @@ const Header = () => {
           backdropFilter: "blur(8px)",
         }}
       >
-        <div className="max-w-screen-xl mx-auto px-4 h-full">
+        <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 h-full">
           <div className="flex items-center justify-between h-full">
             {/* ლოგო */}
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className={`flex items-center ${isRTL ? "space-x-reverse space-x-3 gap-2" : "space-x-3"}`}>
               <motion.div style={{ width: logoSize, height: logoSize }}>
                 <Image src={logo || "/placeholder.svg"} alt="JC Dental" width={50} height={40} />
               </motion.div>
               <span className="text-xl font-bold text-gray-900">JC Dental</span>
             </Link>
 
-            {/* დესკტოპის ნავიგაცია */}
-            <nav className={isDesktop ? "flex items-center space-x-8" : "hidden"}>
-              {localizedProducts.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.url}
-                  className={`text-base font-medium relative transition-colors ${
-                    isActiveLink(item.url) ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  {item.name}
-                  {isActiveLink(item.url) && (
-                    <motion.div
-                      className="absolute bottom-[-8px] left-0 right-0 h-[2px] bg-blue-600"
-                      layoutId="activeNavIndicator"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              ))}
-              <div className="text-base font-medium text-gray-700 relative">
-                <span>Smile Creator</span>
-                <motion.p
-                  className="text-[9.7px] text-right text-red-500 absolute right-0 -bottom-3 tracking-[1.2px]"
-                  variants={blinkVariants}
-                  animate="animate"
-                >
-                  {translations?.buttons?.comingSoon || "მალე"}
-                </motion.p>
-              </div>
-            </nav>
-
-            {/* ენის არჩევანი და CTA - Desktop */}
-            <div className={isDesktop ? "flex items-center space-x-4" : "hidden"}>
-              {/* ენის არჩევანი */}
-              <div className="relative">
-                <motion.button
-                  type="button"
-                  ref={langButtonRef}
-                  onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
-                  whileHover={{ backgroundColor: "#f9fafb" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 flex-shrink-0 text-gray-600" />
-                    <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{selectedLanguage?.flag}</div>
-                    <span>{selectedLanguage?.nativeName}</span>
-                  </div>
-                </motion.button>
-                <AnimatePresence>
-                  {isLangMenuOpen && (
-                    <motion.div
-                      ref={langMenuRef}
-                      className="absolute mt-2 w-48 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
-                      style={getDesktopDropdownPosition()}
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
+            {/* Desktop Navigation (1400px+) */}
+            {screenSize === "desktop" && (
+              <nav className="flex items-center">
+                <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-8" : "space-x-8"}`}>
+                  {localizedProducts.map((item, index) => (
+                    <Link
+                      key={index}
+                      href={item.url}
+                      className={`text-base font-medium relative transition-colors whitespace-nowrap ${isActiveLink(item.url) ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                        }`}
                     >
-                      <div className="py-1">
-                        {languages.map((language) => (
-                          <button
-                            key={language.code}
-                            onClick={() => handleLanguageChange(language.code)}
-                            className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors justify-between ${
-                              language.code === currentLanguage
-                                ? "bg-blue-50 text-blue-600"
-                                : "text-gray-700 hover:bg-gray-50"
-                            }`}
-                            dir="ltr" // Force LTR direction for all language buttons
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
-                              <span className={language.code === currentLanguage ? "text-blue-600" : "text-gray-700"}>
-                                {language.nativeName}
-                              </span>
-                            </div>
-                            {language.code === currentLanguage && <Check className="h-4 w-4 text-blue-600" />}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                      {item.name}
+                      {isActiveLink(item.url) && (
+                        <motion.div
+                          className="absolute bottom-[-8px] left-0 right-0 h-[2px] bg-blue-600"
+                          layoutId="activeNavIndicator"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                      )}
+                    </Link>
+                  ))}
 
-              {/* Notifications - Desktop */}
-              {isAuthenticated && <NotificationsDropdown />}
+                  {/* Smile Creator */}
+                  <div
+                    className={`text-base font-medium text-gray-700 relative whitespace-nowrap ${isRTL ? "mr-8" : ""
+                      }`}
+                  >
+                    <span>Smile Creator</span>
+                    <motion.p
+                      className={`text-[9.7px] text-red-500 absolute -bottom-3 tracking-[1.2px] ${isRTL ? "text-left right-auto " : "text-right left-auto right-0"
+                        }`}
+                      variants={blinkVariants}
+                      animate="animate"
+                    >
+                      {translations?.buttons?.comingSoon || "מָלֶה"}
+                    </motion.p>
+                  </div>
+                </div>
+              </nav>
+            )}
 
-              {/* Authentication - Desktop */}
-              {isAuthenticated ? (
-                <div className="relative group">
+            {/* Intermediate Navigation (1200px-1400px) */}
+            {screenSize === "intermediate" && (
+              <nav className="flex items-center">
+                <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-6" : "space-x-6"}`}>
+                  {/* Visible navigation items */}
+                  {visibleItems.map((item, index) => (
+                    <Link
+                      key={index}
+                      href={item.url}
+                      className={`text-sm font-medium relative transition-colors whitespace-nowrap ${isActiveLink(item.url) ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                        }`}
+                    >
+                      {item.name}
+                      {isActiveLink(item.url) && (
+                        <motion.div
+                          className="absolute bottom-[-8px] left-0 right-0 h-[2px] bg-blue-600"
+                          layoutId="activeNavIndicator"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                      )}
+                    </Link>
+                  ))}
+
+                  {/* Dropdown for remaining navigation items - Now before Smile Creator */}
+                  <div className="relative">
+                    <motion.button
+                      type="button"
+                      ref={navDropdownButtonRef}
+                      onClick={() => setIsNavDropdownOpen(!isNavDropdownOpen)}
+                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${isNavDropdownOpen ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                        }`}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span className={isRTL ? "ml-1" : "mr-1"}>{getMoreText()}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {isNavDropdownOpen && (
+                        <motion.div
+                          ref={navDropdownRef}
+                          className="absolute mt-2 w-48 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
+                          style={isRTL ? { right: "auto", left: "0" } : { left: "auto", right: "0" }}
+                          variants={dropdownVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
+                          <div className="py-1">
+                            {dropdownItems.map((item, index) => (
+                              <Link
+                                key={index}
+                                href={item.url}
+                                className={`block px-4 py-2 text-sm ${isActiveLink(item.url) ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                onClick={() => setIsNavDropdownOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Add Smile Creator to visible items - Now after More dropdown */}
+                  <div className="text-sm font-medium text-gray-700 relative whitespace-nowrap">
+                    <span>Smile Creator</span>
+                    <motion.p
+                      className={`text-[9.7px] text-red-500 absolute -bottom-3 tracking-[1.2px] ${isRTL ? "text-left right-auto left-0" : "text-right left-auto right-0"
+                        }`}
+                      variants={blinkVariants}
+                      animate="animate"
+                    >
+                      {translations?.buttons?.comingSoon || "მალე"}
+                    </motion.p>
+                  </div>
+                </div>
+              </nav>
+            )}
+
+            {/* ენის არჩევანი და CTA - Desktop & Intermediate */}
+            {(screenSize === "desktop" || screenSize === "intermediate") && (
+              <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-4" : "space-x-4"}`}>
+                {/* ენის არჩევანი */}
+                <div className="relative">
                   <motion.button
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 group"
-                    whileHover={{ scale: 1.02 }}
+                    type="button"
+                    ref={langButtonRef}
+                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                    className="inline-flex items-center px-2 lg:px-3 py-2 border border-gray-200 rounded-md text-xs lg:text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+                    whileHover={{ backgroundColor: "#f9fafb" }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>{session?.user?.name || "Shalva Kokuashvili"}</span>
-                    <svg
-                      className="w-4 h-4 ml-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <div
+                      className={`flex items-center ${isRTL ? "gap-1 lg:gap-2 flex-row-reverse" : "gap-1 lg:gap-2"}`}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                      <Globe className="h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0 text-gray-600" />
+                      <div className="w-5 h-3 lg:w-6 lg:h-4 relative overflow-hidden flex-shrink-0">
+                        {selectedLanguage?.flag}
+                      </div>
+                      <span>{selectedLanguage?.nativeName}</span>
+                    </div>
                   </motion.button>
-                  <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <button
-                      onClick={() => signOut({ callbackUrl: "/" })}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      {translations?.header?.logout || "Logout"}
-                    </button>
-                  </div>
+                  <AnimatePresence>
+                    {isLangMenuOpen && (
+                      <motion.div
+                        ref={langMenuRef}
+                        className="absolute mt-2 w-48 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
+                        style={getDesktopDropdownPosition()}
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        <div className="py-1">
+                          {languages.map((language) => (
+                            <button
+                              key={language.code}
+                              onClick={() => handleLanguageChange(language.code)}
+                              className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors justify-between ${language.code === currentLanguage
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                              dir="ltr" // Force LTR direction for all language buttons
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
+                                <span className={language.code === currentLanguage ? "text-blue-600" : "text-gray-700"}>
+                                  {language.nativeName}
+                                </span>
+                              </div>
+                              {language.code === currentLanguage && <Check className="h-4 w-4 text-blue-600" />}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              ) : (
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    href="/pages/authorization/log_in"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    {translations?.login?.login || "Login"}
-                  </Link>
-                </motion.div>
-              )}
-            </div>
+
+                {/* Notifications - Desktop & Intermediate */}
+                {isAuthenticated && <NotificationsDropdown />}
+
+                {/* Authentication - Desktop & Intermediate */}
+                {isAuthenticated ? (
+                  <div className="relative">
+                    <motion.button
+                      ref={userDropdownButtonRef}
+                      onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                      onMouseEnter={() => setIsProfileHovered(true)}
+                      onMouseLeave={() => setIsProfileHovered(false)}
+                      className="relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#6366f1] text-white font-medium"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {getUserInitials(getUserFullName())}
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {isUserDropdownOpen && (
+                        <motion.div
+                          ref={userDropdownRef}
+                          className="absolute z-10 mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden"
+                          style={isRTL ? { right: "auto", left: "0" } : { left: "auto", right: "0" }}
+                          variants={dropdownVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
+                          <div className="bg-[#6366f1] p-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white text-black text-xl font-medium mb-2">
+                                {getUserInitials(getUserFullName())}
+                              </div>
+                              <h3 className="text-white font-medium text-lg">{getUserFullName()}</h3>
+                              <p className="text-white text-opacity-80 text-xs mt-1 break-all">{getUserEmail()}</p>
+                            </div>
+                          </div>
+
+                          <div className="py-1">
+                            <button
+                              onClick={() => {
+                                signOut({ callbackUrl: "/" })
+                                setIsUserDropdownOpen(false)
+                              }}
+                              className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${isRTL ? "" : ""
+                                }`}
+                            >
+                              <LogOut className={`h-5 w-5 text-red-500 ${isRTL ? "ml-3" : "mr-3"}`} />
+                              <span>{getLogoutText()}</span>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Link
+                      href="/pages/authorization/log_in"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      {translations?.login?.login || "Login"}
+                    </Link>
+                  </motion.div>
+                )}
+              </div>
+            )}
 
             {/* Mobile - Only Notifications and Burger Menu */}
-            <div className={isDesktop ? "hidden" : "flex items-center"}>
-              {isAuthenticated && (
-                <div className="mr-2">
-                  <NotificationsDropdown />
-                </div>
-              )}
+            {screenSize === "mobile" && (
+              <div className="flex items-center">
+                {isAuthenticated && (
+                  <div className={isRTL ? "ml-2" : "mr-2"}>
+                    <NotificationsDropdown />
+                  </div>
+                )}
 
-              {/* მობილური მენიუს ღილაკი */}
-              <motion.button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                aria-expanded={isMobileMenuOpen}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="sr-only">Open main menu</span>
-                <motion.svg
-                  className="h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
-                  transition={{ duration: 0.2 }}
+                {/* მობილური მენიუს ღილაკი */}
+                <motion.button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="inline-flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                  aria-expanded={isMobileMenuOpen}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <motion.path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16"
-                    animate={{
-                      d: isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16",
-                      opacity: isMobileMenuOpen ? 1 : 1,
-                    }}
-                    transition={{ duration: 0.1 }}
-                  />
-                  <motion.path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 12h16"
-                    animate={{
-                      opacity: isMobileMenuOpen ? 0 : 1,
-                    }}
-                    transition={{ duration: 0.1 }}
-                  />
-                  <motion.path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 18h16"
-                    animate={{
-                      d: isMobileMenuOpen ? "M6 6l12 12" : "M4 18h16",
-                      opacity: isMobileMenuOpen ? 1 : 1,
-                    }}
-                    transition={{ duration: 0.1 }}
-                  />
-                </motion.svg>
-              </motion.button>
-            </div>
+                  <span className="sr-only">Open main menu</span>
+                  <motion.svg
+                    className="h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <motion.path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16"
+                      animate={{
+                        d: isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16",
+                        opacity: isMobileMenuOpen ? 1 : 1,
+                      }}
+                      transition={{ duration: 0.1 }}
+                    />
+                    <motion.path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 12h16"
+                      animate={{
+                        opacity: isMobileMenuOpen ? 0 : 1,
+                      }}
+                      transition={{ duration: 0.1 }}
+                    />
+                    <motion.path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 18h16"
+                      animate={{
+                        d: isMobileMenuOpen ? "M6 6l12 12" : "M4 18h16",
+                        opacity: isMobileMenuOpen ? 1 : 1,
+                      }}
+                      transition={{ duration: 0.1 }}
+                    />
+                  </motion.svg>
+                </motion.button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* მობილური მენიუ ანიმაციით */}
         <AnimatePresence>
-          {isMobileMenuOpen && (
+          {screenSize === "mobile" && isMobileMenuOpen && (
             <motion.div
               ref={mobileMenuRef}
-              className={isDesktop ? "hidden" : "border-t border-gray-200 bg-white"}
+              className="border-t border-gray-200 bg-white"
               variants={mobileMenuVariants}
               initial="hidden"
               animate="visible"
@@ -498,11 +728,10 @@ const Header = () => {
                     <motion.div key={index} variants={mobileMenuItemVariants}>
                       <Link
                         href={item.url}
-                        className={`block px-3 py-2 rounded-md text-base font-medium ${
-                          isActiveLink(item.url)
+                        className={`block px-3 py-2 rounded-md text-base font-medium ${isActiveLink(item.url)
                             ? "text-blue-600 bg-blue-50"
                             : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                        }`}
+                          }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item.name}
@@ -538,17 +767,14 @@ const Header = () => {
                         onClick={() => {
                           handleLanguageChange(language.code)
                         }}
-                        className={`w-full flex items-center px-4 py-3 text-base ${
-                          language.code === currentLanguage ? "bg-blue-50" : "hover:bg-gray-50"
-                        }`}
-                      
+                        className={`w-full flex items-center px-4 py-3 text-base ${language.code === currentLanguage ? "bg-blue-50" : "hover:bg-gray-50"
+                          } ${isRTL ? "" : ""}`}
                       >
-                        <div className="flex-1 flex items-center">
+                        <div className={`flex-1 flex items-center ${isRTL ? "" : ""}`}>
                           <div className="w-6 h-4 relative overflow-hidden flex-shrink-0">{language.flag}</div>
                           <span
-                            className={`${
-                              language.code === currentLanguage ? "font-medium text-blue-600" : "text-gray-700"
-                            } mx-3`}
+                            className={`${language.code === currentLanguage ? "font-medium text-blue-600" : "text-gray-700"
+                              } ${isRTL ? "mx-3 " : "mx-3"}`}
                           >
                             {language.nativeName}
                           </span>
@@ -563,10 +789,18 @@ const Header = () => {
                 {isAuthenticated && (
                   <motion.div variants={mobileMenuItemVariants} className="border-t border-gray-200">
                     <div className="px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-medium text-gray-900">
-                          {session?.user?.name || "Shalva Kokuashvili"}
-                        </span>
+                      <div className={`flex items-center justify-between ${isRTL ? "" : ""}`}>
+                        <div className={`flex flex-col ${isRTL ? "" : ""}`}>
+                          <div className={`flex items-center ${isRTL ? "" : ""}`}>
+                            <div
+                              className={`inline-flex items-center justify-center h-9 w-9 rounded-full bg-[#6366f1] text-white text-sm font-medium ${isRTL ? "ml-2" : "mr-2"}`}
+                            >
+                              {getUserInitials(getUserFullName())}
+                            </div>
+                            <span className="text-base font-medium text-gray-900">{getUserFullName()}</span>
+                          </div>
+                          <span className="text-sm text-gray-500 mt-1">{getUserEmail()}</span>
+                        </div>
                         <button
                           onClick={() => {
                             signOut({ callbackUrl: "/" })
@@ -574,7 +808,7 @@ const Header = () => {
                           }}
                           className="text-sm text-red-600 hover:text-red-700 font-medium"
                         >
-                          {translations?.header?.logout || "Logout"}
+                          {getLogoutText()}
                         </button>
                       </div>
                     </div>
