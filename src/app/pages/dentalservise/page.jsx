@@ -1,12 +1,30 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import Link from "next/link"
+import Image from "next/image"
 import AOS from "aos"
 import "aos/dist/aos.css"
 
-// SVG Icons for dental services
+// Improved Service Icon Component with proper responsive handling
+const ServiceIcon = ({ src, alt, className = "h-20 w-20" }) => {
+  return (
+    <div className={`relative ${className} flex-shrink-0`}>
+      <Image
+        src={src || "/placeholder.svg"}
+        alt={alt}
+        fill
+        className="object-contain"
+        sizes="(max-width: 768px) 64px, 80px"
+        priority={false}
+        quality={85}
+      />
+    </div>
+  )
+}
+
+// Fallback SVG icons for better compatibility
 const ToothIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -21,108 +39,6 @@ const ToothIcon = (props) => (
     {...props}
   >
     <path d="M12 5.5c-1.5-2-3-2.5-4-2.5-3 0-5 2.5-5 5 0 3.5 2 5.5 4 8 1.5 2 3 3.5 5 3.5s3.5-1.5 5-3.5c2-2.5 4-4.5 4-8 0-2.5-2-5-5-5-1 0-2.5.5-4 2.5z" />
-  </svg>
-)
-
-const DrillIcon = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="m14 7 4-4 2 2-4 4" />
-    <path d="m17 10 2-2" />
-    <path d="m14 14 2 2" />
-    <path d="m13 18 4 4" />
-    <path d="m13 18-2-2" />
-    <path d="m10 7 4 4" />
-    <path d="M6 11a5 5 0 0 0 8 0" />
-  </svg>
-)
-
-const ImplantIcon = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M12 4v16" />
-    <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <path d="M8 16v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2" />
-    <path d="M8 9h8" />
-    <path d="M8 13h8" />
-  </svg>
-)
-
-const BraceIcon = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M7 21h-4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h4" />
-    <path d="M17 21h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-4" />
-    <path d="M12 21a9 9 0 0 0 0-18" />
-    <path d="M7 15a9 9 0 0 1 9-9" />
-  </svg>
-)
-
-const GumIcon = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M17 10c.7-.7 1.7-2 1.7-3.3.1-2.3-1.7-4-3.7-4-1.4 0-2.8.8-3.5 2" />
-    <path d="M9 6.8C8.3 5.6 6.9 4.8 5.5 4.8c-2 0-3.8 1.7-3.7 4 .1 1.3 1 2.6 1.7 3.3" />
-    <path d="M8 20c-1 0-3.1-.8-3.8-2.6-.8-1.8 0-3.3 0-3.3.4-.8 1.4-1.4 2.2-1.5.4 0 .8.1 1.1.2" />
-    <path d="M16 20c1 0 3.1-.8 3.8-2.6.8-1.8 0-3.3 0-3.3-.4-.8-1.4-1.4-2.2-1.5-.4 0-.8.1-1.1.2" />
-    <path d="M12 20c1 0 2-.8 2-2v-2c0-1-.7-1.8-1.5-1.8S11 15 11 16v2c0 1.2 1 2 2 2Z" />
-  </svg>
-)
-
-const ChildToothIcon = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M12 2a7 7 0 0 0-7 7c0 2.1 0 4.7 2 6.5 1.6 1.5 3 3.5 3 6.5h4c0-3 1.4-5 3-6.5 2-1.8 2-4.4 2-6.5a7 7 0 0 0-7-7Z" />
   </svg>
 )
 
@@ -145,11 +61,12 @@ const ArrowLeftIcon = (props) => (
 )
 
 // Main Services Page Component
-export default function ServicesPage() {
+export default function ServicesPageImproved() {
   const { translations, direction, currentLanguage } = useLanguage()
   const [selectedService, setSelectedService] = useState(null)
   const [searchParams, setSearchParams] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [imageErrors, setImageErrors] = useState({})
   const isRTL = direction === "rtl"
   const isHebrew = currentLanguage === "he"
 
@@ -162,9 +79,13 @@ export default function ServicesPage() {
     })
   }, [])
 
-  // Services data with translations
+  // Handle image loading errors
+  const handleImageError = (serviceId) => {
+    setImageErrors((prev) => ({ ...prev, [serviceId]: true }))
+  }
+
+  // Services data with improved image handling
   const getServicesData = () => {
-    // Default Georgian data
     const servicesData = {
       therapy: {
         id: 1,
@@ -182,7 +103,8 @@ export default function ServicesPage() {
           "კბილების პროფესიული წმენდა",
           "ფტორირება",
         ],
-        icon: <img src="/tooth_folder/therapy2.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/therapy2.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
       orthopedics: {
         id: 2,
@@ -201,8 +123,8 @@ export default function ServicesPage() {
           "მოსახსნელი პროთეზები",
           "ინლეი და ონლეი",
         ],
-        // icon: <ToothIcon className="h-16 w-16" />,
-        icon: <img src="/tooth_folder/ortopedia.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/ortopedia.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
       implantology: {
         id: 3,
@@ -220,7 +142,8 @@ export default function ServicesPage() {
           "ძვლის აუგმენტაცია",
           "სინუს ლიფტინგი",
         ],
-        icon: <img src="/tooth_folder/implant.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/implant.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
       orthodontics: {
         id: 4,
@@ -238,7 +161,8 @@ export default function ServicesPage() {
           "ლინგვალური ბრეკეტები",
           "რეტეინერები",
         ],
-        icon: <img src="/tooth_folder/ortodontia.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/ortodontia.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
       periodontology: {
         id: 5,
@@ -256,7 +180,8 @@ export default function ServicesPage() {
           "ღრძილების რეცესიის მკურნალობა",
           "პაროდონტიტის მკურნალობა",
         ],
-        icon: <img src="/tooth_folder/periodontology.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/periodontology.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
       "pediatric-dentistry": {
         id: 6,
@@ -274,7 +199,8 @@ export default function ServicesPage() {
           "ჰერმეტიზაცია",
           "სარძევე კბილების მკურნალობა",
         ],
-        icon: <img className="h-20 w-20" src="/tooth_folder/kid.png" alt="" srcSet="" />
+        imageSrc: "/tooth_folder/kid.png",
+        fallbackIcon: <ToothIcon className="h-20 w-20" />,
       },
     }
 
@@ -291,7 +217,7 @@ export default function ServicesPage() {
       setSelectedService(servicesData[serviceSlug])
     }
     setSearchParams(params)
-  }, [currentLanguage]) // Re-run when language changes
+  }, [currentLanguage])
 
   // Function to show service details
   const showServiceDetails = (slug) => {
@@ -337,6 +263,52 @@ export default function ServicesPage() {
     return matchesCategory
   })
 
+  // Service Icon Renderer for DETAIL PAGE (with white circle)
+  const renderServiceIconForDetail = (service, size = "h-20 w-20") => {
+    if (imageErrors[service.id]) {
+      return <div className={`${size} flex items-center justify-center rounded-lg`}>{service.fallbackIcon}</div>
+    }
+
+    return (
+      <div className={`${size} relative rounded-lg p-3 flex-shrink-0`}>
+        <Image
+          src={service.imageSrc || "/placeholder.svg"}
+          alt={service.title}
+          fill
+          className="object-contain p-2"
+          sizes="(max-width: 768px) 80px, 96px"
+          onError={() => handleImageError(service.id)}
+          quality={90}
+          priority={false}
+        />
+      </div>
+    )
+  }
+
+  // Service Icon Renderer for GRID/LIST PAGE (with light blue square)
+  const renderServiceIconForGrid = (service, size = "h-20 w-20") => {
+    if (imageErrors[service.id]) {
+      return (
+        <div className={`${size} flex items-center justify-center bg-[#e6f7fa] rounded-lg`}>{service.fallbackIcon}</div>
+      )
+    }
+
+    return (
+      <div className={`${size} relative bg-[#e6f7fa] rounded-lg p-3 flex-shrink-0`}>
+        <Image
+          src={service.imageSrc || "/placeholder.svg"}
+          alt={service.title}
+          fill
+          className="object-contain p-2"
+          sizes="(max-width: 768px) 64px, 80px"
+          onError={() => handleImageError(service.id)}
+          quality={90}
+          priority={false}
+        />
+      </div>
+    )
+  }
+
   // If a service is selected, show its details
   if (selectedService) {
     return (
@@ -347,7 +319,7 @@ export default function ServicesPage() {
             <div className={`flex items-center mb-6 ${isRTL ? "flex-row gap-3" : ""}`} data-aos="zoom-in">
               <button
                 onClick={backToServices}
-                className={`bg-white text-[#0088a9] p-2 rounded-full ${isRTL ? "ml-4" : "mr-4"} hover:bg-gray-100 transition-colors`}
+                className={`bg-white text-[#0088a9] p-2 rounded-full ${isRTL ? "ml-4" : "mr-4"} hover:bg-gray-100 transition-colors flex-shrink-0`}
               >
                 <ArrowLeftIcon className="h-5 w-5" style={{ transform: isRTL ? "scaleX(-1)" : "none" }} />
               </button>
@@ -362,7 +334,7 @@ export default function ServicesPage() {
         {/* Service Detail Content */}
         <div className="container mx-auto px-4 py-16">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="zoom-in">
-            <div className="p-8">
+            <div className="p-4 md:p-8">
               <div className={`flex flex-col md:flex-row gap-8 ${isRTL ? "md:flex-row-reverse" : ""}`}>
                 <div className="md:w-2/3" data-aos="zoom-in">
                   <h2 className={`text-2xl font-bold text-gray-800 mb-6 ${isRTL ? "text-right" : ""}`}>
@@ -395,10 +367,8 @@ export default function ServicesPage() {
 
                 <div className="md:w-1/3 bg-[#e6f7fa] p-6 rounded-lg" data-aos="zoom-in">
                   <div className="flex justify-center mb-6">
-                    <div className="bg-white p-4 rounded-full">
-                      <div className="text-[#0088a9]">
-                        {React.cloneElement(selectedService.icon, { className: "h-16 w-16" })}
-                      </div>
+                    <div className="bg-white p-3 rounded-full shadow-lg">
+                      <div className="text-[#0088a9]">{renderServiceIconForDetail(selectedService, "h-18 w-18")}</div>
                     </div>
                   </div>
 
@@ -503,10 +473,8 @@ export default function ServicesPage() {
                   >
                     <div className="p-6 border-b border-gray-100">
                       <div className={`flex items-center ${isHebrew ? "flex-row" : ""}`}>
-                        <div className={`bg-[#e6f7fa] p-3 rounded-lg ${isHebrew ? "ml-4" : "mr-4"}`}>
-                          <div className="text-[#0088a9]">
-                            {React.cloneElement(service.icon, { className: "h-8 w-8" })}
-                          </div>
+                        <div className={`${isHebrew ? "ml-4" : "mr-4"}`}>
+                          {renderServiceIconForGrid(service, "h-20 w-20")}
                         </div>
                         <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
                       </div>
@@ -551,7 +519,10 @@ export default function ServicesPage() {
           <div className="mt-8 flex justify-center">
             <button
               onClick={() =>
-                window.scrollTo({ top: document.querySelector(".services-grid").offsetTop - 100, behavior: "smooth" })
+                window.scrollTo({
+                  top: document.querySelector(".services-grid")?.offsetTop - 100 || 0,
+                  behavior: "smooth",
+                })
               }
               className="px-6 py-3 bg-white text-[#0088a9] rounded-full font-medium shadow-lg hover:bg-sky-50 transition-colors"
             >
@@ -608,17 +579,13 @@ export default function ServicesPage() {
                   {isHebrew ? (
                     // ებრაული ენისთვის - აიკონი მარჯვნივ
                     <div className="flex flex-row items-center">
-                      <div className="bg-[#e6f7fa] p-3 rounded-lg mr-0 ml-4">
-                        <div className="text-[#0088a9]">{service.icon}</div>
-                      </div>
+                      <div className="mr-0 ml-4">{renderServiceIconForGrid(service, "h-20 w-20")}</div>
                       <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
                     </div>
                   ) : (
                     // სხვა ენებისთვის - აიკონი მარცხნივ
                     <div className="flex items-center">
-                      <div className="bg-[#e6f7fa] p-3 rounded-lg mr-4 ml-0">
-                        <div className="text-[#0088a9]">{service.icon}</div>
-                      </div>
+                      <div className="mr-4 ml-0">{renderServiceIconForGrid(service, "h-20 w-20")}</div>
                       <h3 className="text-xl font-bold text-gray-800">{service.title}</h3>
                     </div>
                   )}
