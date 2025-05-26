@@ -15,7 +15,7 @@
 @import url(./style/fontsStyle.css);
 @import url(./style/jcDentalDoctors.css); 
 @import url(./style/doctorsPageStyle.css); 
-
+@import url(./style/georgianFonts.css);
 
 @theme {
   --font-sans: var(--font-geist-sans);

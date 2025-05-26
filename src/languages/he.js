@@ -309,7 +309,7 @@ export const he = {
     },
   },
 
-  
+
   packagesHero: {
     label: "חבילות דנטליות",
     title1: "בחר",
@@ -346,7 +346,7 @@ export const he = {
     year1: "שנה אחת",
   },
 
-  
+
   faq: {
     title: "שאלות נפוצות",
     description: "מצא תשובות לשאלות הנפוצות ביותר לגבי החבילות שלנו",
@@ -370,5 +370,19 @@ export const he = {
     backToHome: "חזרה לדף הבית",
     // ... תרגומי כפתורים קיימים
   },
-
+  
+  dentalSection: {
+    badge: "רפואת שיניים מקצועית",
+    mainTitle: "JC Dental",
+    subtitle: "רפואת שיניים",
+    description: 'מרפאת השיניים "JC Dental" מצוידת בטכנולוגיות דיגיטליות מודרניות. אצלנו תקבלו שירותי רפואת שיניים מלאים, הן לטיפול והן למטרות אסתטיות.',
+    bookButton: "קביעת תור",
+    contactButton: "צור קשר",
+    stats: {
+      experience: "שנות ניסיון",
+      patients: "מטופלים מרוצים",
+      safety: "בטיחות",
+      support: "תמיכה",
+    },
+  },
 }

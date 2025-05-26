@@ -70,7 +70,7 @@ export const en = {
     closed: "Closed",
     followUs: "Follow Us",
     getDirections: "Get Directions",
-  },  
+  },
   services: {
     title: "Our Services",
     pageTitle: "JC Dental - Our Services",
@@ -94,7 +94,7 @@ export const en = {
       comfortableEnvironment: "Comfortable and calm environment",
       individualTreatment: "Individual treatment plans",
       flexibleSchedule: "Flexible schedule and emergency assistance",
-    },    
+    },
     therapy: {
       title: "Therapy",
       shortDescription: "Non-surgical treatment of teeth and oral cavity",
@@ -256,7 +256,7 @@ export const en = {
     resetRequestedMessage: "We've sent a password reset link to your email address.",
     checkSpam: "If you don't see it in your inbox, please check your spam folder.",
   },
-  
+
   slider: {
     slide1Title: "Professional Service",
     slide1Subtitle: "Modern Dental Clinic",
@@ -383,6 +383,18 @@ export const en = {
   buttons2: {
     backToHome: "Back to Home Page",
   },
-
+  dentalSection: {
+    badge: "Professional Dentistry",
+    mainTitle: "JC Dental",
+    subtitle: "Dentistry",
+    bookButton: "Book Appointment",
+    contactButton: "Contact Us",
+    stats: {
+      experience: "Years Experience",
+      patients: "Happy Patients",
+      safety: "Safety Standards",
+      support: "Support",
+    },
+  },
 
 }

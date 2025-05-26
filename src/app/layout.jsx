@@ -18,10 +18,24 @@ export const metadata = {
   },
 };
 
+
+
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{background:"white"}}>
+
+      <head>
+        {/* ქართული ფონტების ჩატვირთვა */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+
+      <body className={inter.className} style={{ background: "white" }}>
         {/* Wrap everything with SessionProvider */}
         <AuthProvider>
           {/* Language context provider */}
@@ -34,7 +48,7 @@ export default function RootLayout({ children }) {
             </NotificationsProvider>
           </LanguageProvider>
         </AuthProvider>
-        
+
         {/* LiveChat script */}
         <Script
           id="livechat-script"

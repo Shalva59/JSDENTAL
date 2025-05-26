@@ -1,0 +1,77 @@
+/* Import Georgian fonts from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=BPG+Nino+Mtavruli&display=swap");
+
+/* Georgian font utility class */
+.font-georgian {
+  font-family: "Noto Sans Georgian", "BPG Nino Mtavruli", "Sylfaen", "DejaVu Sans", "Arial Unicode MS", sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Improved line height and spacing for Georgian text */
+.font-georgian h1,
+.font-georgian h2,
+.font-georgian h3,
+.font-georgian h4,
+.font-georgian h5,
+.font-georgian h6 {
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.font-georgian p {
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* Better font weights for Georgian */
+.font-georgian.font-extrabold {
+  font-weight: 800;
+}
+
+.font-georgian.font-light {
+  font-weight: 300;
+}
+
+
+
+/* ქართული ფონტის კლასი */
+.font-georgian {
+  font-family: "Noto Sans Georgian", "BPG Arial", "Sylfaen", "DejaVu Sans", sans-serif !important;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-georgianDejaVu {
+  font-family:  "BPG Arial" !important;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ქართული ტექსტისთვის */
+.georgian-text {
+  font-family: "Noto Sans Georgian", "BPG Arial", "Sylfaen", sans-serif !important;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.georgian-textSylfaen {
+  font-family: "Sylfaen", sans-serif !important;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+
+.georgian-text h1,
+.georgian-text h2,
+.georgian-text h3 {
+  line-height: 1.3;
+  font-weight: 700;
+}
