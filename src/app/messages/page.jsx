@@ -325,11 +325,11 @@ export default function MessagesPage() {
   }
   
   // Scroll to bottom of messages
-  useEffect(() => {
-    if (messagesEndRef.current && messages.length > 0) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-}, [messages]);
+//   useEffect(() => {
+//     if (messagesEndRef.current && messages.length > 0) {
+//         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+//     }
+// }, [messages]);
   
   // Format timestamp
   const formatMessageTime = (timestamp) => {
