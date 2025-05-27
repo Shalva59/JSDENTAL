@@ -441,5 +441,6 @@ dentalSection: {
     startConversation: "დაიწყეთ საუბარი ექიმთან",
     pendingApproval: "ელოდება დამტკიცებას",
     waitingForDoctor: "ექიმის დამტკიცების მოლოდინში"
-  }
+  },
+  viewConversation: "საუბრის ნახვა",
 }

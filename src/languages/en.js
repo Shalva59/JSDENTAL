@@ -404,5 +404,6 @@ export const en = {
     startConversation: "Start a conversation with a doctor",
     pendingApproval: "Pending Approval",
     waitingForDoctor: "Waiting for doctor approval"
-  }
+  },
+  viewConversation: "View Conversation",
 }
