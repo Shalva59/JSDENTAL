@@ -28,6 +28,8 @@ export default function DoctorDetailPage() {
   const [showMessageModal, setShowMessageModal] = useState(false)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [messageError, setMessageError] = useState("")
+  const [hasExistingConversation, setHasExistingConversation] = useState(false)
+  const [checkingConversation, setCheckingConversation] = useState(false)
 
   // Track window resize for responsive adjustments
   useEffect(() => {
@@ -503,6 +505,34 @@ export default function DoctorDetailPage() {
     )
   }
 
+  const checkExistingConversation = async () => {
+    if (!session || !doctor) return
+    
+    setCheckingConversation(true)
+    try {
+      const response = await fetch("/api/conversations")
+      if (response.ok) {
+        const data = await response.json()
+        // Check if there's already a conversation with this doctor
+        const existing = data.conversations?.find(
+          conv => conv.doctorId === doctor.id
+        )
+        setHasExistingConversation(!!existing)
+      }
+    } catch (error) {
+      console.error("Error checking conversations:", error)
+    } finally {
+      setCheckingConversation(false)
+    }
+  }
+  
+  // Call it when component mounts or doctor changes
+  useEffect(() => {
+    if (session && doctor) {
+      checkExistingConversation()
+    }
+  }, [session, doctor])
+
   const handleSendMessage = async (message) => {
     if (!session) {
       router.push("/pages/authorization/log_in")
@@ -513,7 +543,6 @@ export default function DoctorDetailPage() {
     setMessageError("")
     
     try {
-      // Add a clear flag to indicate this is a patient-initiated conversation
       const response = await fetch("/api/conversations", {
         method: "POST",
         headers: {
@@ -522,7 +551,7 @@ export default function DoctorDetailPage() {
         body: JSON.stringify({
           doctorId: doctor.id,
           initialMessage: message,
-          isPatientInitiated: true // Add this flag to help the API identify the sender type
+          isPatientInitiated: true
         }),
       })
       
@@ -532,6 +561,9 @@ export default function DoctorDetailPage() {
       }
       
       const data = await response.json();
+      
+      // Update the state to reflect that a conversation now exists
+      setHasExistingConversation(true);
       
       // Close modal and navigate to messages page
       setShowMessageModal(false);
@@ -751,14 +783,28 @@ export default function DoctorDetailPage() {
                   {t.bookAppointment}
                 </motion.button>
                 <motion.button
-                onClick={() => setShowMessageModal(true)}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <MessageCircle size={18} />
-                {translations?.buttons?.sendMessage || "Send Message"}
-              </motion.button>
+                  onClick={() => {
+                    if (hasExistingConversation) {
+                      // If conversation exists, go directly to messages
+                      router.push("/messages")
+                    } else {
+                      // Otherwise, show the modal to create new conversation
+                      setShowMessageModal(true)
+                    }
+                  }}
+                  disabled={checkingConversation}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <MessageCircle size={18} />
+                  {checkingConversation 
+                    ? "..." 
+                    : hasExistingConversation 
+                      ? (translations?.buttons?.viewConversation || "View Conversation")
+                      : (translations?.buttons?.sendMessage || "Send Message")
+                  }
+                </motion.button>
               </motion.div>
             </motion.div>
           </div>

@@ -5,19 +5,20 @@ import MainText from "./components/MainText/Page"
 import DentalServices from "./components/DentalServices/Page"
 import Doctors from "./components/Doctors/Page"
 import Packageprices from "./components/PackagePrices/page"
+import MessageBox from "./components/MessageBox/MessageBox" // Add this import
 
 export default function Home() {
   return (
     <div>
-
       <SliderMain />
       <MainText />
       <DentalServices />
       {/* <Packageprices />  */}
       {/* <Price /> */}
       <Doctors />
-
-
+      
+      {/* Add the MessageBox component */}
+      <MessageBox />
 
       {/* <iframe
         className="w-96"
@@ -27,7 +28,6 @@ export default function Home() {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       ></iframe> */}
-
     </div>
   );
 }

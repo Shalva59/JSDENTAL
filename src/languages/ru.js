@@ -431,5 +431,6 @@ export const ru = {
     startConversation: "Начать разговор с врачом",
     pendingApproval: "Ожидает подтверждения",
     waitingForDoctor: "Ожидание подтверждения врача"
-  }
+  },
+  viewConversation: "Просмотр разговора",
 }

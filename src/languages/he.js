@@ -393,5 +393,6 @@ export const he = {
     startConversation: "התחל שיחה עם רופא",
     pendingApproval: "ממתין לאישור",
     waitingForDoctor: "ממתין לאישור מהרופא"
-  }
+  },
+  viewConversation: "צפה בשיחה",
 }
