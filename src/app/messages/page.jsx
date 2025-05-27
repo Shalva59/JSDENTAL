@@ -168,6 +168,12 @@ export default function MessagesPage() {
     }
   }, [session])
   
+  useEffect(() => {
+    if (selectedConversation) {
+        fetchMessages(selectedConversation._id);
+    }
+}, [selectedConversation]);
+
   // Fetch conversations list
   const fetchConversations = async () => {
     if (!session) return
@@ -202,26 +208,15 @@ export default function MessagesPage() {
   
   // Fetch messages for a conversation
   const fetchMessages = async (conversationId) => {
-    if (!session || !conversationId) return
-    
     try {
-      const response = await fetch(`/api/conversations/${conversationId}/messages`)
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages")
-      }
-      
-      const data = await response.json()
-      setMessages(data.messages || [])
-      
-      // Update conversation with latest data
-      if (data.conversation) {
-        setSelectedConversation(data.conversation)
-      }
+        const response = await fetch(`/api/conversations/${conversationId}/messages`);
+        const data = await response.json();
+        console.log("Messages fetched in fetchMessages:", data.messages);
+        setMessages(data.messages || []);
     } catch (error) {
-      console.error("Error fetching messages:", error)
-      setError(error.message)
+        console.error("Error fetching messages:", error);
     }
-  }
+};
   
   // Refresh conversations and messages
   const handleRefresh = async () => {
@@ -236,29 +231,22 @@ export default function MessagesPage() {
   // Select a conversation
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
-    setMessages([]); // Clear messages first to avoid showing stale data
-    
+    setMessages([]); // Clear existing messages
     try {
-      const response = await fetch(`/api/conversations/${conversation._id}/messages`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-      
-      const data = await response.json();
-      console.log("Fetched messages:", data.messages); // Debug log
-      setMessages(data.messages || []);
-      
-      // Focus on message input after a small delay
-      setTimeout(() => {
-        if (messageInputRef.current) {
-          messageInputRef.current.focus();
+        const response = await fetch(`/api/conversations/${conversation._id}/messages?ts=${Date.now()}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch messages");
         }
-      }, 100);
+        const data = await response.json();
+        console.log("Fetched messages:", data.messages);
+        console.log("Number of messages:", data.messages.length);
+        console.log("Sender types:", data.messages.map(msg => msg.senderType));
+        setMessages(data.messages || []); // Set messages or empty array if none
     } catch (error) {
-      console.error("Error fetching messages:", error);
-      setError(error.message);
+        console.error("Error fetching messages:", error);
+        setError(error.message);
     }
-  };
+};
   
   // Send a message
   const handleSendMessage = async (e) => {
@@ -338,10 +326,10 @@ export default function MessagesPage() {
   
   // Scroll to bottom of messages
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (messagesEndRef.current && messages.length > 0) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages])
+}, [messages]);
   
   // Format timestamp
   const formatMessageTime = (timestamp) => {

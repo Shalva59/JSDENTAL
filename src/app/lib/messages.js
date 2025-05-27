@@ -145,7 +145,6 @@ export async function createMessage(messageData) {
 export async function getMessagesByConversation(conversationId) {
     try {
       const db = await getDatabase();
-      // Important: Don't filter messages by any criteria other than the conversation ID
       return db.collection(MESSAGES_COLLECTION)
         .find({ conversationId: new ObjectId(conversationId) })
         .sort({ timestamp: 1 })
@@ -154,7 +153,7 @@ export async function getMessagesByConversation(conversationId) {
       console.error("getMessagesByConversation error:", error);
       throw error;
     }
-  }
+}
 
 // Mark messages as read
 export async function markMessagesAsRead(conversationId, receiverType) {
