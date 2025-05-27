@@ -123,6 +123,10 @@ export async function GET(request, context) {
     // Patients can only send one message until the conversation is approved
     if (!conversation.approved && !user.isDoctor) {
       const messages = await getMessagesByConversation(conversationId);
+      console.log(`Retrieved ${messages.length} messages for conversation ${conversationId}`);
+    messages.forEach((msg, i) => {
+    console.log(`Message ${i+1}: sender=${msg.senderType}, content=${msg.content.substring(0, 20)}...`);
+    });
       const userMessages = messages.filter(msg => msg.senderType === "user");
       
       if (userMessages.length >= 1) {

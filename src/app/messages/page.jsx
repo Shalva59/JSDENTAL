@@ -235,17 +235,30 @@ export default function MessagesPage() {
   
   // Select a conversation
   const handleSelectConversation = async (conversation) => {
-    setSelectedConversation(conversation)
-    setMessages([])
-    await fetchMessages(conversation._id)
+    setSelectedConversation(conversation);
+    setMessages([]); // Clear messages first to avoid showing stale data
     
-    // Focus on message input after a small delay
-    setTimeout(() => {
-      if (messageInputRef.current) {
-        messageInputRef.current.focus()
+    try {
+      const response = await fetch(`/api/conversations/${conversation._id}/messages`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch messages");
       }
-    }, 100)
-  }
+      
+      const data = await response.json();
+      console.log("Fetched messages:", data.messages); // Debug log
+      setMessages(data.messages || []);
+      
+      // Focus on message input after a small delay
+      setTimeout(() => {
+        if (messageInputRef.current) {
+          messageInputRef.current.focus();
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      setError(error.message);
+    }
+  };
   
   // Send a message
   const handleSendMessage = async (e) => {
@@ -275,6 +288,9 @@ export default function MessagesPage() {
       
       // Fetch updated conversation list to update last message data
       fetchConversations()
+      
+      // Also fetch messages again to ensure complete sync
+      await fetchMessages(selectedConversation._id)
     } catch (error) {
       console.error("Error sending message:", error)
       setError(error.message)
@@ -442,7 +458,10 @@ export default function MessagesPage() {
                         <div className="flex-grow min-w-0">
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium text-gray-800 truncate">
-                              {isDoctor ? "Patient" : `Dr. ${conversation.doctorName || "Doctor"}`}
+                                {isDoctor 
+                                    ? (conversation.patientName || "Patient")
+                                    : `Dr. ${conversation.doctorName || "Doctor"}`
+                                }
                             </h3>
                             <span className="text-xs text-gray-500 whitespace-nowrap">
                               {formatConversationTime(conversation.lastMessageTime)}
@@ -524,61 +543,48 @@ export default function MessagesPage() {
                 
                 {/* Messages */}
                 <div className="flex-grow p-4 overflow-y-auto bg-gray-50">
-                  {/* Approval message for patients */}
-                  {!selectedConversation.approved && !isDoctor && (
-                    <div className="bg-yellow-50 p-3 rounded-md mb-4 text-center text-sm text-yellow-800">
-                      <Clock className="inline-block w-4 h-4 mr-1 mb-1" />
-                      {t.waitForApproval}
-                      <p className="text-xs mt-1 text-yellow-700">
-                        {t.typingLimit}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Approval message for doctors */}
-                  {!selectedConversation.approved && isDoctor && (
-                    <div className="bg-blue-50 p-3 rounded-md mb-4 text-center text-sm text-blue-800">
-                      {t.doctorApprovalMessage}
-                    </div>
-                  )}
-                  
-                  {messages.length === 0 ? (
-                    <div className="text-center py-8">
-                      <MessageCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                      <p className="text-gray-500">{t.noMessages}</p>
-                      <p className="text-gray-400 text-sm mt-1">{t.sendFirstMessage}</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                    {messages.map((message, index) => (
-                    <div 
-                        key={message._id}
-                        className={`flex ${message.senderType === (isDoctor ? 'doctor' : 'user') ? 'justify-end' : 'justify-start'}`}
-                    >
-                        <div 
-                        className={`max-w-[75%] rounded-lg px-4 py-2 ${
-                            message.senderType === (isDoctor ? 'doctor' : 'user')
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-800 border border-gray-200'
-                        }`}
-                        >
-                        <p>{message.content}</p>
-                        <div 
-                            className={`text-xs mt-1 ${
-                            message.senderType === (isDoctor ? 'doctor' : 'user')
-                                ? 'text-blue-200'
-                                : 'text-gray-500'
-                            }`}
-                        >
-                            {formatMessageTime(message.timestamp)}
+                    {messages.length > 0 ? (
+                        <div className="space-y-4">
+                        {messages.map((message) => {
+                            // Determine if this message was sent by the current user
+                            const isOwnMessage =
+                            (isDoctor && message.senderType === 'doctor') ||
+                            (!isDoctor && message.senderType === 'user');
+                            
+                            return (
+                            <div
+                                key={message._id}
+                                className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div
+                                className={`max-w-[75%] rounded-lg px-4 py-2 ${
+                                    isOwnMessage
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-800 border border-gray-200'
+                                }`}
+                                >
+                                <p>{message.content}</p>
+                                <div
+                                    className={`text-xs mt-1 ${
+                                    isOwnMessage ? 'text-blue-200' : 'text-gray-500'
+                                    }`}
+                                >
+                                    {formatMessageTime(message.timestamp)}
+                                </div>
+                                </div>
+                            </div>
+                            );
+                        })}
+                        <div ref={messagesEndRef} />
                         </div>
+                    ) : (
+                        <div className="text-center py-8">
+                        <MessageCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500">{t.noMessages}</p>
+                        <p className="text-gray-400 text-sm mt-1">{t.sendFirstMessage}</p>
                         </div>
+                    )}
                     </div>
-                    ))}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  )}
-                </div>
                 
                 {/* Message input */}
                 <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-3">
