@@ -492,8 +492,11 @@ export default function MessagesPage() {
                         <User className="w-4 h-4 text-gray-500" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-800">
-                          {isDoctor ? "Patient" : `Dr. ${selectedConversation.doctorName || "Doctor"}`}
+                      <h3 className="font-medium text-gray-800">
+                        {isDoctor 
+                            ? (selectedConversation.patientName || "Patient")
+                            : `Dr. ${selectedConversation.doctorName || "Doctor"}`
+                        }
                         </h3>
                         {!selectedConversation.approved && (
                           <div className="flex items-center">
@@ -547,31 +550,31 @@ export default function MessagesPage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {messages.map((message, index) => (
+                    {messages.map((message, index) => (
+                    <div 
+                        key={message._id}
+                        className={`flex ${message.senderType === (isDoctor ? 'doctor' : 'user') ? 'justify-end' : 'justify-start'}`}
+                    >
                         <div 
-                          key={message._id}
-                          className={`flex ${message.senderType === (isDoctor ? 'doctor' : 'user') ? 'justify-end' : 'justify-start'}`}
+                        className={`max-w-[75%] rounded-lg px-4 py-2 ${
+                            message.senderType === (isDoctor ? 'doctor' : 'user')
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-800 border border-gray-200'
+                        }`}
                         >
-                          <div 
-                            className={`max-w-[75%] rounded-lg px-4 py-2 ${
-                              message.senderType === (isDoctor ? 'doctor' : 'user')
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-800 border border-gray-200'
+                        <p>{message.content}</p>
+                        <div 
+                            className={`text-xs mt-1 ${
+                            message.senderType === (isDoctor ? 'doctor' : 'user')
+                                ? 'text-blue-200'
+                                : 'text-gray-500'
                             }`}
-                          >
-                            <p>{message.content}</p>
-                            <div 
-                              className={`text-xs mt-1 ${
-                                message.senderType === (isDoctor ? 'doctor' : 'user')
-                                  ? 'text-blue-200'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              {formatMessageTime(message.timestamp)}
-                            </div>
-                          </div>
+                        >
+                            {formatMessageTime(message.timestamp)}
                         </div>
-                      ))}
+                        </div>
+                    </div>
+                    ))}
                       <div ref={messagesEndRef} />
                     </div>
                   )}

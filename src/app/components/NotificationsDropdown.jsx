@@ -178,9 +178,11 @@ export default function NotificationsDropdown() {
     // Close dropdown
     setIsOpen(false)
     
-    // Navigate to appointments page if it's an appointment-related notification
+    // Navigate based on notification type
     if (notification.type.includes("appointment")) {
       window.location.href = "/appointments"
+    } else if (notification.type.includes("message") || notification.type.includes("conversation")) {
+      window.location.href = "/messages"
     }
   }
 

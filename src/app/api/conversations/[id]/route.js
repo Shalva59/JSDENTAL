@@ -32,39 +32,53 @@ export async function GET(request, context) {
       const conversationId = params.id;
       
       const conversation = await getConversationById(conversationId);
-    
-    if (!conversation) {
+      
+      if (!conversation) {
+        return NextResponse.json(
+          { error: "Conversation not found" },
+          { status: 404 }
+        );
+      }
+  
+      // Check if user has access to this conversation
+      const hasAccess = 
+        (user.isDoctor && conversation.doctorId === parseInt(user.doctorId)) ||
+        (!user.isDoctor && conversation.userId.toString() === user._id.toString());
+      
+      if (!hasAccess) {
+        return NextResponse.json(
+          { error: "Access denied" },
+          { status: 403 }
+        );
+      }
+  
+      // Mark messages as read
+      const receiverType = user.isDoctor ? "doctor" : "user";
+      await markMessagesAsRead(conversationId, receiverType);
+  
+      // Get messages without any filtering by approval status
+      const messages = await getMessagesByConversation(conversationId);
+  
+      // Log messages for debugging
+      console.log(`Retrieved ${messages.length} messages for conversation ${conversationId}`);
+      messages.forEach((msg, i) => {
+        console.log(`Message ${i+1}: sender=${msg.senderType}, content=${msg.content.substring(0, 20)}...`);
+      });
+  
+      return NextResponse.json({
+        success: true,
+        messages,
+        conversation
+      });
+  
+    } catch (error) {
+      console.error("Get messages error:", error);
       return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
+        { error: "Internal server error" },
+        { status: 500 }
       );
     }
-
-    // Check if user has access to this conversation
-    const hasAccess = 
-      (user.isDoctor && conversation.doctorId === parseInt(user.doctorId)) ||
-      (!user.isDoctor && conversation.userId.toString() === user._id.toString());
-    
-    if (!hasAccess) {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      conversation
-    });
-
-  } catch (error) {
-    console.error("Get conversation error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
   }
-}
 
 export async function PUT(request, context) {
     try {
