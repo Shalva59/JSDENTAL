@@ -14,6 +14,7 @@ const DentalSection = () => {
 
   const isGeorgian = language === "ka"
   const isHebrew = language === "he"
+  const isEnglish = language === "en" || (!isGeorgian && !isHebrew)
   const isRTL = isHebrew
 
   const georgianFont = { fontFamily: '"Noto Sans Georgian", sans-serif' }
@@ -27,7 +28,7 @@ const DentalSection = () => {
     direction: "rtl",
   }
 
-  // ებრაულისთვის სწორი რიცხვების ფორმატი
+  // ყველა ენისთვის სწორი რიცხვების ფორმატი
   const getStatsData = () => {
     if (isHebrew) {
       return [
@@ -50,26 +51,90 @@ const DentalSection = () => {
       ]
     }
 
+    if (isGeorgian) {
+      return [
+        {
+          number: "3+",
+          label: translations?.dentalSection?.stats?.experience || "წლიანი გამოცდილება",
+        },
+        {
+          number: "50+",
+          label: translations?.dentalSection?.stats?.patients || "კმაყოფილი პაციენტი",
+        },
+        {
+          number: "100%",
+          label: translations?.dentalSection?.stats?.safety || "უსაფრთხოება",
+        },
+        {
+          number: "24/7",
+          label: translations?.dentalSection?.stats?.support || "მხარდაჭერა",
+        },
+      ]
+    }
+
+    // English fallback
     return [
       {
         number: "3+",
-        label:
-          translations?.dentalSection?.stats?.experience || (isGeorgian ? "წლიანი გამოცდილება" : "Years Experience"),
+        label: translations?.dentalSection?.stats?.experience || "Years Experience",
       },
       {
         number: "50+",
-        label: translations?.dentalSection?.stats?.patients || (isGeorgian ? "კმაყოფილი პაციენტი" : "Happy Patients"),
+        label: translations?.dentalSection?.stats?.patients || "Happy Patients",
       },
       {
         number: "100%",
-        label: translations?.dentalSection?.stats?.safety || (isGeorgian ? "უსაფრთხოება" : "Safety Standards"),
+        label: translations?.dentalSection?.stats?.safety || "Safety Standards",
       },
       {
         number: "24/7",
-        label: translations?.dentalSection?.stats?.support || (isGeorgian ? "მხარდაჭერა" : "Support"),
+        label: translations?.dentalSection?.stats?.support || "Support",
       },
     ]
   }
+
+  // ტექსტების მიღება
+  const getTexts = () => {
+    if (isHebrew) {
+      return {
+        badge: translations?.dentalSection?.badge || "רפואת שיניים מקצועית",
+        mainTitle: translations?.dentalSection?.mainTitle || "JC Dental",
+        subtitle: translations?.dentalSection?.subtitle || "רפואת שיניים",
+        description:
+          translations?.dentalSection?.description ||
+          'מרפאת השיניים "JC Dental" מצוידת בטכנולוגיות דיגיטליות מתקדמות. אצלנו תקבלו שירותי רפואת שיניים מלאים, הן לטיפול והן למטרות אסתטיות.',
+        bookButton: translations?.dentalSection?.bookButton || "קביעת תור",
+        contactButton: translations?.dentalSection?.contactButton || "צור קשר",
+      }
+    }
+
+    if (isGeorgian) {
+      return {
+        badge: translations?.dentalSection?.badge || "პროფესიონალური სტომატოლოგია",
+        mainTitle: translations?.dentalSection?.mainTitle || "JC Dental",
+        subtitle: translations?.dentalSection?.subtitle || "სტომატოლოგია",
+        description:
+          translations?.dentalSection?.description ||
+          'სტომატოლოგიური კლინიკა "JC Dental" აღჭურვილია თანამედროვე ციფრული ტექნოლოგიებით. ჩვენთან მიიღებთ სრულ სტომატოლოგიურ მომსახურებას, როგორც მკურნალობის, ასევე ესთეტიური მიმართულებით.',
+        bookButton: translations?.dentalSection?.bookButton || "ჩაწერა",
+        contactButton: translations?.dentalSection?.contactButton || "დაკავშირება",
+      }
+    }
+
+    // English fallback
+    return {
+      badge: translations?.dentalSection?.badge || "Professional Dentistry",
+      mainTitle: translations?.dentalSection?.mainTitle || "JC Dental",
+      subtitle: translations?.dentalSection?.subtitle || "Dentistry",
+      description:
+        translations?.dentalSection?.description ||
+        'Dental clinic "JC Dental" is equipped with modern digital technologies. With us you will receive complete dental services, both for treatment and aesthetic purposes.',
+      bookButton: translations?.dentalSection?.bookButton || "Book Appointment",
+      contactButton: translations?.dentalSection?.contactButton || "Contact Us",
+    }
+  }
+
+  const texts = getTexts()
 
   return (
     <>
@@ -105,12 +170,7 @@ const DentalSection = () => {
                   style={isGeorgian ? georgianFont : isHebrew ? hebrewFont : {}}
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  {translations?.dentalSection?.badge ||
-                    (isGeorgian
-                      ? "პროფესიონალური სტომატოლოგია"
-                      : isHebrew
-                        ? "רפואת שיניים מקצועית"
-                        : "Professional Dentistry")}
+                  {texts.badge}
                 </span>
               </span>
             </div>
@@ -121,11 +181,10 @@ const DentalSection = () => {
               dir={isRTL ? "rtl" : "ltr"}
             >
               <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
-                {translations?.dentalSection?.mainTitle || translations?.dentalSection?.title || "JC Dental"}
+                {texts.mainTitle}
               </span>
               <span className="text-slate-600 font-medium text-2xl sm:text-3xl lg:text-4xl xl:text-5xl">
-                {translations?.dentalSection?.subtitle ||
-                  (isGeorgian ? "სტომატოლოგია" : isHebrew ? "רפואת שיניים" : "Dentistry")}
+                {texts.subtitle}
               </span>
             </h1>
 
@@ -146,10 +205,7 @@ const DentalSection = () => {
               }
               dir={isRTL ? "rtl" : "ltr"}
             >
-              {translations?.dentalSection?.description ||
-                (isHebrew
-                  ? 'מרפאת השיניים "JC Dental" מצוידת בטכנולוגיות דיגיטליות מתקדמות. אצלנו תקבלו שירותי רפואת שיניים מלאים, הן לטיפול והן למטרות אסתטיות.'
-                  : 'სტომატოლოგიური კლინიკა "JC Dental" აღჭურვილია თანამედროვე ციფრული ტექნოლოგიებით. ჩვენთან მიიღებთ სრულ სტომატოლოგიურ მომსახურებას, როგორც მკურნალობის, ასევე ესთეტიური მიმართულებით.')}
+              {texts.description}
             </p>
 
             <div
@@ -179,12 +235,12 @@ const DentalSection = () => {
               ))}
             </div>
 
-            <div
+            {/* <div
               data-aos="fade-up"
               data-aos-delay="400"
               className={`flex flex-col sm:flex-row gap-5 sm:gap-6 justify-center px-4 sm:px-0 ${isRTL ? "" : ""}`}
             >
-              {/* <Link
+              <Link
                 href="/pages/booking"
                 className={`group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-slate-900 rounded-2xl hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto min-w-[200px] ${isRTL ? "gap-4" : ""} order-1 ${isRTL ? "sm:order-2" : ""}`}
               >
@@ -206,13 +262,13 @@ const DentalSection = () => {
                   style={isGeorgian ? georgianFont : isHebrew ? hebrewFont : {}}
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  {translations?.dentalSection?.bookButton ||
-                    (isGeorgian ? "ჩაწერა" : isHebrew ? "קביעת תור" : "Book Appointment")}
+                  {texts.bookButton}
                 </span>
               </Link>
 
-              <Link href="/pages/contact"
-                className={`group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-slate-900 bg-white/90 backdrop-blur-sm border-2 border-slate-200 rounded-2xl hover:bg-white hover:border-slate-300 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto min-w-[200px] ${isRTL ? "gap-4 flex row-reverse" : ""} order-2 ${isRTL ? "sm:order-1" : ""}`}
+              <Link
+                href="/pages/contact"
+                className={`group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-slate-900 bg-white/90 backdrop-blur-sm border-2 border-slate-200 rounded-2xl hover:bg-white hover:border-slate-300 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto min-w-[200px] ${isRTL ? "gap-4" : ""} order-2 ${isRTL ? "sm:order-1" : ""}`}
               >
                 <svg
                   className={`${isRTL ? "" : "mr-3"} w-5 h-5 group-hover:scale-110 transition-transform duration-200 flex-shrink-0`}
@@ -232,11 +288,10 @@ const DentalSection = () => {
                   style={isGeorgian ? georgianFont : isHebrew ? hebrewFont : {}}
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  {translations?.dentalSection?.contactButton ||
-                    (isGeorgian ? "დაკავშირება" : isHebrew ? "צור קשר" : "Contact Us")}
+                  {texts.contactButton}
                 </span>
-              </Link> */}
-            </div>
+              </Link>
+            </div> */}
           </div>
         </div>
       </section>
@@ -249,5 +304,5 @@ const DentalSection = () => {
     </>
   )
 }
-
+  
 export default DentalSection
