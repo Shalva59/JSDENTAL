@@ -396,5 +396,13 @@ export const en = {
       support: "Support",
     },
   },
-
+  sendMessage: "Send Message",
+  messages: {
+    title: "Messages",
+    noMessages: "No messages",
+    sendMessage: "Send Message",
+    startConversation: "Start a conversation with a doctor",
+    pendingApproval: "Pending Approval",
+    waitingForDoctor: "Waiting for doctor approval"
+  }
 }

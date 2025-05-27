@@ -385,4 +385,13 @@ export const he = {
       support: "תמיכה",
     },
   },
+  sendMessage: "שלח הודעה",
+  messages: {
+    title: "הודעות",
+    noMessages: "אין הודעות",
+    sendMessage: "שלח הודעה",
+    startConversation: "התחל שיחה עם רופא",
+    pendingApproval: "ממתין לאישור",
+    waitingForDoctor: "ממתין לאישור מהרופא"
+  }
 }

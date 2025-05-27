@@ -22,6 +22,7 @@ export const products = [
   { name: "ჯავშნები", url: "/appointments" }, // Add this line
   { name: "გალერეა", url: "/pages/gallery" },
   { name: "კონტაქტი", url: "/pages/contact" },
+  { name: "შეტყობინებები", url: "/messages" },
 ]
 
 // ინგლისური ნავიგაცია
@@ -33,6 +34,7 @@ export const enProducts = [
   { name: "Appointments", url: "/appointments" }, // Add this line
   { name: en.nav.gallery || "Gallery", url: "/pages/gallery" },
   { name: en.nav.contact, url: "/pages/contact" },
+  { name: "Messages", url: "/messages" },
 ]
 
 // რუსული ნავიგაცია
@@ -44,6 +46,7 @@ export const ruProducts = [
   { name: "Записи", url: "/appointments" }, // Add this line
   { name: ru.nav.gallery || "Галерея", url: "/pages/gallery" },
   { name: ru.nav.contact, url: "/pages/contact" },
+  { name: "Сообщения", url: "/messages" },
 ]
 
 // ებრაული ნავიგაცია
@@ -55,6 +58,7 @@ export const heProducts = [
   { name: "תורים", url: "/appointments" }, // Add this line
   { name: he.nav.gallery || "גלריה", url: "/pages/gallery" },
   { name: he.nav.contact, url: "/pages/contact" },
+  { name: "הודעות", url: "/messages" }
 ]
 
 // ყველა ენის ნავიგაცია ერთ ობიექტში

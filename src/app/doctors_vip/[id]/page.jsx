@@ -5,8 +5,9 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/context/LanguageContext"
 import { useLocalizedDentists } from "@/hooks/useLocalizedDentists"
-import { Calendar, ArrowLeft, GraduationCap, Phone, Mail, Camera, Award } from "lucide-react"
+import { Calendar, ArrowLeft, GraduationCap, Phone, Mail, Camera, Award, MessageCircle, X  } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useSession } from "next-auth/react"
 
 export default function DoctorDetailPage() {
   const { id } = useParams()
@@ -23,6 +24,10 @@ export default function DoctorDetailPage() {
   const [count, setCount] = useState(0)
   const countRef = useRef(null)
   const countObserver = useRef(null)
+  const { data: session, status: authStatus } = useSession()
+  const [showMessageModal, setShowMessageModal] = useState(false)
+  const [sendingMessage, setSendingMessage] = useState(false)
+  const [messageError, setMessageError] = useState("")
 
   // Track window resize for responsive adjustments
   useEffect(() => {
@@ -395,6 +400,150 @@ export default function DoctorDetailPage() {
     router.push(`/pages/before_and_after?doctor=${id}`)
   }
 
+  const MessageModal = ({ isOpen, onClose, onSend, loading, doctorName }) => {
+    const [message, setMessage] = useState("")
+    const { currentLanguage } = useLanguage()
+    
+    // Translations
+    const modalTexts = {
+      ka: {
+        title: "შეტყობინების გაგზავნა",
+        titleTo: "გაგზავნა",
+        placeholder: "დაწერეთ შეტყობინება...",
+        send: "გაგზავნა",
+        cancel: "გაუქმება",
+        sending: "იგზავნება...",
+        messageRequired: "შეტყობინება აუცილებელია"
+      },
+      en: {
+        title: "Send a Message",
+        titleTo: "to",
+        placeholder: "Type your message...",
+        send: "Send",
+        cancel: "Cancel",
+        sending: "Sending...",
+        messageRequired: "Message is required"
+      },
+      ru: {
+        title: "Отправить сообщение",
+        titleTo: "для",
+        placeholder: "Введите сообщение...",
+        send: "Отправить",
+        cancel: "Отмена",
+        sending: "Отправка...",
+        messageRequired: "Сообщение обязательно"
+      },
+      he: {
+        title: "שלח הודעה",
+        titleTo: "אל",
+        placeholder: "הקלד את ההודעה שלך...",
+        send: "שלח",
+        cancel: "ביטול",
+        sending: "שולח...",
+        messageRequired: "הודעה נדרשת"
+      }
+    }
+    
+    const t = modalTexts[currentLanguage] || modalTexts.ka
+    
+    const handleSubmit = (e) => {
+      e.preventDefault()
+      if (!message.trim()) {
+        return // Don't send empty messages
+      }
+      onSend(message)
+    }
+    
+    if (!isOpen) return null
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+          <div className="flex justify-between items-center p-4 border-b border-gray-200">
+            <h3 className="font-semibold text-lg text-gray-800">
+              {t.title} {t.titleTo} Dr. {doctorName}
+            </h3>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="p-4">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={t.placeholder}
+              rows={4}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                {t.cancel}
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !message.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-70"
+              >
+                {loading ? t.sending : t.send}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  const handleSendMessage = async (message) => {
+    if (!session) {
+      router.push("/pages/authorization/log_in")
+      return
+    }
+    
+    setSendingMessage(true)
+    setMessageError("")
+    
+    try {
+      // Add a clear flag to indicate this is a patient-initiated conversation
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          doctorId: doctor.id,
+          initialMessage: message,
+          isPatientInitiated: true // Add this flag to help the API identify the sender type
+        }),
+      })
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to start conversation");
+      }
+      
+      const data = await response.json();
+      
+      // Close modal and navigate to messages page
+      setShowMessageModal(false);
+      router.push("/messages");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessageError(error.message);
+    } finally {
+      setSendingMessage(false);
+    }
+  }
+  
   // Get doctor's specialty institution based on ID
   const getSpecialtyInstitution = () => {
     if (id === 1) {
@@ -601,6 +750,15 @@ export default function DoctorDetailPage() {
                 >
                   {t.bookAppointment}
                 </motion.button>
+                <motion.button
+                onClick={() => setShowMessageModal(true)}
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <MessageCircle size={18} />
+                {translations?.buttons?.sendMessage || "Send Message"}
+              </motion.button>
               </motion.div>
             </motion.div>
           </div>
@@ -924,6 +1082,14 @@ export default function DoctorDetailPage() {
             </AnimatePresence>
           </div>
         </motion.div>
+        {/* Message Modal */}
+        <MessageModal
+          isOpen={showMessageModal}
+          onClose={() => setShowMessageModal(false)}
+          onSend={handleSendMessage}
+          loading={sendingMessage}
+          doctorName={doctor.name}
+        />
       </div>
     </div>
   )

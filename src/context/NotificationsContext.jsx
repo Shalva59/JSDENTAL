@@ -90,10 +90,30 @@ export function NotificationsProvider({ children }) {
     }
   }
 
+  // Fetch unread message count
+  const fetchUnreadMessageCount = async () => {
+    if (!session) return;
+
+    try {
+      const response = await fetch("/api/conversations?countOnly=true");
+      if (response.ok) {
+        const data = await response.json();
+        // You can combine with notifications or handle separately
+        setUnreadCount(prev => prev + (data.unreadCount || 0));
+      }
+    } catch (error) {
+      console.error("Error fetching unread message count:", error);
+    }
+  };
+
   // Refresh notifications
   const refresh = async () => {
-    await Promise.all([fetchNotifications(), fetchUnreadCount()])
-  }
+    await Promise.all([
+      fetchNotifications(), 
+      fetchUnreadCount(),
+      fetchUnreadMessageCount()
+    ]);
+  };
 
   // Initial fetch when session is available
   useEffect(() => {
@@ -108,6 +128,7 @@ export function NotificationsProvider({ children }) {
 
     const interval = setInterval(() => {
       fetchUnreadCount()
+      fetchUnreadMessageCount();
     }, 30000) // 30 seconds
 
     return () => clearInterval(interval)

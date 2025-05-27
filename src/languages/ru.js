@@ -423,5 +423,13 @@ export const ru = {
       support: "Поддержка",
     },
   },
-
+  sendMessage: "Отправить сообщение",
+  messages: {
+    title: "Сообщения",
+    noMessages: "Сообщений нет",
+    sendMessage: "Отправить сообщение",
+    startConversation: "Начать разговор с врачом",
+    pendingApproval: "Ожидает подтверждения",
+    waitingForDoctor: "Ожидание подтверждения врача"
+  }
 }

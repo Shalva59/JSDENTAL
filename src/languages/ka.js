@@ -433,5 +433,13 @@ dentalSection: {
       support: "მხარდაჭერა",
     },
   },
-  
+  sendMessage: "შეტყობინების გაგზავნა",
+  messages: {
+    title: "შეტყობინებები",
+    noMessages: "შეტყობინებები არ არის",
+    sendMessage: "შეტყობინების გაგზავნა",
+    startConversation: "დაიწყეთ საუბარი ექიმთან",
+    pendingApproval: "ელოდება დამტკიცებას",
+    waitingForDoctor: "ექიმის დამტკიცების მოლოდინში"
+  }
 }

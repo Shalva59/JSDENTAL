@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
 import Link from "next/link"
-import { Calendar, Clock, User, Phone, Mail, AlertCircle, CheckCircle, XCircle, RefreshCw, Trash2 } from "lucide-react"
+import { Calendar, Clock, User, Phone, Mail, AlertCircle, CheckCircle, XCircle, RefreshCw, Trash2, MessageCircle } from "lucide-react"
 
 export default function AppointmentsPage() {
   const { data: session, status } = useSession()
@@ -72,6 +72,7 @@ export default function AppointmentsPage() {
       noAppointmentsUser: "თქვენ ჯერ არ გაქვთ ჯავშნები",
       createNewAppointment: "ახალი ჯავშნის შექმნა",
       login: "შესვლა",
+      messagePatient: "პაციენტთან საუბარი", // Georgian
       statuses: {
         pending: "მოლოდინში",
         approved: "დამტკიცებული",
@@ -123,6 +124,7 @@ export default function AppointmentsPage() {
       noAppointmentsUser: "You don't have any appointments yet",
       createNewAppointment: "Create New Appointment",
       login: "Login",
+      messagePatient: "Message Patient", 
       statuses: {
         pending: "Pending",
         approved: "Approved",
@@ -174,6 +176,7 @@ export default function AppointmentsPage() {
       noAppointmentsUser: "У вас пока нет записей",
       createNewAppointment: "Создать новую запись",
       login: "Войти",
+      messagePatient: "Сообщение пациенту",
       statuses: {
         pending: "В ожидании",
         approved: "Одобрено",
@@ -225,6 +228,7 @@ export default function AppointmentsPage() {
       noAppointmentsUser: "אין לך תורים עדיין",
       createNewAppointment: "צור תור חדש",
       login: "התחבר",
+      messagePatient: "שלח הודעה למטופל",
       statuses: {
         pending: "ממתין",
         approved: "מאושר",
@@ -384,6 +388,33 @@ export default function AppointmentsPage() {
       </div>
     )
   }
+
+  const startConversation = async (appointment) => {
+    if (!appointment || !appointment.patientInfo) return;
+    
+    try {
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: appointment.userId,
+          patientName: `${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName}`,
+          initialMessage: `Hello ${appointment.patientInfo.firstName}, I'm following up on your appointment for ${appointment.serviceName}.`
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to start conversation");
+      }
+      
+      const data = await response.json();
+      router.push("/messages");
+    } catch (error) {
+      console.error("Error starting conversation:", error);
+    }
+  };
 
   if (!session) {
     return (
@@ -628,7 +659,15 @@ export default function AppointmentsPage() {
                           </button>
                         </>
                       )}
-
+                      {userIsDoctor && (
+                        <button
+                          onClick={() => startConversation(appointment)}
+                          className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-xs sm:text-sm"
+                        >
+                          <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                          {t.messagePatient || "Message Patient"}
+                        </button>
+                      )}
                       {(appointment.status === "pending" || appointment.status === "approved") && (
                         <button
                           onClick={() => openActionModal(appointment, "cancel")}
