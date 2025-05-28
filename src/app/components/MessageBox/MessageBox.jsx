@@ -414,33 +414,39 @@ export default function MessageBox() {
   // Render file attachment preview
   const renderAttachmentPreview = (attachment) => {
     if (attachment.type.startsWith("image/")) {
+      // Use thumbnail for preview if available, otherwise use full image
+      const imageUrl = attachment.thumbnailName ? 
+        `/api/files/${attachment.thumbnailName}?thumbnail=true` : 
+        `/api/files/${attachment.fileName}`;
+      
       return (
         <div
           className="cursor-pointer overflow-hidden rounded-2xl relative bg-gray-100"
-          onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
+          onClick={() => setViewingImage(`/api/files/${attachment.fileName}`)}
           style={{ maxWidth: "260px" }}
         >
           <img
-            src={`data:${attachment.type};base64,${attachment.data}`}
+            src={imageUrl}
             alt="Attachment"
             className="w-full h-auto object-cover"
+            loading="lazy"
           />
           <div className="absolute top-2 right-2">
-            <motion.button
+            <motion.a
+              href={`/api/files/${attachment.fileName}`}
+              download={attachment.name}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation()
-                downloadAttachment(attachment)
-              }}
-              className="bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full hover:bg-black/70 transition-all duration-200"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full hover:bg-black/70 transition-all duration-200 inline-block"
             >
               <Download className="w-3.5 h-3.5" />
-            </motion.button>
+            </motion.a>
           </div>
         </div>
       )
     } else {
+      // For non-image files
       return (
         <div className="bg-gray-50 rounded-xl overflow-hidden shadow-sm" style={{ maxWidth: "260px" }}>
           <div className="flex items-center p-4">
@@ -452,15 +458,14 @@ export default function MessageBox() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{attachment.name || "file"}</p>
               <p className="text-xs text-gray-500 mb-1">{formatFileSize(attachment.size)}</p>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  downloadAttachment(attachment)
-                }}
+              <a
+                href={`/api/files/${attachment.fileName}`}
+                download={attachment.name}
+                onClick={(e) => e.stopPropagation()}
                 className="text-sm text-blue-600 font-medium hover:text-blue-700"
               >
                 {t.downloadFile}
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -840,12 +845,14 @@ export default function MessageBox() {
 
                                 {/* Render attachments if any */}
                                 {message.attachments && message.attachments.length > 0 && (
-                                  <div className={`${message.content ? "mt-2" : ""}`}>
-                                    {message.attachments.map((attachment, idx) => (
-                                      <div key={idx} className={`${idx > 0 ? "mt-2" : ""}`}>
-                                        {renderAttachmentPreview(attachment)}
-                                      </div>
-                                    ))}
+                                  <div className={`mt-2 ${message.content ? "pt-2 border-t border-gray-200/30" : ""}`}>
+                                    <div className="space-y-2">
+                                      {message.attachments.map((attachment, idx) => (
+                                        <div key={idx} className="flex flex-col items-start">
+                                          {renderAttachmentPreview(attachment)}
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 )}
 
@@ -1124,7 +1131,7 @@ export default function MessageBox() {
                 <X className="w-6 h-6" />
               </motion.button>
               <img
-                src={viewingImage || "/placeholder.svg"}
+                src={viewingImage}
                 alt="Full size attachment"
                 className="max-w-full max-h-[95vh] object-contain"
                 onClick={(e) => e.stopPropagation()}
