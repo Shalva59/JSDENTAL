@@ -47,7 +47,8 @@
     "resend": "^4.2.0",
     "swiper": "^11.2.5",
     "three": "^0.174.0",
-    "tw-elements": "^2.0.0"
+    "tw-elements": "^2.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.26.3",

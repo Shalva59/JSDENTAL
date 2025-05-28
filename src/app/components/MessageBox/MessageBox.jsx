@@ -1,3 +1,5 @@
+// src/app/components/MessageBox/MessageBox.jsx
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -12,7 +14,14 @@ import {
   ChevronLeft,
   Clock,
   Check,
-  User
+  User,
+  Paperclip,
+  Image,
+  Camera,
+  File,
+  CheckCircle,
+  XCircle,
+  AlertTriangle
 } from "lucide-react"
 
 export default function MessageBox() {
@@ -31,6 +40,10 @@ export default function MessageBox() {
   const [isDoctor, setIsDoctor] = useState(false)
   const messagesEndRef = useRef(null)
   const [hasConversations, setHasConversations] = useState(false)
+  const fileInputRef = useRef(null)
+  const [selectedFiles, setSelectedFiles] = useState([])
+  const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
+  const [approving, setApproving] = useState(false)
 
   // Translations
   const texts = {
@@ -40,7 +53,18 @@ export default function MessageBox() {
       noConversations: "საუბრები არ არის",
       back: "უკან",
       send: "გაგზავნა",
-      pendingApproval: "დამტკიცების მოლოდინში"
+      pendingApproval: "დამტკიცების მოლოდინში",
+      approveConversation: "დაამტკიცეთ საუბარი",
+      approving: "მტკიცდება...",
+      attachFile: "დაამატეთ ფაილი",
+      photoGallery: "ფოტო გალერეა",
+      takePhoto: "გადაიღეთ ფოტო",
+      document: "დოკუმენტი",
+      removeFile: "წაშლა",
+      fileTooLarge: "ფაილი ძალიან დიდია (მაქს. 50MB)",
+      conversationApproved: "საუბარი დამტკიცებულია",
+      attachments: "მიმაგრებული ფაილები",
+      downloadFile: "ჩამოტვირთვა"
     },
     en: {
       messages: "Messages",
@@ -48,7 +72,18 @@ export default function MessageBox() {
       noConversations: "No conversations",
       back: "Back",
       send: "Send",
-      pendingApproval: "Pending approval"
+      pendingApproval: "Pending approval",
+      approveConversation: "Approve Conversation",
+      approving: "Approving...",
+      attachFile: "Attach File",
+      photoGallery: "Photo Gallery",
+      takePhoto: "Take Photo",
+      document: "Document",
+      removeFile: "Remove",
+      fileTooLarge: "File too large (max 50MB)",
+      conversationApproved: "Conversation approved",
+      attachments: "Attachments",
+      downloadFile: "Download"
     },
     ru: {
       messages: "Сообщения",
@@ -56,7 +91,18 @@ export default function MessageBox() {
       noConversations: "Нет разговоров",
       back: "Назад",
       send: "Отправить",
-      pendingApproval: "Ожидает подтверждения"
+      pendingApproval: "Ожидает подтверждения",
+      approveConversation: "Подтвердить разговор",
+      approving: "Подтверждение...",
+      attachFile: "Прикрепить файл",
+      photoGallery: "Фотогалерея",
+      takePhoto: "Сделать фото",
+      document: "Документ",
+      removeFile: "Удалить",
+      fileTooLarge: "Файл слишком большой (макс. 50MB)",
+      conversationApproved: "Разговор подтвержден",
+      attachments: "Вложения",
+      downloadFile: "Скачать"
     },
     he: {
       messages: "הודעות",
@@ -64,7 +110,18 @@ export default function MessageBox() {
       noConversations: "אין שיחות",
       back: "חזור",
       send: "שלח",
-      pendingApproval: "ממתין לאישור"
+      pendingApproval: "ממתין לאישור",
+      approveConversation: "אשר שיחה",
+      approving: "מאשר...",
+      attachFile: "צרף קובץ",
+      photoGallery: "גלריית תמונות",
+      takePhoto: "צלם תמונה",
+      document: "מסמך",
+      removeFile: "הסר",
+      fileTooLarge: "קובץ גדול מדי (מקסימום 50MB)",
+      conversationApproved: "השיחה אושרה",
+      attachments: "קבצים מצורפים",
+      downloadFile: "הורד"
     }
   }
 
@@ -116,29 +173,120 @@ export default function MessageBox() {
     await fetchMessages(conversation._id)
   }
 
-  // Send message
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    if (!newMessage.trim() || !selectedConversation) return
+  // Handle file selection
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files)
     
-    setSending(true)
+    // Check file size
+    const validFiles = files.filter(file => {
+      if (file.size > 50 * 1024 * 1024) {
+        alert(t.fileTooLarge)
+        return false
+      }
+      return true
+    })
+    
+    setSelectedFiles(prev => [...prev, ...validFiles])
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+    
+    // Close attachment menu
+    setAttachmentMenuOpen(false)
+  }
+  
+  // Remove selected file
+  const removeFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+  
+  // Get file icon based on type
+  const getFileIcon = (file) => {
+    if (file.type.startsWith('image/')) {
+      return <Image className="w-5 h-5" />
+    } else if (file.type.startsWith('video/')) {
+      return <Camera className="w-5 h-5" />
+    } else {
+      return <File className="w-5 h-5" />
+    }
+  }
+  
+  // Format file size
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  // Approve conversation (for doctors)
+  const handleApproveConversation = async () => {
+    if (!isDoctor || !selectedConversation) return
+    
+    setApproving(true)
     try {
-      const response = await fetch(`/api/conversations/${selectedConversation._id}/messages`, {
-        method: 'POST',
+      const response = await fetch(`/api/conversations/${selectedConversation._id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ content: newMessage })
+        body: JSON.stringify({ approved: true })
       })
       
       if (response.ok) {
-        const data = await response.json()
-        setMessages(prev => [...prev, data.message])
-        setNewMessage("")
+        // Update local state
+        setSelectedConversation({
+          ...selectedConversation,
+          approved: true
+        })
         
-        // Update conversation list
+        // Refresh conversations list
         fetchConversations()
       }
+    } catch (error) {
+      console.error("Error approving conversation:", error)
+    } finally {
+      setApproving(false)
+    }
+  }
+
+  // Send message with or without attachments
+  const handleSendMessage = async (e) => {
+    e.preventDefault()
+    if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return
+    
+    setSending(true)
+    try {
+      // Create FormData to handle file uploads
+      const formData = new FormData()
+      formData.append('content', newMessage)
+      
+      // Add files if any
+      selectedFiles.forEach(file => {
+        formData.append('files', file)
+      })
+      
+      const response = await fetch(`/api/conversations/${selectedConversation._id}/messages`, {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to send message")
+      }
+      
+      const data = await response.json()
+      
+      // Add the new message to the list
+      setMessages(prev => [...prev, data.message])
+      
+      // Clear input and selected files
+      setNewMessage("")
+      setSelectedFiles([])
+      
+      // Refresh conversations list to update last message
+      fetchConversations()
     } catch (error) {
       console.error("Error sending message:", error)
     } finally {
@@ -157,6 +305,43 @@ export default function MessageBox() {
   const formatTime = (timestamp) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+  
+  // Render file attachment preview
+  const renderAttachmentPreview = (attachment) => {
+    if (attachment.type.startsWith('image/')) {
+      return (
+        <div className="relative border border-gray-200 rounded-md overflow-hidden">
+          <img 
+            src={`data:${attachment.type};base64,${attachment.data}`} 
+            alt="Attachment" 
+            className="max-w-[150px] max-h-[150px] object-contain"
+          />
+        </div>
+      )
+    } else {
+      // For non-image files, show file info
+      return (
+        <div className="flex items-center gap-2 border border-gray-200 rounded-md p-2 bg-gray-50">
+          {attachment.type.startsWith('video/') ? 
+            <Camera className="w-5 h-5 text-blue-500" /> : 
+            <File className="w-5 h-5 text-blue-500" />
+          }
+          <div className="overflow-hidden">
+            <p className="text-xs font-medium truncate">{attachment.name}</p>
+            <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+          </div>
+          <a 
+            href={`data:${attachment.type};base64,${attachment.data}`} 
+            download={attachment.name}
+            className="text-blue-500 text-xs ml-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            {t.downloadFile}
+          </a>
+        </div>
+      )
+    }
   }
 
   // Don't render if no session or no conversations
@@ -208,6 +393,14 @@ export default function MessageBox() {
                       ? selectedConversation.patientName 
                       : `Dr. ${selectedConversation.doctorName}`}
                   </span>
+                  
+                  {/* Show approval status */}
+                  {!selectedConversation.approved && (
+                    <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {t.pendingApproval}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <span className="font-medium">{t.messages}</span>
@@ -255,20 +448,27 @@ export default function MessageBox() {
                               <User className="w-5 h-5 text-gray-500" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-800 truncate">
-                                {isDoctor 
-                                  ? conversation.patientName 
-                                  : `Dr. ${conversation.doctorName}`}
-                              </h4>
+                              <div className="flex justify-between">
+                                <h4 className="font-medium text-gray-800 truncate">
+                                  {isDoctor 
+                                    ? conversation.patientName 
+                                    : `Dr. ${conversation.doctorName}`}
+                                </h4>
+                                
+                                {/* Approval status indicator */}
+                                {!conversation.approved && (
+                                  <span className="ml-2">
+                                    <Clock className="w-4 h-4 text-amber-500" />
+                                  </span>
+                                )}
+                              </div>
+                              
                               {conversation.lastMessage && (
                                 <p className="text-sm text-gray-500 truncate">
                                   {conversation.lastMessage}
                                 </p>
                               )}
                             </div>
-                            {!conversation.approved && (
-                              <Clock className="w-4 h-4 text-yellow-500" />
-                            )}
                           </div>
                         </div>
                       ))
@@ -276,41 +476,186 @@ export default function MessageBox() {
                   </div>
                 ) : (
                   <>
-                    {/* Messages area */}
-                    <div className="h-[350px] overflow-y-auto p-3 bg-gray-50">
-                      {messages.map((message) => {
-                        const isOwnMessage = 
-                          (isDoctor && message.senderType === 'doctor') ||
-                          (!isDoctor && message.senderType === 'user')
-                        
-                        return (
-                          <div
-                            key={message._id}
-                            className={`mb-3 ${isOwnMessage ? 'text-right' : 'text-left'}`}
-                          >
-                            <div
-                              className={`inline-block max-w-[70%] p-2 rounded-lg ${
-                                isOwnMessage
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-800 border border-gray-200'
-                              }`}
-                            >
-                              <p className="text-sm">{message.content}</p>
-                              <p className={`text-xs mt-1 ${
-                                isOwnMessage ? 'text-blue-200' : 'text-gray-500'
-                              }`}>
-                                {formatTime(message.timestamp)}
-                              </p>
-                            </div>
+                    {/* Doctor approval banner */}
+                    {isDoctor && !selectedConversation.approved && (
+                      <div className="bg-amber-50 p-3 border-b border-amber-100">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-amber-800">
+                            <AlertTriangle className="w-5 h-5" />
+                            <span className="text-sm font-medium">{t.pendingApproval}</span>
                           </div>
-                        )
-                      })}
-                      <div ref={messagesEndRef} />
+                          <button 
+                            onClick={handleApproveConversation}
+                            disabled={approving}
+                            className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-md flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {approving ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                <span>{t.approving}</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-3 h-3" />
+                                <span>{t.approveConversation}</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Messages area */}
+                    <div className="h-[calc(100%-155px)] overflow-y-auto p-3 bg-gray-50">
+                      {messages.length > 0 ? (
+                        <div className="space-y-4">
+                          {messages.map((message) => {
+                            const isOwnMessage = 
+                              (isDoctor && message.senderType === 'doctor') ||
+                              (!isDoctor && message.senderType === 'user')
+                            
+                            return (
+                              <div
+                                key={message._id}
+                                className={`mb-3 ${isOwnMessage ? 'text-right' : 'text-left'}`}
+                              >
+                                <div
+                                  className={`inline-block max-w-[70%] p-2 rounded-lg ${
+                                    isOwnMessage
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-white text-gray-800 border border-gray-200'
+                                  }`}
+                                >
+                                  {message.content && (
+                                    <p className="text-sm">{message.content}</p>
+                                  )}
+                                  
+                                  {/* Render attachments if any */}
+                                  {message.attachments && message.attachments.length > 0 && (
+                                    <div className={`mt-2 ${message.content ? 'pt-2 border-t border-gray-200/30' : ''}`}>
+                                      <div className="space-y-2">
+                                        {message.attachments.map((attachment, idx) => (
+                                          <div key={idx} className="flex flex-col items-start">
+                                            {renderAttachmentPreview(attachment)}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  <p className={`text-xs mt-1 ${
+                                    isOwnMessage ? 'text-blue-200' : 'text-gray-500'
+                                  }`}>
+                                    {formatTime(message.timestamp)}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center text-gray-500">
+                            <MessageCircle className="w-10 h-10 mx-auto mb-2" />
+                            <p>{t.noConversations}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Selected files preview */}
+                    {selectedFiles.length > 0 && (
+                      <div className="max-h-20 overflow-y-auto border-t border-gray-200 p-2 bg-gray-50">
+                        <div className="flex flex-wrap gap-2">
+                          {selectedFiles.map((file, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-white p-1 rounded border border-gray-200">
+                              {getFileIcon(file)}
+                              <span className="text-xs truncate max-w-[80px]">{file.name}</span>
+                              <button 
+                                onClick={() => removeFile(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Message input */}
                     <form onSubmit={handleSendMessage} className="p-3 border-t border-gray-200">
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
+                        {/* Attachment button with dropdown */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setAttachmentMenuOpen(!attachmentMenuOpen)}
+                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full"
+                          >
+                            <Paperclip className="w-5 h-5" />
+                          </button>
+                          
+                          {/* File input (hidden) */}
+                          <input 
+                            type="file" 
+                            ref={fileInputRef}
+                            onChange={handleFileSelect} 
+                            className="hidden" 
+                            multiple 
+                          />
+                          
+                          {/* Attachment dropdown menu */}
+                          {attachmentMenuOpen && (
+                            <div className="absolute bottom-full left-0 mb-1 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden z-10">
+                              <div className="py-1">
+                                <button
+                                  type="button"
+                                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+                                  onClick={() => {
+                                    fileInputRef.current.click();
+                                    // Don't close menu here, it will be closed when files are selected
+                                  }}
+                                >
+                                  <Image className="w-4 h-4 text-blue-500" />
+                                  {t.photoGallery}
+                                </button>
+                                
+                                <button
+                                  type="button"
+                                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+                                  onClick={() => {
+                                    // For this example, we'll just use the file input with accept="image/*"
+                                    // In a real app, you'd use the device camera API
+                                    fileInputRef.current.accept = "image/*";
+                                    fileInputRef.current.capture = "camera";
+                                    fileInputRef.current.click();
+                                    fileInputRef.current.accept = "";
+                                    fileInputRef.current.capture = "";
+                                  }}
+                                >
+                                  <Camera className="w-4 h-4 text-green-500" />
+                                  {t.takePhoto}
+                                </button>
+                                
+                                <button
+                                  type="button"
+                                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+                                  onClick={() => {
+                                    fileInputRef.current.click();
+                                    // Don't close menu here, it will be closed when files are selected
+                                  }}
+                                >
+                                  <File className="w-4 h-4 text-orange-500" />
+                                  {t.document}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Message input */}
                         <input
                           type="text"
                           value={newMessage}
@@ -318,24 +663,42 @@ export default function MessageBox() {
                           placeholder={t.typeMessage}
                           className="flex-1 p-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           disabled={
-                            (!selectedConversation.approved && !isDoctor && 
-                             messages.filter(m => m.senderType === 'user').length >= 1) ||
+                            (!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1) ||
                             sending
                           }
                         />
+                        
+                        {/* Send button */}
                         <button
                           type="submit"
-                          disabled={!newMessage.trim() || sending}
-                          className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+                          disabled={
+                            (!newMessage.trim() && selectedFiles.length === 0) || 
+                            sending ||
+                            (!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1)
+                          }
+                          className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
-                          <Send className="w-4 h-4" />
+                          {sending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                       
-                      {!selectedConversation.approved && !isDoctor && 
-                       messages.filter(m => m.senderType === 'user').length >= 1 && (
-                        <p className="text-xs text-yellow-600 mt-1">
+                      {/* Message limit warning */}
+                      {!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1 && (
+                        <p className="text-xs text-yellow-600 mt-1 px-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
                           {t.pendingApproval}
+                        </p>
+                      )}
+                      
+                      {/* Show approved status */}
+                      {selectedConversation.approved && (
+                        <p className="text-xs text-green-600 mt-1 px-2 flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          {t.conversationApproved}
                         </p>
                       )}
                     </form>
