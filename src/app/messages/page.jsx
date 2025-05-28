@@ -455,11 +455,11 @@ export default function MessagesPage() {
   }
   
   // Scroll to bottom when messages update
-  useEffect(() => {
-    if (messagesEndRef.current && messages.length > 0) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+  // useEffect(() => {
+  //   if (messagesEndRef.current && messages.length > 0) {
+  //     messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // }, [messages]);
 
   // Loading state
   if (authStatus === "loading") {
