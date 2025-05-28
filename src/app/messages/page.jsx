@@ -44,7 +44,8 @@ export default function MessagesPage() {
   const [selectedFiles, setSelectedFiles] = useState([])
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
   const [approving, setApproving] = useState(false)
-  
+  const [viewingImage, setViewingImage] = useState(null);
+
   // Translations
   const texts = {
     ka: {
@@ -397,7 +398,8 @@ export default function MessagesPage() {
           <img 
             src={`data:${attachment.type};base64,${attachment.data}`} 
             alt="Attachment" 
-            className="max-w-[150px] max-h-[150px] object-contain"
+            className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
+            onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
           />
         </div>
       )
@@ -425,6 +427,7 @@ export default function MessagesPage() {
       )
     }
   }
+
 
   // Format timestamp
   const formatMessageTime = (timestamp) => {
@@ -820,6 +823,31 @@ export default function MessagesPage() {
                     </p>
                   )}
                 </form>
+                {/* Image viewer modal */}
+                {viewingImage && (
+                  <div 
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    onClick={() => setViewingImage(null)}
+                  >
+                    <div className="relative max-w-[90vw] max-h-[90vh]">
+                      <button 
+                        className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingImage(null);
+                        }}
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                      <img 
+                        src={viewingImage} 
+                        alt="Full size attachment" 
+                        className="max-w-full max-h-[90vh] object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="hidden md:flex md:w-2/3 items-center justify-center bg-gray-50">
