@@ -114,21 +114,13 @@ export async function createMessage(messageData) {
   try {
     const db = await getDatabase();
     
-    // Process attachments - now they're just metadata, not the actual files
-    const attachments = messageData.attachments || [];
-    
     const newMessage = {
       ...messageData,
       conversationId: new ObjectId(messageData.conversationId),
       timestamp: new Date(),
       read: false,
-      attachments: attachments.map(attachment => ({
-        id: attachment.fileId,
-        name: attachment.fileName, 
-        path: attachment.filePath,
-        type: attachment.fileType,
-        size: attachment.fileSize
-      }))
+      // Add attachments support
+      attachments: messageData.attachments || []
     };
     
     const result = await db.collection(MESSAGES_COLLECTION).insertOne(newMessage);

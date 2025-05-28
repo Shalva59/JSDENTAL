@@ -29,7 +29,7 @@ export default function MessagesPage() {
   const { currentLanguage, direction } = useLanguage()
   const isRTL = direction === "rtl"
   
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [messages, setMessages] = useState([])
@@ -45,8 +45,6 @@ export default function MessagesPage() {
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
   const [approving, setApproving] = useState(false)
   const [viewingImage, setViewingImage] = useState(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
   // Translations
   const texts = {
@@ -244,61 +242,6 @@ export default function MessagesPage() {
     setRefreshing(false)
   }
 
-  const fetchMessages = async (conversationId, pageNum = 1, append = false) => {
-    if (loading) return;
-    
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/conversations/${conversationId}/messages?page=${pageNum}&limit=20`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-      
-      const data = await response.json();
-      
-      // Update hasMore flag
-      setHasMore(data.messages.length === 20);
-      
-      // Either append messages or replace them
-      if (append) {
-        setMessages(prev => [...prev, ...data.messages]);
-      } else {
-        setMessages(data.messages || []);
-      }
-      
-      // Update page number
-      setPage(pageNum);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load more messages
-  const loadMoreMessages = () => {
-    if (hasMore && !loading && selectedConversation) {
-      fetchMessages(selectedConversation._id, page + 1, true);
-    }
-  };
-
-  // Add a "Load More" button at the top of the messages area
-  <div className="overflow-y-auto p-4 bg-gray-50">
-    {hasMore && (
-      <div className="text-center mb-4">
-        <button
-          onClick={loadMoreMessages}
-          disabled={loading}
-          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 disabled:opacity-50"
-        >
-          {loading ? "Loading..." : "Load More"}
-        </button>
-      </div>
-    )}
-    {/* Messages list... */}
-  </div>
   // Select a conversation
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
@@ -451,46 +394,49 @@ export default function MessagesPage() {
   const renderAttachmentPreview = (attachment) => {
     if (attachment.type.startsWith('image/')) {
       return (
-        <div className="relative border border-gray-200 rounded-md overflow-hidden">
+        <div className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
           <img 
-            src={attachment.path} 
+            src={`data:${attachment.type};base64,${attachment.data}`} 
             alt="Attachment" 
             className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
-            onClick={() => setViewingImage(attachment.path)}
-            loading="lazy" // Add lazy loading for images
+            onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
           />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(attachment.path, '_blank');
-            }}
-            className="absolute bottom-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded opacity-80 hover:opacity-100"
-          >
-            {t.downloadFile}
-          </button>
         </div>
-      );
+      )
     } else {
-      // For non-image files
+      // For non-image files, show file info with better mobile layout
       return (
-        <div className="flex items-center gap-2 border border-gray-200 rounded-md p-2 bg-gray-50">
-          {/* File icon based on type */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{attachment.name}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+        <div className="w-full flex flex-wrap items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-gray-50 dark:bg-gray-700">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {attachment.type.startsWith('video/') ? 
+              <Camera className="w-5 h-5 text-blue-500 flex-shrink-0" /> : 
+              <File className="w-5 h-5 text-blue-500 flex-shrink-0" />
+            }
+            <div className="overflow-hidden min-w-0 flex-1">
+              <p className="text-xs font-medium truncate text-gray-700 dark:text-gray-200">{attachment.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(attachment.size)}</p>
+            </div>
           </div>
-          <a
-            href={attachment.path}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2 py-1 text-xs text-white bg-blue-600 rounded hover:bg-blue-700"
-          >
-            {t.downloadFile}
-          </a>
+          <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
+            <a 
+              href={`data:${attachment.type};base64,${attachment.data}`} 
+              download={attachment.name}
+              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Mobile workaround
+                if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                  alert(t.longPressToDownload || "For mobile: long-press and select 'Save Image' or 'Download'");
+                }
+              }}
+            >
+              {t.downloadFile}
+            </a>
+          </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   // Add this function to your component (before the return statement)
   const downloadAttachment = (attachment) => {

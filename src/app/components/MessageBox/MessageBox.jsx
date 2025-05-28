@@ -348,72 +348,46 @@ export default function MessageBox() {
 
   // Send message with or without attachments
   const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return;
+    e.preventDefault()
+    if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return
 
-    setSending(true);
+    setSending(true)
     try {
-      // Upload files first if present
-      const uploadedAttachments = [];
-      
-      if (selectedFiles.length > 0) {
-        for (const file of selectedFiles) {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("conversationId", selectedConversation._id);
-          
-          const uploadResponse = await fetch("/api/upload", {
-            method: "POST",
-            body: formData
-          });
-          
-          if (!uploadResponse.ok) {
-            throw new Error("Failed to upload file");
-          }
-          
-          const fileData = await uploadResponse.json();
-          uploadedAttachments.push(fileData);
-        }
-      }
-      
-      // Send message with attachment references
-      const messageData = {
-        conversationId: selectedConversation._id,
-        content: newMessage,
-        senderType: isDoctor ? "doctor" : "user",
-        attachments: uploadedAttachments
-      };
-      
-      const messageResponse = await fetch(`/api/conversations/${selectedConversation._id}/messages`, {
+      // Create FormData to handle file uploads
+      const formData = new FormData()
+      formData.append("content", newMessage)
+
+      // Add files if any
+      selectedFiles.forEach((file) => {
+        formData.append("files", file)
+      })
+
+      const response = await fetch(`/api/conversations/${selectedConversation._id}/messages`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(messageData)
-      });
-      
-      if (!messageResponse.ok) {
-        throw new Error("Failed to send message");
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send message")
       }
-      
-      const data = await messageResponse.json();
-      
+
+      const data = await response.json()
+
       // Add the new message to the list
-      setMessages(prev => [...prev, data.message]);
-      
+      setMessages((prev) => [...prev, data.message])
+
       // Clear input and selected files
-      setNewMessage("");
-      setSelectedFiles([]);
-      
+      setNewMessage("")
+      setSelectedFiles([])
+
       // Refresh conversations list to update last message
-      fetchConversations();
+      fetchConversations()
     } catch (error) {
-      console.error("Error sending message:", error);
-      setError(error.message);
+      console.error("Error sending message:", error)
     } finally {
-      setSending(false);
+      setSending(false)
     }
-  };
+  }
 
   // Format time
   const formatTime = (timestamp) => {
@@ -439,48 +413,60 @@ export default function MessageBox() {
 
   // Render file attachment preview
   const renderAttachmentPreview = (attachment) => {
-    if (attachment.type.startsWith('image/')) {
+    if (attachment.type.startsWith("image/")) {
       return (
-        <div className="relative border border-gray-200 rounded-md overflow-hidden">
-          <img 
-            src={attachment.path} 
-            alt="Attachment" 
-            className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
-            onClick={() => setViewingImage(attachment.path)}
-            loading="lazy" // Add lazy loading for images
+        <div
+          className="cursor-pointer overflow-hidden rounded-2xl relative bg-gray-100"
+          onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
+          style={{ maxWidth: "260px" }}
+        >
+          <img
+            src={`data:${attachment.type};base64,${attachment.data}`}
+            alt="Attachment"
+            className="w-full h-auto object-cover"
           />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(attachment.path, '_blank');
-            }}
-            className="absolute bottom-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded opacity-80 hover:opacity-100"
-          >
-            {t.downloadFile}
-          </button>
-        </div>
-      );
-    } else {
-      // For non-image files
-      return (
-        <div className="flex items-center gap-2 border border-gray-200 rounded-md p-2 bg-gray-50">
-          {/* File icon based on type */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{attachment.name}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+          <div className="absolute top-2 right-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => {
+                e.stopPropagation()
+                downloadAttachment(attachment)
+              }}
+              className="bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full hover:bg-black/70 transition-all duration-200"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </motion.button>
           </div>
-          <a
-            href={attachment.path}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2 py-1 text-xs text-white bg-blue-600 rounded hover:bg-blue-700"
-          >
-            {t.downloadFile}
-          </a>
         </div>
-      );
+      )
+    } else {
+      return (
+        <div className="bg-gray-50 rounded-xl overflow-hidden shadow-sm" style={{ maxWidth: "260px" }}>
+          <div className="flex items-center p-4">
+            <div className="flex-shrink-0 mr-3">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
+                <File className="w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{attachment.name || "file"}</p>
+              <p className="text-xs text-gray-500 mb-1">{formatFileSize(attachment.size)}</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  downloadAttachment(attachment)
+                }}
+                className="text-sm text-blue-600 font-medium hover:text-blue-700"
+              >
+                {t.downloadFile}
+              </button>
+            </div>
+          </div>
+        </div>
+      )
     }
-  };
+  }
 
   // Don't render if no session or no conversations
   if (!session || !hasConversations) {
