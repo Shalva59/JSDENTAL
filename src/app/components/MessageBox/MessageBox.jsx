@@ -257,6 +257,39 @@ export default function MessageBox() {
     }
   }
 
+  // Add this function to your component (before the return statement)
+  const downloadAttachment = (attachment) => {
+    try {
+      // Create a blob from the base64 data
+      const byteCharacters = atob(attachment.data);
+      const byteArrays = [];
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays.push(byteCharacters.charCodeAt(i));
+      }
+      
+      const byteArray = new Uint8Array(byteArrays);
+      const blob = new Blob([byteArray], {type: attachment.type});
+      
+      // Create a temporary URL for the blob
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Create an invisible download link and click it
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = attachment.name || `download.${attachment.type.split('/')[1] || 'file'}`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Download failed. Please try again.");
+    }
+  }
+
   // Send message with or without attachments
   const handleSendMessage = async (e) => {
     e.preventDefault()
@@ -324,6 +357,15 @@ export default function MessageBox() {
             className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
             onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
           />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              downloadAttachment(attachment);
+            }}
+            className="absolute bottom-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded opacity-80 hover:opacity-100"
+          >
+            {t.downloadFile}
+          </button>
         </div>
       )
     } else {
@@ -341,20 +383,15 @@ export default function MessageBox() {
             </div>
           </div>
           <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
-            <a 
-              href={`data:${attachment.type};base64,${attachment.data}`} 
-              download={attachment.name}
-              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+            <button
               onClick={(e) => {
                 e.stopPropagation();
-                // Mobile workaround
-                if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                  alert(t.longPressToDownload || "For mobile: long-press and select 'Save Image' or 'Download'");
-                }
+                downloadAttachment(attachment);
               }}
+              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-600 rounded hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               {t.downloadFile}
-            </a>
+            </button>
           </div>
         </div>
       )
