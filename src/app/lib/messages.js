@@ -1,5 +1,6 @@
 import clientPromise from "./mongodb";
 import { ObjectId } from "mongodb";
+import { saveFile } from './fileStorage';
 
 const DB_NAME = "ValueMediaProject";
 const CONVERSATIONS_COLLECTION = "conversations";
@@ -114,23 +115,44 @@ export async function createMessage(messageData) {
   try {
     const db = await getDatabase();
     
+    // Process attachments - save to disk instead of storing base64
+    const processedAttachments = [];
+    if (messageData.attachments && messageData.attachments.length > 0) {
+      for (const attachment of messageData.attachments) {
+        // Convert base64 to buffer
+        const buffer = Buffer.from(attachment.data, 'base64');
+        
+        // Save to disk
+        const fileInfo = await saveFile(buffer, attachment.name, attachment.type);
+        
+        // Store only metadata in DB
+        processedAttachments.push({
+          name: attachment.name,
+          type: attachment.type,
+          size: attachment.size,
+          fileName: fileInfo.fileName,
+          thumbnailName: fileInfo.thumbnailName,
+          createdAt: new Date()
+        });
+      }
+    }
+    
     const newMessage = {
       ...messageData,
       conversationId: new ObjectId(messageData.conversationId),
       timestamp: new Date(),
       read: false,
-      // Add attachments support
-      attachments: messageData.attachments || []
+      attachments: processedAttachments // Only metadata
     };
     
     const result = await db.collection(MESSAGES_COLLECTION).insertOne(newMessage);
     
-    // Update conversation with last message info
+    // Update conversation
     await db.collection(CONVERSATIONS_COLLECTION).updateOne(
       { _id: new ObjectId(messageData.conversationId) },
       { 
         $set: { 
-          lastMessage: messageData.content || "Attachment",
+          lastMessage: messageData.content || (processedAttachments.length > 0 ? "📎 Attachment" : ""),
           lastMessageTime: new Date(),
           lastMessageSender: messageData.senderType,
           updatedAt: new Date()
@@ -141,6 +163,27 @@ export async function createMessage(messageData) {
     return { ...newMessage, _id: result.insertedId };
   } catch (error) {
     console.error("createMessage error:", error);
+    throw error;
+  }
+}
+
+// Add pagination to getMessagesByConversation
+export async function getMessagesByConversation(conversationId, page = 1, limit = 50) {
+  try {
+    const db = await getDatabase();
+    const skip = (page - 1) * limit;
+    
+    const messages = await db.collection(MESSAGES_COLLECTION)
+      .find({ conversationId: new ObjectId(conversationId) })
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    
+    // Reverse to get chronological order
+    return messages.reverse();
+  } catch (error) {
+    console.error("getMessagesByConversation error:", error);
     throw error;
   }
 }
