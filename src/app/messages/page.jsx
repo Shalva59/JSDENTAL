@@ -394,7 +394,7 @@ export default function MessagesPage() {
   const renderAttachmentPreview = (attachment) => {
     if (attachment.type.startsWith('image/')) {
       return (
-        <div className="relative border border-gray-200 rounded-md overflow-hidden">
+        <div className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
           <img 
             src={`data:${attachment.type};base64,${attachment.data}`} 
             alt="Attachment" 
@@ -404,25 +404,35 @@ export default function MessagesPage() {
         </div>
       )
     } else {
-      // For non-image files, show file info
+      // For non-image files, show file info with better mobile layout
       return (
-        <div className="flex items-center gap-2 border border-gray-200 rounded-md p-2 bg-gray-50">
-          {attachment.type.startsWith('video/') ? 
-            <Camera className="w-5 h-5 text-blue-500" /> : 
-            <File className="w-5 h-5 text-blue-500" />
-          }
-          <div className="overflow-hidden">
-            <p className="text-xs font-medium truncate">{attachment.name}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+        <div className="w-full flex flex-wrap items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-gray-50 dark:bg-gray-700">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {attachment.type.startsWith('video/') ? 
+              <Camera className="w-5 h-5 text-blue-500 flex-shrink-0" /> : 
+              <File className="w-5 h-5 text-blue-500 flex-shrink-0" />
+            }
+            <div className="overflow-hidden min-w-0 flex-1">
+              <p className="text-xs font-medium truncate text-gray-700 dark:text-gray-200">{attachment.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(attachment.size)}</p>
+            </div>
           </div>
-          <a 
-            href={`data:${attachment.type};base64,${attachment.data}`} 
-            download={attachment.name}
-            className="text-blue-500 text-xs ml-auto"
-            onClick={e => e.stopPropagation()}
-          >
-            {t.downloadFile}
-          </a>
+          <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
+            <a 
+              href={`data:${attachment.type};base64,${attachment.data}`} 
+              download={attachment.name}
+              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Mobile workaround
+                if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                  alert(t.longPressToDownload || "For mobile: long-press and select 'Save Image' or 'Download'");
+                }
+              }}
+            >
+              {t.downloadFile}
+            </a>
+          </div>
         </div>
       )
     }
@@ -623,7 +633,7 @@ export default function MessagesPage() {
                 </div>
                 
                 {/* Messages */}
-                <div className="flex-grow p-4 overflow-y-auto bg-gray-50">
+                <div className="flex-grow max-h-[calc(100vh-250px)] md:max-h-[calc(100vh-200px)] overflow-y-auto p-3 bg-gray-50 dark:bg-gray-900">
                   {messages.length > 0 ? (
                     <div className="space-y-4">
                       {messages.map((message) => {
@@ -638,14 +648,14 @@ export default function MessagesPage() {
                             className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-[75%] rounded-lg px-4 py-2 ${
+                              className={`inline-block max-w-[90%] sm:max-w-[75%] rounded-lg px-4 py-2 ${
                                 isOwnMessage
                                 ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-800 border border-gray-200'
+                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700'
                               }`}
                             >
                               {message.content && (
-                                <p>{message.content}</p>
+                                <p className="dark:text-inherit">{message.content}</p>
                               )}
                               
                               {/* Render attachments if any */}
@@ -663,7 +673,7 @@ export default function MessagesPage() {
                               
                               <div
                                 className={`text-xs mt-1 ${
-                                isOwnMessage ? 'text-blue-200' : 'text-gray-500'
+                                isOwnMessage ? 'text-blue-200' : 'text-gray-500 dark:text-gray-300'
                                 }`}
                               >
                                 {formatMessageTime(message.timestamp)}

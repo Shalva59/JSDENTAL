@@ -44,6 +44,7 @@ export default function MessageBox() {
   const [selectedFiles, setSelectedFiles] = useState([])
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
   const [approving, setApproving] = useState(false)
+  const [viewingImage, setViewingImage] = useState(null);
 
   // Translations
   const texts = {
@@ -64,7 +65,9 @@ export default function MessageBox() {
       fileTooLarge: "ფაილი ძალიან დიდია (მაქს. 50MB)",
       conversationApproved: "საუბარი დამტკიცებულია",
       attachments: "მიმაგრებული ფაილები",
-      downloadFile: "ჩამოტვირთვა"
+      downloadFile: "ჩამოტვირთვა",
+      longPressToDownload: "მობილურზე: ხანგრძლივად დააჭირეთ და აირჩიეთ 'სურათის შენახვა' ან 'ჩამოტვირთვა'",
+
     },
     en: {
       messages: "Messages",
@@ -83,7 +86,8 @@ export default function MessageBox() {
       fileTooLarge: "File too large (max 50MB)",
       conversationApproved: "Conversation approved",
       attachments: "Attachments",
-      downloadFile: "Download"
+      downloadFile: "Download",
+      longPressToDownload: "For mobile: long-press and select 'Save Image' or 'Download'",
     },
     ru: {
       messages: "Сообщения",
@@ -102,7 +106,8 @@ export default function MessageBox() {
       fileTooLarge: "Файл слишком большой (макс. 50MB)",
       conversationApproved: "Разговор подтвержден",
       attachments: "Вложения",
-      downloadFile: "Скачать"
+      downloadFile: "Скачать",
+      longPressToDownload: "Для мобильных: удерживайте и выберите 'Сохранить изображение' или 'Скачать'",
     },
     he: {
       messages: "הודעות",
@@ -121,7 +126,8 @@ export default function MessageBox() {
       fileTooLarge: "קובץ גדול מדי (מקסימום 50MB)",
       conversationApproved: "השיחה אושרה",
       attachments: "קבצים מצורפים",
-      downloadFile: "הורד"
+      downloadFile: "הורד",
+      longPressToDownload: "למכשירים ניידים: לחץ לחיצה ארוכה ובחר 'שמור תמונה' או 'הורד'",
     }
   }
 
@@ -311,34 +317,45 @@ export default function MessageBox() {
   const renderAttachmentPreview = (attachment) => {
     if (attachment.type.startsWith('image/')) {
       return (
-        <div className="relative border border-gray-200 rounded-md overflow-hidden">
+        <div className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
           <img 
             src={`data:${attachment.type};base64,${attachment.data}`} 
             alt="Attachment" 
-            className="max-w-[150px] max-h-[150px] object-contain"
+            className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
+            onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
           />
         </div>
       )
     } else {
-      // For non-image files, show file info
+      // For non-image files, show file info with better mobile layout
       return (
-        <div className="flex items-center gap-2 border border-gray-200 rounded-md p-2 bg-gray-50">
-          {attachment.type.startsWith('video/') ? 
-            <Camera className="w-5 h-5 text-blue-500" /> : 
-            <File className="w-5 h-5 text-blue-500" />
-          }
-          <div className="overflow-hidden">
-            <p className="text-xs font-medium truncate">{attachment.name}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+        <div className="w-full flex flex-wrap items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-gray-50 dark:bg-gray-700">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {attachment.type.startsWith('video/') ? 
+              <Camera className="w-5 h-5 text-blue-500 flex-shrink-0" /> : 
+              <File className="w-5 h-5 text-blue-500 flex-shrink-0" />
+            }
+            <div className="overflow-hidden min-w-0 flex-1">
+              <p className="text-xs font-medium truncate text-gray-700 dark:text-gray-200">{attachment.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(attachment.size)}</p>
+            </div>
           </div>
-          <a 
-            href={`data:${attachment.type};base64,${attachment.data}`} 
-            download={attachment.name}
-            className="text-blue-500 text-xs ml-auto"
-            onClick={e => e.stopPropagation()}
-          >
-            {t.downloadFile}
-          </a>
+          <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
+            <a 
+              href={`data:${attachment.type};base64,${attachment.data}`} 
+              download={attachment.name}
+              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Mobile workaround
+                if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                  alert(t.longPressToDownload || "For mobile: long-press and select 'Save Image' or 'Download'");
+                }
+              }}
+            >
+              {t.downloadFile}
+            </a>
+          </div>
         </div>
       )
     }
@@ -506,13 +523,13 @@ export default function MessageBox() {
                     )}
                     
                     {/* Messages area */}
-                    <div className="h-[calc(100%-165px)] overflow-y-auto p-3 bg-gray-50">
+                    <div className="h-[calc(100%-165px)] overflow-y-auto p-3 bg-gray-50 dark:bg-gray-900">
                       {messages.length > 0 ? (
                         <div className="space-y-4">
                           {messages.map((message) => {
                             const isOwnMessage = 
                               (isDoctor && message.senderType === 'doctor') ||
-                              (!isDoctor && message.senderType === 'user')
+                              (!isDoctor && message.senderType === 'user');
                             
                             return (
                               <div
@@ -520,14 +537,14 @@ export default function MessageBox() {
                                 className={`mb-3 ${isOwnMessage ? 'text-right' : 'text-left'}`}
                               >
                                 <div
-                                  className={`inline-block max-w-[70%] p-2 rounded-lg ${
+                                  className={`inline-block max-w-[90%] sm:max-w-[70%] p-2 rounded-lg ${
                                     isOwnMessage
                                       ? 'bg-blue-600 text-white'
-                                      : 'bg-white text-gray-800 border border-gray-200'
+                                      : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700'
                                   }`}
                                 >
                                   {message.content && (
-                                    <p className="text-sm">{message.content}</p>
+                                    <p className="text-sm dark:text-inherit">{message.content}</p>
                                   )}
                                   
                                   {/* Render attachments if any */}
@@ -544,7 +561,7 @@ export default function MessageBox() {
                                   )}
                                   
                                   <p className={`text-xs mt-1 ${
-                                    isOwnMessage ? 'text-blue-200' : 'text-gray-500'
+                                    isOwnMessage ? 'text-blue-200' : 'text-gray-500 dark:text-gray-300'
                                   }`}>
                                     {formatTime(message.timestamp)}
                                   </p>
@@ -704,6 +721,31 @@ export default function MessageBox() {
                           <CheckCircle className="w-3 h-3" />
                           {t.conversationApproved}
                         </p>
+                      )}
+                      {/* Image viewer modal */}
+                      {viewingImage && (
+                        <div 
+                          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[100]"
+                          onClick={() => setViewingImage(null)}
+                        >
+                          <div className="relative max-w-[90vw] max-h-[90vh]">
+                            <button 
+                              className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingImage(null);
+                              }}
+                            >
+                              <X className="w-6 h-6" />
+                            </button>
+                            <img 
+                              src={viewingImage} 
+                              alt="Full size attachment" 
+                              className="max-w-full max-h-[90vh] object-contain"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        </div>
                       )}
                     </form>
                   </>
