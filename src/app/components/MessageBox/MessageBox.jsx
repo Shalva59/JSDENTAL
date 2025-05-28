@@ -375,8 +375,8 @@ export default function MessageBox() {
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
             className={`fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} bg-white rounded-lg shadow-2xl z-50 overflow-hidden`}
             style={{
-              width: isMinimized ? '300px' : '350px',
-              height: isMinimized ? '60px' : '500px',
+              width: isMinimized ? '300px' : '380px', // Increased width
+              height: isMinimized ? '60px' : '550px', // Increased height
               maxHeight: 'calc(100vh - 120px)'
             }}
             dir={direction}
@@ -506,7 +506,7 @@ export default function MessageBox() {
                     )}
                     
                     {/* Messages area */}
-                    <div className="h-[calc(100%-155px)] overflow-y-auto p-3 bg-gray-50">
+                    <div className="h-[calc(100%-165px)] overflow-y-auto p-3 bg-gray-50">
                       {messages.length > 0 ? (
                         <div className="space-y-4">
                           {messages.map((message) => {
@@ -610,41 +610,45 @@ export default function MessageBox() {
                           {attachmentMenuOpen && (
                             <div className="absolute bottom-full left-0 mb-1 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden z-10">
                               <div className="py-1">
+                                {/* Photo Gallery */}
                                 <button
                                   type="button"
                                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
                                   onClick={() => {
+                                    fileInputRef.current.accept = "image/*,video/*";
+                                    fileInputRef.current.removeAttribute("capture");
                                     fileInputRef.current.click();
-                                    // Don't close menu here, it will be closed when files are selected
+                                    setAttachmentMenuOpen(false);
                                   }}
                                 >
                                   <Image className="w-4 h-4 text-blue-500" />
                                   {t.photoGallery}
                                 </button>
                                 
+                                {/* Camera */}
                                 <button
                                   type="button"
                                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
                                   onClick={() => {
-                                    // For this example, we'll just use the file input with accept="image/*"
-                                    // In a real app, you'd use the device camera API
                                     fileInputRef.current.accept = "image/*";
-                                    fileInputRef.current.capture = "camera";
+                                    fileInputRef.current.setAttribute("capture", "environment");
                                     fileInputRef.current.click();
-                                    fileInputRef.current.accept = "";
-                                    fileInputRef.current.capture = "";
+                                    setAttachmentMenuOpen(false);
                                   }}
                                 >
                                   <Camera className="w-4 h-4 text-green-500" />
                                   {t.takePhoto}
                                 </button>
                                 
+                                {/* Document */}
                                 <button
                                   type="button"
                                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
                                   onClick={() => {
+                                    fileInputRef.current.accept = ".pdf,.doc,.docx,.xls,.xlsx,.txt,application/*";
+                                    fileInputRef.current.removeAttribute("capture");
                                     fileInputRef.current.click();
-                                    // Don't close menu here, it will be closed when files are selected
+                                    setAttachmentMenuOpen(false);
                                   }}
                                 >
                                   <File className="w-4 h-4 text-orange-500" />
