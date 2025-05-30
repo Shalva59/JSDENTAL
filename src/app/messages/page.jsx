@@ -45,7 +45,9 @@ export default function MessagesPage() {
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
   const [approving, setApproving] = useState(false)
   const [viewingImage, setViewingImage] = useState(null);
-
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
   // Translations
   const texts = {
     ka: {
@@ -393,27 +395,23 @@ export default function MessagesPage() {
   // Render file attachment preview
   const renderAttachmentPreview = (attachment) => {
     if (attachment.type.startsWith('image/')) {
+      // Use thumbnail for preview, full image on click
+      const thumbnailUrl = attachment.thumbnailName ? 
+        `/api/files/${attachment.thumbnailName}?thumbnail=true` : 
+        `/api/files/${attachment.fileName}`;
+      
       return (
         <div className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
           <img 
-            src={`data:${attachment.type};base64,${attachment.data}`} 
+            src={thumbnailUrl}
             alt="Attachment" 
             className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
-            onClick={() => setViewingImage(`data:${attachment.type};base64,${attachment.data}`)}
+            onClick={() => setViewingImage(`/api/files/${attachment.fileName}`)}
+            loading="lazy" // Add lazy loading
           />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              downloadAttachment(attachment);
-            }}
-            className="absolute bottom-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded opacity-80 hover:opacity-100"
-          >
-            {t.downloadFile}
-          </button>
         </div>
       )
     } else {
-      // For non-image files, show file info with better mobile layout
       return (
         <div className="w-full flex flex-wrap items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-gray-50 dark:bg-gray-700">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -427,20 +425,51 @@ export default function MessagesPage() {
             </div>
           </div>
           <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                downloadAttachment(attachment);
-              }}
-              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-600 rounded hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+            <a 
+              href={`/api/files/${attachment.fileName}`}
+              download={attachment.name}
+              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               {t.downloadFile}
-            </button>
+            </a>
           </div>
         </div>
       )
     }
   }
+
+  const loadMoreMessages = async () => {
+    if (loadingMore || !hasMore) return;
+    
+    setLoadingMore(true);
+    try {
+      const response = await fetch(
+        `/api/conversations/${selectedConversation._id}/messages?page=${page + 1}&limit=50`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.messages.length === 0) {
+          setHasMore(false);
+        } else {
+          setMessages(prev => [...data.messages, ...prev]);
+          setPage(prev => prev + 1);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading more messages:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Add scroll handler to messages container
+  const handleScroll = (e) => {
+    const { scrollTop } = e.target;
+    if (scrollTop === 0 && hasMore && !loadingMore) {
+      loadMoreMessages();
+    }
+  };
 
   // Add this function to your component (before the return statement)
   const downloadAttachment = (attachment) => {

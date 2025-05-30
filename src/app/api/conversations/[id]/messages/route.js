@@ -75,6 +75,7 @@ export async function GET(request, context) {
     }
   }
 
+// Update src/app/api/conversations/[id]/messages/route.js
 export async function POST(request, context) {
   try {
     const session = await getServerSession(authOptions);
@@ -97,53 +98,19 @@ export async function POST(request, context) {
     const params = await context.params;
     const conversationId = params.id;
     
-    const conversation = await getConversationById(conversationId);
-    
-    if (!conversation) {
-      return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
-      );
-    }
+    // ... validation code ...
 
-    const hasAccess = 
-      (user.isDoctor && conversation.doctorId === parseInt(user.doctorId)) ||
-      (!user.isDoctor && conversation.userId.toString() === user._id.toString());
-    
-    if (!hasAccess) {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
-    }
-
-    // Check if the conversation is approved or if the user is a doctor
-    if (!conversation.approved && !user.isDoctor) {
-      const messages = await getMessagesByConversation(conversationId);
-      const userMessages = messages.filter(msg => msg.senderType === "user");
-      
-      if (userMessages.length >= 1) {
-        return NextResponse.json(
-          { error: "Conversation must be approved by the doctor before sending more messages" },
-          { status: 403 }
-        );
-      }
-    }
-
-    // Handle multipart form data for files
     const formData = await request.formData();
-    
     const content = formData.get('content') || '';
     const files = formData.getAll('files');
     
     const attachments = [];
     
-    // Process files (if any)
+    // Process files
     if (files && files.length > 0) {
       for (const file of files) {
-        if (!file.size) continue; // Skip if not a file
+        if (!file.size) continue;
         
-        // Check file size (50MB limit)
         if (file.size > 50 * 1024 * 1024) {
           return NextResponse.json(
             { error: "File size exceeds 50MB limit" },
@@ -152,14 +119,13 @@ export async function POST(request, context) {
         }
         
         const buffer = Buffer.from(await file.arrayBuffer());
-        const base64 = buffer.toString('base64');
         
+        // Don't convert to base64, pass buffer directly
         attachments.push({
           name: file.name,
           type: file.type,
           size: file.size,
-          data: base64,
-          createdAt: new Date()
+          data: buffer // Pass buffer, not base64
         });
       }
     }
@@ -175,10 +141,19 @@ export async function POST(request, context) {
     };
 
     const message = await createMessage(messageData);
+    
+    // Don't include file data in response
+    const responseMessage = {
+      ...message,
+      attachments: message.attachments.map(att => ({
+        ...att,
+        data: undefined // Remove data from response
+      }))
+    };
 
     return NextResponse.json({
       success: true,
-      message
+      message: responseMessage
     });
 
   } catch (error) {
