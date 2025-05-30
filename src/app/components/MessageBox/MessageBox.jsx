@@ -22,54 +22,82 @@ import {
   Camera,
   File,
   CheckCircle,
-  AlertTriangle,
   Download,
+  XCircle,
+  Bell,
+  AlertTriangle,
 } from "lucide-react"
 
 export default function MessageBox() {
+  // Core states
   const { data: session } = useSession()
   const { currentLanguage, direction } = useLanguage()
   const isRTL = direction === "rtl"
-
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+
+  // Data states
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState("")
   const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
   const [isDoctor, setIsDoctor] = useState(false)
-  const messagesEndRef = useRef(null)
   const [hasConversations, setHasConversations] = useState(false)
-  const fileInputRef = useRef(null)
+
+  // UI states
+  const [newMessage, setNewMessage] = useState("")
+  const [sending, setSending] = useState(false)
+  const [approving, setApproving] = useState(false)
+  const [rejecting, setRejecting] = useState(false)
+  const [showApprovalNotification, setShowApprovalNotification] = useState(true)
+  const [viewingImage, setViewingImage] = useState(null)
+
+  // File handling states
   const [selectedFiles, setSelectedFiles] = useState([])
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
-  const [approving, setApproving] = useState(false)
-  const [viewingImage, setViewingImage] = useState(null)
-  const [showConversationUser, setShowConversationUser] = useState(false)
 
-  // Move all useEffect hooks right after useState declarations
+  // Typing indicator states
+  const [isTyping, setIsTyping] = useState(false)
+  const [otherUserTyping, setOtherUserTyping] = useState(false)
+  const [typingTimeout, setTypingTimeout] = useState(null)
+
+  // Read receipts simulation
+  const [messageReadStatus, setMessageReadStatus] = useState({})
+
+  // Don't render if no session or no conversations
+  const [isProfileButtonVisible, setIsProfileButtonVisible] = useState(false)
+  const [isComposeButtonVisible, setIsComposeButtonVisible] = useState(false)
+
+  // Refs
+  const messagesEndRef = useRef(null)
+  const fileInputRef = useRef(null)
+  const chatContainerRef = useRef(null)
+
+  // Fetch conversations when session is available
   useEffect(() => {
     if (session) {
       fetchConversations()
     }
   }, [session])
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current && messages.length > 0) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages])
 
+  // Reset states when switching conversations
   useEffect(() => {
-    // Clear files when switching conversations
-    setSelectedFiles([])
-    setAttachmentMenuOpen(false)
+    if (selectedConversation) {
+      setSelectedFiles([])
+      setAttachmentMenuOpen(false)
+      setShowApprovalNotification(true)
+    }
   }, [selectedConversation])
 
+  // Reset all states when session changes
   useEffect(() => {
-    // Reset state when component mounts
     if (!session) {
       setIsOpen(false)
       setIsMinimized(false)
@@ -90,7 +118,9 @@ export default function MessageBox() {
       send: "გაგზავნა",
       pendingApproval: "დამტკიცების მოლოდინში",
       approveConversation: "დაამტკიცეთ საუბარი",
+      rejectConversation: "უარყოფა",
       approving: "მტკიცდება...",
+      rejecting: "უარყოფა...",
       attachFile: "დაამატეთ ფაილი",
       photoGallery: "ფოტო გალერეა",
       takePhoto: "გადაიღეთ ფოტო",
@@ -98,6 +128,7 @@ export default function MessageBox() {
       removeFile: "წაშლა",
       fileTooLarge: "ფაილი ძალიან დიდია (მაქს. 50MB)",
       conversationApproved: "საუბარი დამტკიცებულია",
+      conversationRejected: "საუბარი უარყოფილია",
       attachments: "მიმაგრებული ფაილები",
       downloadFile: "ჩამოტვირთვა",
       online: "ონლაინ",
@@ -107,6 +138,19 @@ export default function MessageBox() {
       patientChat: "პაციენტთან საუბარი",
       startConversation: "დაიწყეთ საუბარი პაციენტთან",
       askQuestion: "დაწერეთ თქვენი კითხვა ან პრობლემა",
+      patientRequest: "პაციენტის მოთხოვნა",
+      waitingForDecision: "ელოდება თქვენს გადაწყვეტილებას",
+      approve: "დამტკიცება",
+      reject: "უარყოფა",
+      startChat: "საუბრის დაწყება",
+      newMessage: "ახალი შეტყობინება",
+      today: "დღეს",
+      yesterday: "გუშინ",
+      typing: "წერს...",
+      doctorTyping: "ექიმი წერს...",
+      patientTyping: "პაციენტი წერს...",
+      delivered: "მიწოდებული",
+      read: "წაკითხული",
     },
     en: {
       messages: "Messages",
@@ -116,7 +160,9 @@ export default function MessageBox() {
       send: "Send",
       pendingApproval: "Pending approval",
       approveConversation: "Approve Conversation",
+      rejectConversation: "Reject",
       approving: "Approving...",
+      rejecting: "Rejecting...",
       attachFile: "Attach File",
       photoGallery: "Photo Gallery",
       takePhoto: "Take Photo",
@@ -124,6 +170,7 @@ export default function MessageBox() {
       removeFile: "Remove",
       fileTooLarge: "File too large (max 50MB)",
       conversationApproved: "Conversation approved",
+      conversationRejected: "Conversation rejected",
       attachments: "Attachments",
       downloadFile: "Download",
       online: "Online",
@@ -133,6 +180,19 @@ export default function MessageBox() {
       patientChat: "Patient Chat",
       startConversation: "Start conversation with patient",
       askQuestion: "Write your question or problem",
+      patientRequest: "Patient Request",
+      waitingForDecision: "Waiting for your decision",
+      approve: "Approve",
+      reject: "Reject",
+      startChat: "Start Chat",
+      newMessage: "New Message",
+      today: "Today",
+      yesterday: "Yesterday",
+      typing: "typing...",
+      doctorTyping: "Doctor is typing...",
+      patientTyping: "Patient is typing...",
+      delivered: "Delivered",
+      read: "Read",
     },
     ru: {
       messages: "Сообщения",
@@ -142,7 +202,9 @@ export default function MessageBox() {
       send: "Отправить",
       pendingApproval: "Ожидает подтверждения",
       approveConversation: "Подтвердить разговор",
+      rejectConversation: "Отклонить",
       approving: "Подтверждение...",
+      rejecting: "Отклонение...",
       attachFile: "Прикрепить файл",
       photoGallery: "Фотогалерея",
       takePhoto: "Сделать фото",
@@ -150,6 +212,7 @@ export default function MessageBox() {
       removeFile: "Удалить",
       fileTooLarge: "Файл слишком большой (макс. 50MB)",
       conversationApproved: "Разговор подтвержден",
+      conversationRejected: "Разговор отклонен",
       attachments: "Вложения",
       downloadFile: "Скачать",
       online: "Онлайн",
@@ -159,6 +222,19 @@ export default function MessageBox() {
       patientChat: "Чат с пациентом",
       startConversation: "Начать разговор с пациентом",
       askQuestion: "Напишите свой вопрос или проблему",
+      patientRequest: "Запрос пациента",
+      waitingForDecision: "Ожидает вашего решения",
+      approve: "Подтвердить",
+      reject: "Отклонить",
+      startChat: "Начать чат",
+      newMessage: "Новое сообщение",
+      today: "Сегодня",
+      yesterday: "Вчера",
+      typing: "печатает...",
+      doctorTyping: "Врач печатает...",
+      patientTyping: "Пациент печатает...",
+      delivered: "Доставлено",
+      read: "Прочитано",
     },
     he: {
       messages: "הודעות",
@@ -168,7 +244,9 @@ export default function MessageBox() {
       send: "שלח",
       pendingApproval: "ממתין לאישור",
       approveConversation: "אשר שיחה",
+      rejectConversation: "דחה",
       approving: "מאשר...",
+      rejecting: "דוחה...",
       attachFile: "צרף קובץ",
       photoGallery: "גלריית תמונות",
       takePhoto: "צלם תמונה",
@@ -176,6 +254,7 @@ export default function MessageBox() {
       removeFile: "הסר",
       fileTooLarge: "קובץ גדול מדי (מקסימום 50MB)",
       conversationApproved: "השיחה אושרה",
+      conversationRejected: "השיחה נדחתה",
       attachments: "קבצים מצורפים",
       downloadFile: "הורד",
       online: "מקוון",
@@ -185,13 +264,25 @@ export default function MessageBox() {
       patientChat: "צ'אט עם מטופל",
       startConversation: "התחל שיחה עם מטופל",
       askQuestion: "כתוב את השאלה או הבעיה שלך",
+      patientRequest: "בקשת מטופל",
+      waitingForDecision: "ממתין להחלטתך",
+      approve: "אשר",
+      reject: "דחה",
+      startChat: "התחל צ'אט",
+      newMessage: "הודעה חדשה",
+      today: "היום",
+      yesterday: "אתמול",
+      typing: "כותב...",
+      doctorTyping: "הרופא כותב...",
+      patientTyping: "המטופל כותב...",
+      delivered: "נמסר",
+      read: "נקרא",
     },
   }
 
   const t = texts[currentLanguage] || texts.ka
 
-  // Fetch conversations on mount
-
+  // API Functions
   const fetchConversations = async () => {
     if (!session) return
 
@@ -211,7 +302,6 @@ export default function MessageBox() {
     }
   }
 
-  // Fetch messages for selected conversation
   const fetchMessages = async (conversationId) => {
     try {
       const response = await fetch(`/api/conversations/${conversationId}/messages`)
@@ -224,65 +314,6 @@ export default function MessageBox() {
     }
   }
 
-  // Handle conversation selection
-  const handleSelectConversation = async (conversation) => {
-    setSelectedConversation(conversation)
-    setMessages([])
-    // Clear selected files when switching conversations
-    setSelectedFiles([])
-    // Close attachment menu
-    setAttachmentMenuOpen(false)
-    await fetchMessages(conversation._id)
-  }
-
-  // Handle file selection
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files)
-
-    // Check file size
-    const validFiles = files.filter((file) => {
-      if (file.size > 50 * 1024 * 1024) {
-        alert(t.fileTooLarge)
-        return false
-      }
-      return true
-    })
-
-    setSelectedFiles((prev) => [...prev, ...validFiles])
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
-
-    // Close attachment menu
-    setAttachmentMenuOpen(false)
-  }
-
-  // Remove selected file
-  const removeFile = (index) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  // Get file icon based on type
-  const getFileIcon = (file) => {
-    if (file.type.startsWith("image/")) {
-      return <ImageIcon className="w-4 h-4" />
-    } else if (file.type.startsWith("video/")) {
-      return <Camera className="w-4 h-4" />
-    } else {
-      return <File className="w-4 h-4" />
-    }
-  }
-
-  // Format file size
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  }
-
-  // Approve conversation (for doctors)
   const handleApproveConversation = async () => {
     if (!isDoctor || !selectedConversation) return
 
@@ -297,67 +328,64 @@ export default function MessageBox() {
       })
 
       if (response.ok) {
-        // Update local state
         setSelectedConversation({
           ...selectedConversation,
           approved: true,
         })
-
-        // Refresh conversations list
         fetchConversations()
       }
     } catch (error) {
       console.error("Error approving conversation:", error)
     } finally {
       setApproving(false)
+      setShowApprovalNotification(false)
     }
   }
 
-  // Download attachment
-  const downloadAttachment = (attachment) => {
+  const handleRejectConversation = async () => {
+    if (!isDoctor || !selectedConversation) return
+
+    setRejecting(true)
     try {
-      // Create a blob from the base64 data
-      const byteCharacters = atob(attachment.data)
-      const byteArrays = []
+      const response = await fetch(`/api/conversations/${selectedConversation._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rejected: true }),
+      })
 
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteArrays.push(byteCharacters.charCodeAt(i))
+      if (response.ok) {
+        setSelectedConversation({
+          ...selectedConversation,
+          rejected: true,
+        })
+        fetchConversations()
       }
-
-      const byteArray = new Uint8Array(byteArrays)
-      const blob = new Blob([byteArray], { type: attachment.type })
-
-      // Create a temporary URL for the blob
-      const blobUrl = URL.createObjectURL(blob)
-
-      // Create an invisible download link and click it
-      const link = document.createElement("a")
-      link.href = blobUrl
-      link.download = attachment.name || `download.${attachment.type.split("/")[1] || "file"}`
-      document.body.appendChild(link)
-      link.click()
-
-      // Clean up
-      document.body.removeChild(link)
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 100)
     } catch (error) {
-      console.error("Download failed:", error)
-      alert("Download failed. Please try again.")
+      console.error("Error rejecting conversation:", error)
+    } finally {
+      setRejecting(false)
+      setShowApprovalNotification(false)
     }
   }
 
-  // Send message with or without attachments
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return
 
+    // Stop typing indicator
+    setIsTyping(false)
+    setOtherUserTyping(false)
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+    }
+
     setSending(true)
     try {
-      // Create FormData to handle file uploads
       const formData = new FormData()
       formData.append("content", newMessage)
 
-      // Add files if any
       selectedFiles.forEach((file) => {
         formData.append("files", file)
       })
@@ -372,15 +400,35 @@ export default function MessageBox() {
       }
 
       const data = await response.json()
+      const newMessageData = data.message
 
-      // Add the new message to the list
-      setMessages((prev) => [...prev, data.message])
-
-      // Clear input and selected files
+      setMessages((prev) => [...prev, newMessageData])
       setNewMessage("")
       setSelectedFiles([])
 
-      // Refresh conversations list to update last message
+      // Mark own message as delivered initially
+      setMessageReadStatus((prev) => ({
+        ...prev,
+        [newMessageData._id]: {
+          read: false,
+          deliveredAt: new Date(),
+        },
+      }))
+
+      // Simulate read receipt after 2-3 seconds
+      setTimeout(
+        () => {
+          setMessageReadStatus((prev) => ({
+            ...prev,
+            [newMessageData._id]: {
+              read: true,
+              readAt: new Date(),
+            },
+          }))
+        },
+        Math.random() * 2000 + 2000,
+      ) // Random delay between 2-4 seconds
+
       fetchConversations()
     } catch (error) {
       console.error("Error sending message:", error)
@@ -389,21 +437,20 @@ export default function MessageBox() {
     }
   }
 
-  // Format time
+  // Utility Functions
   const formatTime = (timestamp) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
-  // Check if doctor is online
-  const isDoctorOnline = (conversation) => {
-    // For demo purposes, let's simulate some doctors being online
-    // In real app, this would come from the API
-    if (isDoctor) {
-      return true // Current user is doctor, so they're online
-    }
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
 
-    // Simulate some doctors being online based on their ID or name
+  const isDoctorOnline = (conversation) => {
+    if (isDoctor) return true
     const onlineDoctors = ["Gabriel", "Nino", "David", "Ana"]
     return (
       conversation?.doctorName &&
@@ -411,8 +458,99 @@ export default function MessageBox() {
     )
   }
 
-  // Render file attachment preview
+  // Typing indicator functions
+  const handleTypingStart = () => {
+    if (!isTyping && selectedConversation) {
+      setIsTyping(true)
+
+      // Simulate the other user seeing that you are typing
+      // In a real app, this would be sent to the server
+      if (window.parent && window.parent.postMessage) {
+        try {
+          // This simulates sending a message to another window/iframe
+          // In a real app, this would be a WebSocket or API call
+          window.parent.postMessage(
+            {
+              type: "typing_indicator",
+              conversationId: selectedConversation._id,
+              isTyping: true,
+              isDoctor: isDoctor,
+            },
+            "*",
+          )
+        } catch (e) {
+          console.error("Failed to send typing indicator", e)
+        }
+      }
+    }
+
+    // Clear existing timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+    }
+
+    // Set new timeout to stop typing indicator
+    const timeout = setTimeout(() => {
+      setIsTyping(false)
+
+      // Notify that typing has stopped
+      if (window.parent && window.parent.postMessage) {
+        try {
+          window.parent.postMessage(
+            {
+              type: "typing_indicator",
+              conversationId: selectedConversation._id,
+              isTyping: false,
+              isDoctor: isDoctor,
+            },
+            "*",
+          )
+        } catch (e) {
+          console.error("Failed to send typing indicator", e)
+        }
+      }
+    }, 2000)
+
+    setTypingTimeout(timeout)
+  }
+
+  // Simulate message read status
+  const markMessageAsRead = (messageId) => {
+    setTimeout(() => {
+      setMessageReadStatus((prev) => ({
+        ...prev,
+        [messageId]: {
+          read: true,
+          readAt: new Date(),
+        },
+      }))
+    }, 1000) // Simulate 1 second delay for read receipt
+  }
+
+  // Auto-mark messages as read when conversation is viewed
+  useEffect(() => {
+    if (selectedConversation && messages.length > 0) {
+      messages.forEach((message) => {
+        const isOwnMessage =
+          (isDoctor && message.senderType === "doctor") || (!isDoctor && message.senderType === "user")
+        if (!isOwnMessage && !messageReadStatus[message._id]?.read) {
+          markMessageAsRead(message._id)
+        }
+      })
+    }
+  }, [selectedConversation, messages, isDoctor, messageReadStatus])
+
+  // Render Functions
   const renderAttachmentPreview = (attachment) => {
+    const downloadAttachment = (attachment) => {
+      const link = document.createElement("a")
+      link.href = `data:${attachment.type};base64,${attachment.data}`
+      link.download = attachment.name || "file"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+
     if (attachment.type.startsWith("image/")) {
       return (
         <div
@@ -468,17 +606,91 @@ export default function MessageBox() {
     }
   }
 
+  useEffect(() => {
+    setIsProfileButtonVisible(isMinimized)
+    setIsComposeButtonVisible(isMinimized)
+  }, [isMinimized])
+
+  const handleBackToConversations = () => {
+    setSelectedConversation(null)
+  }
+
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation)
+    fetchMessages(conversation._id)
+  }
+
+  const removeFile = (index) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
+  }
+
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files)
+
+    files.forEach((file) => {
+      if (file.size > 50 * 1024 * 1024) {
+        alert(t.fileTooLarge)
+        return
+      }
+    })
+
+    setSelectedFiles((prevFiles) => [...prevFiles, ...files])
+    event.target.value = null
+  }
+
+  // This effect must be called in the same order on every render
+  useEffect(() => {
+    // Function to handle incoming typing indicators
+    const handleMessage = (event) => {
+      try {
+        const data = event.data
+        if (
+          data &&
+          data.type === "typing_indicator" &&
+          selectedConversation &&
+          data.conversationId === selectedConversation._id
+        ) {
+          // Only show typing indicator if it's from the other user type (doctor/patient)
+          if (data.isDoctor !== isDoctor) {
+            setOtherUserTyping(data.isTyping)
+          }
+        }
+      } catch (e) {
+        console.error("Error handling message", e)
+      }
+    }
+
+    // Always add the event listener, regardless of condition
+    window.addEventListener("message", handleMessage)
+
+    // This function is defined outside any conditions
+    const simulateOtherUserTyping = () => {
+      if (!selectedConversation) return
+
+      if (Math.random() > 0.7) {
+        setOtherUserTyping(true)
+        setTimeout(
+          () => {
+            setOtherUserTyping(false)
+          },
+          Math.random() * 3000 + 1000,
+        )
+      }
+    }
+
+    // Always set up the interval
+    const typingInterval = setInterval(simulateOtherUserTyping, 10000)
+
+    // Clean up function always removes the listeners
+    return () => {
+      window.removeEventListener("message", handleMessage)
+      clearInterval(typingInterval)
+    }
+  }, [selectedConversation, isDoctor])
+
   // Don't render if no session or no conversations
   if (!session || !hasConversations) {
     return null
-  }
-
-  // Also clear files when going back to conversation list
-  const handleBackToConversations = () => {
-    setSelectedConversation(null)
-    setSelectedFiles([])
-    setAttachmentMenuOpen(false)
-    setMessages([])
   }
 
   return (
@@ -569,7 +781,7 @@ export default function MessageBox() {
         </motion.button>
       )}
 
-      {/* Message box */}
+      {/* Main Chat Box */}
       <AnimatePresence>
         {isOpen && !isMinimized && (
           <motion.div
@@ -584,23 +796,24 @@ export default function MessageBox() {
               maxHeight: "calc(100vh - 120px)",
             }}
             dir={direction}
+            ref={chatContainerRef}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-between p-4 h-16">
               {selectedConversation ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <button
                     onClick={handleBackToConversations}
-                    className="hover:bg-white/20 p-1 rounded-full transition-colors"
+                    className="hover:bg-white/20 p-1 rounded-full transition-colors flex-shrink-0"
                   >
                     <ChevronLeft className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
                   </button>
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="relative flex-shrink-0">
                       <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                         <User className="w-5 h-5" />
                       </div>
-                      {/* Online indicator based on doctor status */}
+                      {/* Online indicator */}
                       {isDoctorOnline(selectedConversation) ? (
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
                       ) : (
@@ -608,36 +821,8 @@ export default function MessageBox() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-sm leading-tight">
-                        {(() => {
-                          const fullName = isDoctor
-                            ? selectedConversation.patientName
-                            : `Dr. ${selectedConversation.doctorName}`
-                          const words = fullName.split(" ")
-
-                          // If it's a doctor, try to show "Dr. FirstName L." format
-                          if (!isDoctor && words.length >= 3) {
-                            const firstName = words[1] // Skip "Dr."
-                            const lastInitial = words[words.length - 1][0]
-                            const shortName = `Dr. ${firstName} ${lastInitial}.`
-
-                            // If short name is still too long, truncate
-                            return shortName.length > 18 ? `${shortName.substring(0, 15)}...` : shortName
-                          }
-
-                          // For patients or shorter names, use smart truncation
-                          if (fullName.length > 18) {
-                            const words = fullName.split(" ")
-                            if (words.length >= 2) {
-                              const firstName = words[0]
-                              const lastInitial = words[words.length - 1][0]
-                              return `${firstName} ${lastInitial}.`
-                            }
-                            return `${fullName.substring(0, 15)}...`
-                          }
-
-                          return fullName
-                        })()}
+                      <div className="font-semibold text-sm leading-tight truncate">
+                        {isDoctor ? selectedConversation.patientName : `Dr. ${selectedConversation.doctorName}`}
                       </div>
                       <div className="text-xs text-blue-100 leading-tight">
                         {isDoctorOnline(selectedConversation) ? t.online : t.offline}
@@ -652,8 +837,8 @@ export default function MessageBox() {
                 </div>
               )}
 
-              <div className="flex items-center gap-1">
-                {/* {selectedConversation && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {selectedConversation && (
                   <>
                     <button className="hover:bg-white/20 p-2 rounded-full transition-colors">
                       <Phone className="w-4 h-4" />
@@ -662,7 +847,7 @@ export default function MessageBox() {
                       <Video className="w-4 h-4" />
                     </button>
                   </>
-                )} */}
+                )}
                 <button
                   onClick={() => setIsMinimized(true)}
                   className="hover:bg-white/20 p-2 rounded-full transition-colors"
@@ -678,9 +863,9 @@ export default function MessageBox() {
               </div>
             </div>
 
-            {/* Conversation list or messages */}
+            {/* Conversation List or Messages */}
             {!selectedConversation ? (
-              <div className="overflow-y-auto" style={{ height: "min(510px, calc(100vh - 190px))" }}>
+              <div className="overflow-y-auto h-[calc(100%-64px)]">
                 {loading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -706,11 +891,18 @@ export default function MessageBox() {
                             <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-full w-12 h-12 flex items-center justify-center">
                               <User className="w-6 h-6 text-blue-600" />
                             </div>
-                            {/* Online indicator in conversation list */}
+                            {/* Online indicator */}
                             {isDoctorOnline(conversation) ? (
                               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
                             ) : (
                               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 rounded-full border-2 border-white"></div>
+                            )}
+
+                            {/* Approval status indicator */}
+                            {isDoctor && !conversation.approved && !conversation.rejected && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full border-2 border-white flex items-center justify-center">
+                                <AlertTriangle className="w-3 h-3 text-white" />
+                              </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -718,17 +910,24 @@ export default function MessageBox() {
                               <h4 className="font-semibold text-gray-900 truncate text-sm">
                                 {isDoctor ? conversation.patientName : `Dr. ${conversation.doctorName}`}
                               </h4>
-                              {conversation.lastMessage && (
+                              {conversation.lastMessageTime && (
                                 <span className="text-xs text-gray-500">
                                   {formatTime(conversation.lastMessageTime)}
                                 </span>
                               )}
                             </div>
-                            {conversation.lastMessage && (
+                            {conversation.lastMessage ? (
                               <p className="text-sm text-gray-600 truncate mt-1">{conversation.lastMessage}</p>
+                            ) : (
+                              <p className="text-sm text-blue-500 truncate mt-1 italic">{t.startChat}</p>
                             )}
                           </div>
-                          {!conversation.approved && <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>}
+
+                          {/* Status indicators */}
+                          {conversation.lastMessage && !conversation.seen && (
+                            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                          )}
+                          {conversation.rejected && <div className="w-2.5 h-2.5 bg-red-400 rounded-full"></div>}
                         </div>
                       </motion.div>
                     ))}
@@ -736,53 +935,10 @@ export default function MessageBox() {
                 )}
               </div>
             ) : (
-              <>
-                {/* Doctor approval banner */}
-                {isDoctor && !selectedConversation.approved && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-r from-amber-50 to-orange-50 p-3 border-b border-amber-100"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-amber-800">
-                        <AlertTriangle className="w-5 h-5" />
-                        <span className="text-sm font-medium">{t.pendingApproval}</span>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleApproveConversation}
-                        disabled={approving}
-                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50 shadow-sm transition-all duration-200"
-                      >
-                        {approving ? (
-                          <>
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                            <span>{t.approving}</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>{t.approveConversation}</span>
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Messages area */}
-                <div
-                  className="overflow-y-auto p-4 bg-gray-50/50"
-                  style={{
-                    height: "calc(100% - 240px)", // Fixed height that accounts for input area
-                    minHeight: "280px",
-                    maxHeight: "380px",
-                  }}
-                >
+              <div className="flex flex-col h-[calc(100%-64px)]">
+                {/* Messages Area */}
+                <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50" style={{ minHeight: "200px" }}>
                   {messages.length === 0 ? (
-                    // Empty state with welcome message
                     <div className="flex flex-col items-center justify-center h-full text-gray-500">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                         <MessageCircle className="w-8 h-8 text-blue-500" />
@@ -794,11 +950,9 @@ export default function MessageBox() {
                     </div>
                   ) : (
                     <>
-                      {/* User's messages */}
                       {messages.map((message, index) => {
                         const isOwnMessage =
                           (isDoctor && message.senderType === "doctor") || (!isDoctor && message.senderType === "user")
-
                         const showAvatar = index === 0 || messages[index - 1]?.senderType !== message.senderType
 
                         return (
@@ -855,21 +1009,70 @@ export default function MessageBox() {
                                   }`}
                                 >
                                   <span className="text-xs text-gray-500">{formatTime(message.timestamp)}</span>
-                                  {isOwnMessage && <Check className="w-3 h-3 text-blue-500" />}
+                                  {isOwnMessage && (
+                                    <div className="flex items-center">
+                                      {messageReadStatus[message._id]?.read ? (
+                                        // Double checkmark for read messages
+                                        <div className="flex items-center">
+                                          <Check className="w-3 h-3 text-blue-500" style={{ marginLeft: "-2px" }} />
+                                          <Check className="w-3 h-3 text-blue-500" style={{ marginLeft: "-6px" }} />
+                                        </div>
+                                      ) : (
+                                        // Single checkmark for delivered but unread messages
+                                        <Check className="w-3 h-3 text-gray-400" />
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
                           </motion.div>
                         )
                       })}
+                      {/* Typing indicator */}
+                      {otherUserTyping && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="mb-4 flex justify-start"
+                        >
+                          <div className="flex items-end gap-2 max-w-[75%]">
+                            <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                              <User className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <div className="bg-white text-gray-800 border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+                              <div className="flex items-center gap-1">
+                                <div className="flex gap-1">
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "0ms" }}
+                                  ></div>
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "150ms" }}
+                                  ></div>
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "300ms" }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-gray-500 ml-2">
+                                  {isDoctor ? t.patientTyping : t.doctorTyping}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                      <div ref={messagesEndRef} />
                     </>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
 
-                {/* Message input container - FIXED HEIGHT */}
-                <div className="bg-white border-t border-gray-100" style={{ minHeight: "120px" }}>
-                  {/* Selected files preview - fixed space allocation */}
+                {/* Message Input Area */}
+                <div className="bg-white border-t border-gray-100">
+                  {/* Selected files preview */}
                   <div className="h-16 border-b border-gray-100 overflow-hidden flex items-center">
                     {selectedFiles.length > 0 ? (
                       <div className="p-3 w-full">
@@ -913,12 +1116,11 @@ export default function MessageBox() {
                         </div>
                       </div>
                     ) : (
-                      // Empty space when no files - maintains consistent height
                       <div className="p-3 w-full"></div>
                     )}
                   </div>
 
-                  {/* Input area - fixed height */}
+                  {/* Input field and buttons */}
                   <div className="px-4 py-3 h-16 flex items-center">
                     <form onSubmit={handleSendMessage} className="flex items-center gap-3 w-full">
                       {/* Attachment button with dropdown */}
@@ -1010,7 +1212,12 @@ export default function MessageBox() {
                         <input
                           type="text"
                           value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
+                          onChange={(e) => {
+                            setNewMessage(e.target.value)
+                            if (e.target.value.trim()) {
+                              handleTypingStart()
+                            }
+                          }}
                           placeholder={t.typeMessage}
                           className={`w-full ${isRTL ? "pr-4 pl-12" : "pl-4 pr-12"} py-3 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 transition-all duration-200 break-words`}
                           style={{
@@ -1021,7 +1228,8 @@ export default function MessageBox() {
                             (!selectedConversation.approved &&
                               !isDoctor &&
                               messages.filter((m) => m.senderType === "user").length >= 1) ||
-                            sending
+                            sending ||
+                            selectedConversation.rejected
                           }
                         />
                         <button
@@ -1040,7 +1248,8 @@ export default function MessageBox() {
                           sending ||
                           (!selectedConversation.approved &&
                             !isDoctor &&
-                            messages.filter((m) => m.senderType === "user").length >= 1)
+                            messages.filter((m) => m.senderType === "user").length >= 1) ||
+                          selectedConversation.rejected
                         }
                         className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-full hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
                         whileHover={{ scale: 1.05 }}
@@ -1055,17 +1264,18 @@ export default function MessageBox() {
                     </form>
                   </div>
 
-                  {/* Status messages - fixed height */}
+                  {/* Status messages */}
                   <div className="h-12 px-4 flex items-center">
                     <AnimatePresence>
                       {!selectedConversation.approved &&
+                        !selectedConversation.rejected &&
                         !isDoctor &&
                         messages.filter((m) => m.senderType === "user").length >= 1 && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="px-4 pb-3"
+                            className="px-4 pb-3 w-full"
                           >
                             <div className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg border border-yellow-200">
                               <Clock className="w-3 h-3 text-yellow-600 flex-shrink-0" />
@@ -1079,7 +1289,7 @@ export default function MessageBox() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="px-4 pb-3"
+                          className="px-4 pb-3 w-full"
                         >
                           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
                             <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
@@ -1087,16 +1297,121 @@ export default function MessageBox() {
                           </div>
                         </motion.div>
                       )}
+
+                      {selectedConversation.rejected && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="px-4 pb-3 w-full"
+                        >
+                          <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200">
+                            <XCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
+                            <p className="text-xs text-red-700">{t.conversationRejected}</p>
+                          </div>
+                        </motion.div>
+                      )}
                     </AnimatePresence>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Image viewer modal */}
+      {/* Floating Approval Notification */}
+      <AnimatePresence>
+        {isOpen &&
+          selectedConversation &&
+          isDoctor &&
+          !selectedConversation.approved &&
+          !selectedConversation.rejected &&
+          showApprovalNotification && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ type: "spring", damping: 20 }}
+              className="fixed top-6 right-6 left-6 mx-auto max-w-sm bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-[10000]"
+              style={{ backdropFilter: "blur(20px)" }}
+            >
+              <div className="bg-gradient-to-r from-amber-400 to-orange-400 p-4">
+                <div className="flex items-center gap-3 text-white">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <Bell className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-sm">{t.patientRequest}</h3>
+                    <p className="text-xs opacity-90">{t.waitingForDecision}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowApprovalNotification(false)}
+                    className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">{selectedConversation.patientName}</p>
+                    <p className="text-xs text-gray-500">{t.startChat}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleApproveConversation}
+                    disabled={approving}
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-sm px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg transition-all duration-200 flex-1 font-medium"
+                  >
+                    {approving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>{t.approving}</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>{t.approve}</span>
+                      </>
+                    )}
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleRejectConversation}
+                    disabled={rejecting}
+                    className="bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 text-sm px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg transition-all duration-200 font-medium"
+                  >
+                    {rejecting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                        <span>{t.rejecting}</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4" />
+                        <span>{t.reject}</span>
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+      </AnimatePresence>
+
+      {/* Image Viewer Modal */}
       <AnimatePresence>
         {viewingImage && (
           <motion.div
