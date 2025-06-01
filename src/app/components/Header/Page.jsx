@@ -368,7 +368,7 @@ const Header = () => {
       {/* ჰედერი */}
       <motion.header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 w-full z-30 bg-white border-b border-gray-200"
+        className="fixed top-0 left-0 right-0 w-full z-3000 bg-white border-b border-gray-200"
         dir={direction}
         style={{
           height: headerHeight,
