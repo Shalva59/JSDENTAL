@@ -5,22 +5,28 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
-import { 
-  MessageCircle, 
-  User, 
-  Check, 
-  Clock, 
-  Send, 
+import {
+  MessageCircle,
+  User,
+  Check,
+  Clock,
+  Send,
   ChevronLeft,
   RefreshCw,
   XCircle,
   CheckCircle,
   Paperclip,
-  Image,
+  ImageIcon,
   Camera,
   File,
   X,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  MoreHorizontal,
+  Phone,
+  Video,
+  Search,
+  Plus,
 } from "lucide-react"
 
 export default function MessagesPage() {
@@ -28,7 +34,7 @@ export default function MessagesPage() {
   const router = useRouter()
   const { currentLanguage, direction } = useLanguage()
   const isRTL = direction === "rtl"
-  
+
   const [loading, setLoading] = useState(true)
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
@@ -44,10 +50,17 @@ export default function MessagesPage() {
   const [selectedFiles, setSelectedFiles] = useState([])
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false)
   const [approving, setApproving] = useState(false)
-  const [viewingImage, setViewingImage] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [viewingImage, setViewingImage] = useState(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const [otherUserTyping, setOtherUserTyping] = useState(false)
+  const [typingTimeout, setTypingTimeout] = useState(null)
+  const [messageReadStatus, setMessageReadStatus] = useState({})
+  const [onlineUsers, setOnlineUsers] = useState(new Set()) // Track online users
+
   // Translations
   const texts = {
     ka: {
@@ -85,7 +98,15 @@ export default function MessagesPage() {
       removeFile: "წაშლა",
       fileTooLarge: "ფაილი ძალიან დიდია (მაქს. 50MB)",
       attachments: "მიმაგრებული ფაილები",
-      downloadFile: "ჩამოტვირთვა"
+      downloadFile: "ჩამოტვირთვა",
+      searchMessages: "შეტყობინებების ძიება",
+      online: "ონლაინ",
+      offline: "ოფლაინ",
+      typing: "წერს...",
+      doctorTyping: "ექიმი წერს...",
+      patientTyping: "პაციენტი წერს...",
+      delivered: "მიწოდებული",
+      read: "წაკითხული",
     },
     en: {
       title: "Messages",
@@ -105,7 +126,7 @@ export default function MessagesPage() {
       yesterday: "Yesterday",
       justNow: "Just now",
       minutesAgo: "minutes ago",
-      hoursAgo: "hours ago", 
+      hoursAgo: "hours ago",
       daysAgo: "days ago",
       approvalMessage: "To start the conversation, please wait for the doctor to approve",
       doctorApprovalMessage: "Approve this conversation to start messaging with the patient",
@@ -122,7 +143,15 @@ export default function MessagesPage() {
       removeFile: "Remove",
       fileTooLarge: "File too large (max 50MB)",
       attachments: "Attachments",
-      downloadFile: "Download"
+      downloadFile: "Download",
+      searchMessages: "Search messages",
+      online: "Online",
+      offline: "Offline",
+      typing: "typing...",
+      doctorTyping: "Doctor is typing...",
+      patientTyping: "Patient is typing...",
+      delivered: "Delivered",
+      read: "Read",
     },
     ru: {
       title: "Сообщения",
@@ -159,7 +188,15 @@ export default function MessagesPage() {
       removeFile: "Удалить",
       fileTooLarge: "Файл слишком большой (макс. 50MB)",
       attachments: "Вложения",
-      downloadFile: "Скачать"
+      downloadFile: "Скачать",
+      searchMessages: "Поиск сообщений",
+      online: "Онлайн",
+      offline: "Оффлайн",
+      typing: "печатает...",
+      doctorTyping: "Врач печатает...",
+      patientTyping: "Пациент печатает...",
+      delivered: "Доставлено",
+      read: "Прочитано",
     },
     he: {
       title: "הודעות",
@@ -196,10 +233,18 @@ export default function MessagesPage() {
       removeFile: "הסר",
       fileTooLarge: "קובץ גדול מדי (מקסימום 50MB)",
       attachments: "קבצים מצורפים",
-      downloadFile: "הורד"
-    }
+      downloadFile: "הורד",
+      searchMessages: "חפש הודעות",
+      online: "מקוון",
+      offline: "לא מקוון",
+      typing: "כותב...",
+      doctorTyping: "הרופא כותב...",
+      patientTyping: "המטופל כותב...",
+      delivered: "נמסר",
+      read: "נקרא",
+    },
   }
-  
+
   const t = texts[currentLanguage] || texts.ka
 
   // Check authentication
@@ -210,7 +255,80 @@ export default function MessagesPage() {
       return
     }
     fetchConversations()
+
+    // Add current user to online users when component mounts
+    if (session?.user?.email) {
+      setOnlineUsers((prev) => new Set([...prev, session.user.email]))
+    }
   }, [session, authStatus])
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current && messages.length > 0) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
+
+  // Typing indicator functions
+  const handleTypingStart = () => {
+    if (!isTyping && selectedConversation) {
+      setIsTyping(true)
+    }
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+    }
+
+    const timeout = setTimeout(() => {
+      setIsTyping(false)
+    }, 2000)
+
+    setTypingTimeout(timeout)
+  }
+
+  // Simplified online status check
+  const isUserOnline = (conversation) => {
+    if (!conversation) return false
+
+    // For now, we'll consider users online if they have recent activity
+    // This is a simplified version until we implement real-time presence
+    const now = new Date()
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
+
+    if (isDoctor) {
+      // Doctor checking if patient is online
+      const patientEmail = conversation.patientEmail || conversation.patientName
+      return (
+        onlineUsers.has(patientEmail) ||
+        (conversation.lastMessageTime && new Date(conversation.lastMessageTime) > fiveMinutesAgo)
+      )
+    } else {
+      // Patient checking if doctor is online
+      const doctorEmail = conversation.doctorEmail || conversation.doctorName
+      return (
+        onlineUsers.has(doctorEmail) ||
+        (conversation.lastMessageTime && new Date(conversation.lastMessageTime) > fiveMinutesAgo)
+      )
+    }
+  }
+
+  // Simplified unread messages logic
+  const hasUnreadMessages = (conversation) => {
+    if (!conversation) return false
+
+    // Check if there are unread messages for current user
+    if (isDoctor) {
+      return (
+        conversation.unreadByDoctor > 0 ||
+        (conversation.lastMessage && !conversation.seenByDoctor && conversation.lastMessageSender !== "doctor")
+      )
+    } else {
+      return (
+        conversation.unreadByPatient > 0 ||
+        (conversation.lastMessage && !conversation.seenByPatient && conversation.lastMessageSender !== "user")
+      )
+    }
+  }
 
   // Fetch conversations
   const fetchConversations = async () => {
@@ -244,63 +362,73 @@ export default function MessagesPage() {
     setRefreshing(false)
   }
 
-  // Select a conversation
-  const handleSelectConversation = async (conversation) => {
-    setSelectedConversation(conversation);
-    setMessages([]);
+  // Fetch messages
+  const fetchMessages = async (conversationId) => {
     try {
-      const response = await fetch(`/api/conversations/${conversation._id}/messages?ts=${Date.now()}`);
+      const response = await fetch(`/api/conversations/${conversationId}/messages?ts=${Date.now()}`)
       if (!response.ok) {
-        throw new Error("Failed to fetch messages");
+        throw new Error("Failed to fetch messages")
       }
-      const data = await response.json();
-      setMessages(data.messages || []);
+      const data = await response.json()
+      setMessages(data.messages || [])
     } catch (error) {
-      console.error("Error fetching messages:", error);
-      setError(error.message);
+      console.error("Error fetching messages:", error)
+      setError(error.message)
     }
-  };
-  
+  }
+
+  // Select a conversation and mark messages as read (simplified)
+  const handleSelectConversation = async (conversation) => {
+    setSelectedConversation(conversation)
+    setMessages([])
+    setSelectedFiles([])
+    setAttachmentMenuOpen(false)
+
+    // Simplified mark as read - just update local state
+    // Remove unread indicator immediately when conversation is opened
+    const updatedConversations = conversations.map((conv) => {
+      if (conv._id === conversation._id) {
+        return {
+          ...conv,
+          unreadByDoctor: isDoctor ? 0 : conv.unreadByDoctor,
+          unreadByPatient: !isDoctor ? 0 : conv.unreadByPatient,
+          seenByDoctor: isDoctor ? true : conv.seenByDoctor,
+          seenByPatient: !isDoctor ? true : conv.seenByPatient,
+        }
+      }
+      return conv
+    })
+    setConversations(updatedConversations)
+
+    await fetchMessages(conversation._id)
+  }
+
   // Handle file selection
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files)
-    
-    // Check file size
-    const validFiles = files.filter(file => {
+
+    const validFiles = files.filter((file) => {
       if (file.size > 50 * 1024 * 1024) {
         alert(t.fileTooLarge)
         return false
       }
       return true
     })
-    
-    setSelectedFiles(prev => [...prev, ...validFiles])
-    
-    // Reset file input
+
+    setSelectedFiles((prev) => [...prev, ...validFiles])
+
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = ""
     }
-    
-    // Close attachment menu
+
     setAttachmentMenuOpen(false)
   }
-  
+
   // Remove selected file
   const removeFile = (index) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
   }
-  
-  // Get file icon based on type
-  const getFileIcon = (file) => {
-    if (file.type.startsWith('image/')) {
-      return <Image className="w-5 h-5" />
-    } else if (file.type.startsWith('video/')) {
-      return <Camera className="w-5 h-5" />
-    } else {
-      return <File className="w-5 h-5" />
-    }
-  }
-  
+
   // Format file size
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`
@@ -311,28 +439,26 @@ export default function MessagesPage() {
   // Handle approve conversation
   const handleApproveConversation = async () => {
     if (!isDoctor || !selectedConversation) return
-    
+
     setApproving(true)
     try {
       const response = await fetch(`/api/conversations/${selectedConversation._id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ approved: true })
+        body: JSON.stringify({ approved: true }),
       })
-      
+
       if (!response.ok) {
         throw new Error("Failed to approve conversation")
       }
-      
-      // Update the selected conversation and refresh
+
       setSelectedConversation({
         ...selectedConversation,
-        approved: true
+        approved: true,
       })
-      
-      // Refresh conversations list
+
       fetchConversations()
     } catch (error) {
       console.error("Error approving conversation:", error)
@@ -346,36 +472,56 @@ export default function MessagesPage() {
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return
-    
+
     setSending(true)
     try {
-      // Create FormData to handle file uploads
       const formData = new FormData()
-      formData.append('content', newMessage)
-      
-      // Add files if any
-      selectedFiles.forEach(file => {
-        formData.append('files', file)
+      formData.append("content", newMessage)
+
+      selectedFiles.forEach((file) => {
+        formData.append("files", file)
       })
-      
+
       const response = await fetch(`/api/conversations/${selectedConversation._id}/messages`, {
-        method: 'POST',
-        body: formData
+        method: "POST",
+        body: formData,
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || "Failed to send message")
       }
-      
+
       const data = await response.json()
-      
-      // Add the new message to the list and clear input
-      setMessages(prev => [...prev, data.message])
+      const newMessageData = data.message
+
+      setMessages((prev) => [...prev, newMessageData])
       setNewMessage("")
       setSelectedFiles([])
-      
-      // Fetch updated conversation list to update last message data
+
+      // Mark own message as delivered initially
+      setMessageReadStatus((prev) => ({
+        ...prev,
+        [newMessageData._id]: {
+          read: false,
+          deliveredAt: new Date(),
+        },
+      }))
+
+      // Simulate read receipt after delay
+      setTimeout(
+        () => {
+          setMessageReadStatus((prev) => ({
+            ...prev,
+            [newMessageData._id]: {
+              read: true,
+              readAt: new Date(),
+            },
+          }))
+        },
+        Math.random() * 2000 + 2000,
+      )
+
       fetchConversations()
     } catch (error) {
       console.error("Error sending message:", error)
@@ -391,551 +537,849 @@ export default function MessagesPage() {
     setMessages([])
     setSelectedFiles([])
   }
-  
+
   // Render file attachment preview
   const renderAttachmentPreview = (attachment) => {
-    if (attachment.type.startsWith('image/')) {
-      // Use thumbnail for preview, full image on click
-      const thumbnailUrl = attachment.thumbnailName ? 
-        `/api/files/${attachment.thumbnailName}?thumbnail=true` : 
-        `/api/files/${attachment.fileName}`;
-      
+    if (attachment.type.startsWith("image/")) {
+      const imageUrl = attachment.thumbnailName
+        ? `/api/files/${attachment.thumbnailName}?thumbnail=true`
+        : `/api/files/${attachment.fileName}`
+
       return (
-        <div className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-          <img 
-            src={thumbnailUrl}
-            alt="Attachment" 
-            className="max-w-[150px] max-h-[150px] object-contain cursor-pointer"
-            onClick={() => setViewingImage(`/api/files/${attachment.fileName}`)}
-            loading="lazy" // Add lazy loading
+        <div
+          className="cursor-pointer overflow-hidden rounded-2xl relative bg-gray-100 shadow-sm"
+          onClick={() => setViewingImage(`/api/files/${attachment.fileName}`)}
+          style={{ maxWidth: "280px" }}
+        >
+          <img
+            src={imageUrl || "/placeholder.svg"}
+            alt="Attachment"
+            className="w-full h-auto object-cover"
+            loading="lazy"
           />
+          <div className="absolute top-2 right-2">
+            <motion.a
+              href={`/api/files/${attachment.fileName}`}
+              download={attachment.name}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full hover:bg-black/70 transition-all duration-200 inline-block"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </motion.a>
+          </div>
         </div>
       )
     } else {
       return (
-        <div className="w-full flex flex-wrap items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-gray-50 dark:bg-gray-700">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            {attachment.type.startsWith('video/') ? 
-              <Camera className="w-5 h-5 text-blue-500 flex-shrink-0" /> : 
-              <File className="w-5 h-5 text-blue-500 flex-shrink-0" />
-            }
-            <div className="overflow-hidden min-w-0 flex-1">
-              <p className="text-xs font-medium truncate text-gray-700 dark:text-gray-200">{attachment.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(attachment.size)}</p>
+        <div
+          className="bg-gray-50 rounded-xl overflow-hidden shadow-sm border border-gray-100"
+          style={{ maxWidth: "280px" }}
+        >
+          <div className="flex items-center p-4">
+            <div className="flex-shrink-0 mr-3">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
+                <File className="w-5 h-5 text-gray-500" />
+              </div>
             </div>
-          </div>
-          <div className="w-full mt-1 sm:w-auto sm:mt-0 text-center">
-            <a 
-              href={`/api/files/${attachment.fileName}`}
-              download={attachment.name}
-              className="inline-block px-2 py-1 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-            >
-              {t.downloadFile}
-            </a>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{attachment.name || "file"}</p>
+              <p className="text-xs text-gray-500 mb-1">{formatFileSize(attachment.size)}</p>
+              <a
+                href={`/api/files/${attachment.fileName}`}
+                download={attachment.name}
+                onClick={(e) => e.stopPropagation()}
+                className="text-sm text-blue-600 font-medium hover:text-blue-700"
+              >
+                {t.downloadFile}
+              </a>
+            </div>
           </div>
         </div>
       )
     }
   }
 
-  const loadMoreMessages = async () => {
-    if (loadingMore || !hasMore) return;
-    
-    setLoadingMore(true);
-    try {
-      const response = await fetch(
-        `/api/conversations/${selectedConversation._id}/messages?page=${page + 1}&limit=50`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.messages.length === 0) {
-          setHasMore(false);
-        } else {
-          setMessages(prev => [...data.messages, ...prev]);
-          setPage(prev => prev + 1);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading more messages:", error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
-  // Add scroll handler to messages container
-  const handleScroll = (e) => {
-    const { scrollTop } = e.target;
-    if (scrollTop === 0 && hasMore && !loadingMore) {
-      loadMoreMessages();
-    }
-  };
-
-  // Add this function to your component (before the return statement)
-  const downloadAttachment = (attachment) => {
-    try {
-      // Create a blob from the base64 data
-      const byteCharacters = atob(attachment.data);
-      const byteArrays = [];
-      
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteArrays.push(byteCharacters.charCodeAt(i));
-      }
-      
-      const byteArray = new Uint8Array(byteArrays);
-      const blob = new Blob([byteArray], {type: attachment.type});
-      
-      // Create a temporary URL for the blob
-      const blobUrl = URL.createObjectURL(blob);
-      
-      // Create an invisible download link and click it
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = attachment.name || `download.${attachment.type.split('/')[1] || 'file'}`;
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-    } catch (error) {
-      console.error("Download failed:", error);
-      alert("Download failed. Please try again.");
-    }
-  }
-
-  // Format timestamp
+  // Format timestamps
   const formatMessageTime = (timestamp) => {
     const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
-  
-  // Format conversation time
+
   const formatConversationTime = (timestamp) => {
-    if (!timestamp) return ''
-    
+    if (!timestamp) return ""
+
     const date = new Date(timestamp)
     const now = new Date()
     const diffMs = now - date
     const diffMinutes = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-    
+
     if (diffMinutes < 1) return t.justNow
     if (diffMinutes < 60) return `${diffMinutes} ${t.minutesAgo}`
     if (diffHours < 24) return `${diffHours} ${t.hoursAgo}`
     if (diffDays < 30) return `${diffDays} ${t.daysAgo}`
-    
+
     return date.toLocaleDateString()
   }
-  
-  // Scroll to bottom when messages update
-  // useEffect(() => {
-  //   if (messagesEndRef.current && messages.length > 0) {
-  //     messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-  //   }
-  // }, [messages]);
+
+  // Filter conversations based on search
+  const filteredConversations = conversations.filter((conversation) => {
+    const name = isDoctor ? conversation.patientName : conversation.doctorName
+    return name?.toLowerCase().includes(searchTerm.toLowerCase())
+  })
 
   // Loading state
   if (authStatus === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-  
-  // Unauthenticated state
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" dir={direction}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">{t.loginRequired}</h1>
-          <a
-            href="/pages/authorization/log_in"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            {t.login}
-          </a>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">{t.loading}</p>
         </div>
       </div>
     )
-  }  
-  
+  }
+
+  // Unauthenticated state
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50" dir={direction}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center bg-white p-8 rounded-2xl shadow-lg"
+        >
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-8 h-8 text-blue-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t.loginRequired}</h1>
+          <motion.a
+            href="/pages/authorization/log_in"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 font-medium shadow-lg transition-all duration-200 inline-block"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {t.login}
+          </motion.a>
+        </motion.div>
+      </div>
+    )
+  }
+
   // Main content
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">{t.title}</h1>
-        
-        {/* Message interface */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="flex h-[calc(100vh-200px)]">
-            {/* Conversations list */}
-            <div className={`w-full md:w-1/3 border-r border-gray-200 ${selectedConversation ? 'hidden md:block' : ''}`}>
-              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="font-medium text-gray-800">{t.title}</h2>
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </button>
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
+          <p className="text-gray-600">
+            {isDoctor ? "Manage your patient conversations" : "Your conversations with doctors"}
+          </p>
+        </motion.div>
+
+        {/* Enhanced message interface */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200"
+        >
+          <div className="flex h-[calc(100vh-180px)]">
+            {/* Enhanced conversations list */}
+            <div
+              className={`w-full md:w-1/3 lg:w-1/4 border-r border-gray-200 ${selectedConversation ? "hidden md:block" : ""}`}
+            >
+              {/* Header with search */}
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-semibold text-gray-900">{t.title}</h2>
+                  <motion.button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-full transition-all duration-200 disabled:opacity-50"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+                  </motion.button>
+                </div>
+
+                {/* Search bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={t.searchMessages}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-              
+
               {loading ? (
                 <div className="flex items-center justify-center p-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                    <p className="text-gray-500 text-sm">{t.loading}</p>
+                  </div>
                 </div>
-              ) : conversations.length === 0 ? (
+              ) : filteredConversations.length === 0 ? (
                 <div className="text-center p-8">
-                  <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 mb-3">{t.noConversations}</p>
-                  <p className="text-gray-500 text-sm">{t.startConversation}</p>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium mb-2">{t.noConversations}</p>
+                  <p className="text-gray-400 text-sm">{t.startConversation}</p>
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-[calc(100vh-250px)]">
-                  {conversations.map((conversation) => (
-                    <div
+                <div className="overflow-y-auto max-h-[calc(100vh-280px)]">
+                  {filteredConversations.map((conversation, index) => (
+                    <motion.div
                       key={conversation._id}
-                      className={`p-4 border-b border-gray-100 cursor-pointer transition-colors hover:bg-gray-50 ${
-                        selectedConversation?._id === conversation._id ? 'bg-blue-50' : ''
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 ${
+                        selectedConversation?._id === conversation._id
+                          ? "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-l-blue-500"
+                          : ""
                       }`}
                       onClick={() => handleSelectConversation(conversation)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
-                          <User className="w-5 h-5 text-gray-500" />
+                        <div className="relative">
+                          <div className="bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <User className="w-6 h-6 text-blue-600" />
+                          </div>
+
+                          {/* Online status indicator - Simplified logic */}
+                          {isUserOnline(conversation) ? (
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-sm"></div>
+                          ) : (
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-300 rounded-full border-2 border-white shadow-sm"></div>
+                          )}
+
+                          {/* Approval status indicator */}
+                          {isDoctor && !conversation.approved && !conversation.rejected && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                              <AlertTriangle className="w-3 h-3 text-white" />
+                            </div>
+                          )}
                         </div>
+
                         <div className="flex-grow min-w-0">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium text-gray-800 truncate">
-                                {isDoctor 
-                                    ? (conversation.patientName || "Patient")
-                                    : `Dr. ${conversation.doctorName || "Doctor"}`
-                                }
+                          <div className="flex justify-between items-start mb-1">
+                            <h3 className="font-semibold text-gray-900 truncate text-sm">
+                              {isDoctor
+                                ? conversation.patientName || "Patient"
+                                : `Dr. ${conversation.doctorName || "Doctor"}`}
                             </h3>
-                            
-                            {/* Approval status */}
-                            {!conversation.approved && (
-                              <span className="inline-flex items-center text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded ml-2">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {t.pendingApproval}
+
+                            {conversation.lastMessageTime && (
+                              <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                {formatConversationTime(conversation.lastMessageTime)}
                               </span>
                             )}
                           </div>
-                          
-                          <p className="text-gray-500 text-sm mt-1 truncate">
-                            {conversation.lastMessage || "..."}
-                          </p>
-                          
+
+                          <div className="flex items-center justify-between">
+                            <p className="text-gray-600 text-sm truncate flex-1 mr-2">
+                              {conversation.lastMessage || "..."}
+                            </p>
+
+                            {/* Status indicators */}
+                            <div className="flex items-center gap-1">
+                              {/* Approval status indicators */}
+                              {!conversation.approved && !conversation.rejected && (
+                                <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                              )}
+                              {conversation.approved && <div className="w-2 h-2 bg-green-400 rounded-full"></div>}
+                              {conversation.rejected && <div className="w-2 h-2 bg-red-400 rounded-full"></div>}
+
+                              {/* Unread message indicator - BLUE DOT */}
+                              {hasUnreadMessages(conversation) && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Online status text */}
                           <div className="text-xs text-gray-400 mt-1">
-                            {formatConversationTime(conversation.lastMessageTime)}
+                            {isUserOnline(conversation) ? t.online : t.offline}
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               )}
             </div>
-            
-            {/* Message area */}
+
+            {/* Enhanced message area */}
             {selectedConversation ? (
-              <div className="w-full md:w-2/3 flex flex-col">
-                {/* Conversation header */}
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <button
-                      className="md:hidden mr-2 text-gray-500"
-                      onClick={handleBackToList}
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <div className="flex items-center gap-2">
-                      <div className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
-                        <User className="w-4 h-4 text-gray-500" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-800">
-                          {isDoctor 
-                              ? (selectedConversation.patientName || "Patient")
-                              : `Dr. ${selectedConversation.doctorName || "Doctor"}`
-                          }
-                        </h3>
+              <div className="w-full md:w-2/3 lg:w-3/4 flex flex-col">
+                {/* Enhanced conversation header */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <motion.button
+                        className="md:hidden mr-3 text-gray-500 hover:text-gray-700 p-2 hover:bg-white/50 rounded-full transition-all duration-200"
+                        onClick={handleBackToList}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </motion.button>
+
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
+                            <User className="w-5 h-5 text-blue-600" />
+                          </div>
+                          {/* Online status indicator in header */}
+                          {isUserOnline(selectedConversation) ? (
+                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                          ) : (
+                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></div>
+                          )}
+                        </div>
+
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {isDoctor
+                              ? selectedConversation.patientName || "Patient"
+                              : `Dr. ${selectedConversation.doctorName || "Doctor"}`}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {isUserOnline(selectedConversation) ? t.online : t.offline}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Approval status / action */}
-                  {!selectedConversation.approved && (
-                    isDoctor ? (
-                      <button 
-                        onClick={handleApproveConversation}
-                        disabled={approving}
-                        className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded-md flex items-center gap-1 disabled:opacity-50"
+
+                    <div className="flex items-center gap-2">
+                      {/* Action buttons */}
+                      <motion.button
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-white/50 rounded-full transition-all duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        {approving ? (
-                          <>
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                            <span>{t.approving}</span>
-                          </>
+                        <Phone className="w-5 h-5" />
+                      </motion.button>
+
+                      <motion.button
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-white/50 rounded-full transition-all duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Video className="w-5 h-5" />
+                      </motion.button>
+
+                      {/* Approval button/status */}
+                      {!selectedConversation.approved &&
+                        (isDoctor ? (
+                          <motion.button
+                            onClick={handleApproveConversation}
+                            disabled={approving}
+                            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-sm px-4 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50 shadow-lg transition-all duration-200 font-medium"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {approving ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <span>{t.approving}</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>{t.approveConversation}</span>
+                              </>
+                            )}
+                          </motion.button>
                         ) : (
-                          <>
-                            <CheckCircle className="w-3.5 h-3.5" />
-                            <span>{t.approveConversation}</span>
-                          </>
-                        )}
-                      </button>
-                    ) : (
-                      <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {t.pendingApproval}
-                      </span>
-                    )
-                  )}
+                          <span className="bg-amber-100 text-amber-800 text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
+                            <Clock className="w-3 h-3" />
+                            {t.pendingApproval}
+                          </span>
+                        ))}
+
+                      {selectedConversation.approved && (
+                        <span className="bg-green-100 text-green-800 text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
+                          <CheckCircle className="w-3 h-3" />
+                          {t.approved}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
-                {/* Messages */}
-                <div className="flex-grow max-h-[calc(100vh-250px)] md:max-h-[calc(100vh-200px)] overflow-y-auto p-3 bg-gray-50 dark:bg-gray-900">
+
+                {/* Enhanced messages area */}
+                <div className="flex-grow max-h-[calc(100vh-320px)] overflow-y-auto p-4 bg-gradient-to-b from-gray-50/50 to-white">
                   {messages.length > 0 ? (
                     <div className="space-y-4">
-                      {messages.map((message) => {
-                        // Determine if this message was sent by the current user
+                      {messages.map((message, index) => {
                         const isOwnMessage =
-                          (isDoctor && message.senderType === 'doctor') ||
-                          (!isDoctor && message.senderType === 'user');
-                        
+                          (isDoctor && message.senderType === "doctor") || (!isDoctor && message.senderType === "user")
+
+                        const showAvatar = index === 0 || messages[index - 1]?.senderType !== message.senderType
+
                         return (
-                          <div
+                          <motion.div
                             key={message._id}
-                            className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
                           >
                             <div
-                              className={`inline-block max-w-[90%] sm:max-w-[75%] rounded-lg px-4 py-2 ${
-                                isOwnMessage
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700'
-                              }`}
+                              className={`flex items-end gap-2 max-w-[75%] ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}
                             >
-                              {message.content && (
-                                <p className="dark:text-inherit">{message.content}</p>
-                              )}
-                              
-                              {/* Render attachments if any */}
-                              {message.attachments && message.attachments.length > 0 && (
-                                <div className={`mt-2 ${message.content ? 'pt-2 border-t border-gray-200/30' : ''}`}>
-                                  <div className="space-y-2">
-                                    {message.attachments.map((attachment, idx) => (
-                                      <div key={idx} className="flex flex-col items-start">
-                                        {renderAttachmentPreview(attachment)}
-                                      </div>
-                                    ))}
-                                  </div>
+                              {!isOwnMessage && showAvatar && (
+                                <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                                  <User className="w-4 h-4 text-gray-600" />
                                 </div>
                               )}
-                              
-                              <div
-                                className={`text-xs mt-1 ${
-                                isOwnMessage ? 'text-blue-200' : 'text-gray-500 dark:text-gray-300'
-                                }`}
-                              >
-                                {formatMessageTime(message.timestamp)}
+                              {!isOwnMessage && !showAvatar && <div className="w-8 h-8 flex-shrink-0"></div>}
+
+                              <div className={`relative ${isOwnMessage ? "ml-auto" : "mr-auto"}`}>
+                                {message.content && (
+                                  <div
+                                    className={`${
+                                      isOwnMessage
+                                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
+                                        : "bg-white text-gray-800 border border-gray-200 shadow-sm"
+                                    } px-4 py-3 rounded-2xl ${isOwnMessage ? "rounded-br-md" : "rounded-bl-md"}`}
+                                    style={{
+                                      wordBreak: "break-word",
+                                      overflowWrap: "break-word",
+                                      hyphens: "auto",
+                                    }}
+                                  >
+                                    <p className="text-sm leading-relaxed break-words">{message.content}</p>
+                                  </div>
+                                )}
+
+                                {/* Enhanced attachments rendering */}
+                                {message.attachments && message.attachments.length > 0 && (
+                                  <div className={`mt-2 ${message.content ? "pt-2" : ""}`}>
+                                    <div className="space-y-2">
+                                      {message.attachments.map((attachment, idx) => (
+                                        <motion.div
+                                          key={idx}
+                                          className="flex flex-col items-start"
+                                          initial={{ opacity: 0, scale: 0.9 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          transition={{ delay: 0.2 }}
+                                        >
+                                          {renderAttachmentPreview(attachment)}
+                                        </motion.div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div
+                                  className={`flex items-center gap-1 mt-1 ${isOwnMessage ? "justify-end" : "justify-start"}`}
+                                >
+                                  <span className="text-xs text-gray-500">{formatMessageTime(message.timestamp)}</span>
+                                  {isOwnMessage && (
+                                    <div className="flex items-center">
+                                      {messageReadStatus[message._id]?.read ? (
+                                        <div className="flex items-center">
+                                          <Check className="w-3 h-3 text-blue-500" style={{ marginLeft: "-2px" }} />
+                                          <Check className="w-3 h-3 text-blue-500" style={{ marginLeft: "-6px" }} />
+                                        </div>
+                                      ) : (
+                                        <Check className="w-3 h-3 text-gray-400" />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+
+                      {/* Enhanced typing indicator */}
+                      {otherUserTyping && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="flex justify-start"
+                        >
+                          <div className="flex items-end gap-2 max-w-[75%]">
+                            <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <User className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <div className="bg-white text-gray-800 border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+                              <div className="flex items-center gap-2">
+                                <div className="flex gap-1">
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "0ms" }}
+                                  ></div>
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "150ms" }}
+                                  ></div>
+                                  <div
+                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: "300ms" }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {isDoctor ? t.patientTyping : t.doctorTyping}
+                                </span>
                               </div>
                             </div>
                           </div>
-                        );
-                      })}
+                        </motion.div>
+                      )}
+
                       <div ref={messagesEndRef} />
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <MessageCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                      <p className="text-gray-500">{t.noMessages}</p>
-                      <p className="text-gray-400 text-sm mt-1">{t.sendFirstMessage}</p>
+                    <div className="text-center py-12">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <MessageCircle className="w-10 h-10 text-blue-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">{t.noMessages}</h3>
+                      <p className="text-gray-500">{t.sendFirstMessage}</p>
                     </div>
                   )}
                 </div>
-                
-                {/* Selected files preview */}
-                {selectedFiles.length > 0 && (
-                  <div className="max-h-20 overflow-y-auto border-t border-gray-200 p-2 bg-gray-50">
-                    <div className="flex flex-wrap gap-2">
-                      {selectedFiles.map((file, index) => (
-                        <div key={index} className="flex items-center gap-2 bg-white p-1 rounded border border-gray-200">
-                          {getFileIcon(file)}
-                          <span className="text-xs truncate max-w-[80px]">{file.name}</span>
-                          <button 
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Message input */}
-                <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-3">
-                  <div className="flex items-center gap-2">
-                    {/* Attachment button with dropdown */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setAttachmentMenuOpen(!attachmentMenuOpen)}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full"
-                      >
-                        <Paperclip className="w-5 h-5" />
-                      </button>
-                      
-                      {/* Hidden file input */}
-                      <input 
-                        type="file" 
-                        ref={fileInputRef}
-                        onChange={handleFileSelect} 
-                        className="hidden" 
-                        multiple 
-                      />
-                      
-                      {/* Attachment dropdown menu */}
-                      {attachmentMenuOpen && (
-                        <div className="absolute bottom-full left-0 mb-1 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden z-10">
-                          <div className="py-1">
-                            {/* Photo Gallery */}
-                            <button
-                              type="button"
-                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-                              onClick={() => {
-                                fileInputRef.current.accept = "image/*,video/*";
-                                fileInputRef.current.removeAttribute("capture");
-                                fileInputRef.current.click();
-                                setAttachmentMenuOpen(false);
-                              }}
-                            >
-                              <Image className="w-4 h-4 text-blue-500" />
-                              {t.photoGallery}
-                            </button>
-                            
-                            {/* Camera */}
-                            <button
-                              type="button"
-                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-                              onClick={() => {
-                                fileInputRef.current.accept = "image/*";
-                                fileInputRef.current.setAttribute("capture", "environment");
-                                fileInputRef.current.click();
-                                setAttachmentMenuOpen(false);
-                              }}
-                            >
-                              <Camera className="w-4 h-4 text-green-500" />
-                              {t.takePhoto}
-                            </button>
-                            
-                            {/* Document */}
-                            <button
-                              type="button"
-                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-                              onClick={() => {
-                                fileInputRef.current.accept = ".pdf,.doc,.docx,.xls,.xlsx,.txt,application/*";
-                                fileInputRef.current.removeAttribute("capture");
-                                fileInputRef.current.click();
-                                setAttachmentMenuOpen(false);
-                              }}
-                            >
-                              <File className="w-4 h-4 text-orange-500" />
-                              {t.document}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder={t.typeMessage}
-                      className="flex-1 p-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={
-                        (!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1) ||
-                        sending
-                      }
-                      ref={messageInputRef}
-                    />
-                    <button
-                      type="submit"
-                      disabled={
-                        (!newMessage.trim() && selectedFiles.length === 0) || 
-                        sending ||
-                        (!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1)
-                      }
-                      className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+                {/* Enhanced selected files preview */}
+                <AnimatePresence>
+                  {selectedFiles.length > 0 && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="border-t border-gray-200 p-3 bg-gray-50/50"
                     >
-                      {sending ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      ) : (
-                        <Send className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  
-                  {/* Message limit warning */}
-                  {!selectedConversation.approved && !isDoctor && messages.filter(m => m.senderType === 'user').length >= 1 && (
-                    <p className="text-xs text-yellow-600 mt-1 px-2 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {t.waitForApproval}
-                    </p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedFiles.map((file, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            className="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-200 shadow-sm"
+                          >
+                            <div className="flex items-center gap-2">
+                              {file.type.startsWith("image/") ? (
+                                <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <ImageIcon className="w-2.5 h-2.5 text-blue-600" />
+                                </div>
+                              ) : file.type.startsWith("video/") ? (
+                                <div className="w-4 h-4 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <Camera className="w-2.5 h-2.5 text-purple-600" />
+                                </div>
+                              ) : (
+                                <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                                  <File className="w-2.5 h-2.5 text-gray-600" />
+                                </div>
+                              )}
+                              <span className="text-xs font-medium text-gray-700 max-w-[80px] truncate">
+                                {file.name}
+                              </span>
+                            </div>
+                            <motion.button
+                              onClick={() => removeFile(index)}
+                              className="text-gray-400 hover:text-red-500 p-0.5 rounded-full hover:bg-red-50 transition-colors"
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <X className="w-3 h-3" />
+                            </motion.button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
                   )}
-                  
-                  {/* Show approved status */}
-                  {selectedConversation.approved && (
-                    <p className="text-xs text-green-600 mt-1 px-2 flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      {t.conversationApproved}
-                    </p>
-                  )}
-                </form>
-                {/* Image viewer modal */}
-                {viewingImage && (
-                  <div 
-                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                    onClick={() => setViewingImage(null)}
-                  >
-                    <div className="relative max-w-[90vw] max-h-[90vh]">
-                      <button 
-                        className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setViewingImage(null);
-                        }}
+                </AnimatePresence>
+
+                {/* Enhanced message input */}
+                <div className="border-t border-gray-200 bg-white">
+                  <form onSubmit={handleSendMessage} className="p-4">
+                    <div className="flex items-center gap-3">
+                      {/* Enhanced attachment dropdown */}
+                      <div className="relative">
+                        <motion.button
+                          type="button"
+                          onClick={() => setAttachmentMenuOpen(!attachmentMenuOpen)}
+                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Paperclip className="w-5 h-5" />
+                        </motion.button>
+
+                        <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple />
+
+                        <AnimatePresence>
+                          {attachmentMenuOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                              className={`absolute bottom-full ${isRTL ? "right-0" : "left-0"} mb-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-10 min-w-[200px]`}
+                            >
+                              <div className="py-2">
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ backgroundColor: "#f8fafc" }}
+                                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left transition-colors"
+                                  onClick={() => {
+                                    fileInputRef.current.accept = "image/*,video/*"
+                                    fileInputRef.current.removeAttribute("capture")
+                                    fileInputRef.current.click()
+                                    setAttachmentMenuOpen(false)
+                                  }}
+                                >
+                                  <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                                    <ImageIcon className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <span className="font-medium text-gray-700">{t.photoGallery}</span>
+                                </motion.button>
+
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ backgroundColor: "#f8fafc" }}
+                                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left transition-colors"
+                                  onClick={() => {
+                                    fileInputRef.current.accept = "image/*"
+                                    fileInputRef.current.setAttribute("capture", "environment")
+                                    fileInputRef.current.click()
+                                    setAttachmentMenuOpen(false)
+                                  }}
+                                >
+                                  <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
+                                    <Camera className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <span className="font-medium text-gray-700">{t.takePhoto}</span>
+                                </motion.button>
+
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ backgroundColor: "#f8fafc" }}
+                                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left transition-colors"
+                                  onClick={() => {
+                                    fileInputRef.current.accept = ".pdf,.doc,.docx,.xls,.xlsx,.txt,application/*"
+                                    fileInputRef.current.removeAttribute("capture")
+                                    fileInputRef.current.click()
+                                    setAttachmentMenuOpen(false)
+                                  }}
+                                >
+                                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center">
+                                    <File className="w-4 h-4 text-orange-600" />
+                                  </div>
+                                  <span className="font-medium text-gray-700">{t.document}</span>
+                                </motion.button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Enhanced message input field */}
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          value={newMessage}
+                          onChange={(e) => {
+                            setNewMessage(e.target.value)
+                            if (e.target.value.trim()) {
+                              handleTypingStart()
+                            }
+                          }}
+                          placeholder={t.typeMessage}
+                          className={`w-full ${isRTL ? "pr-4 pl-12" : "pl-4 pr-12"} py-3 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 transition-all duration-200`}
+                          disabled={
+                            (!selectedConversation.approved &&
+                              !isDoctor &&
+                              messages.filter((m) => m.senderType === "user").length >= 1) ||
+                            sending ||
+                            selectedConversation.rejected
+                          }
+                          ref={messageInputRef}
+                        />
+                        <button
+                          type="button"
+                          className={`absolute ${isRTL ? "left-3" : "right-3"} top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600`}
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Enhanced send button */}
+                      <motion.button
+                        type="submit"
+                        disabled={
+                          (!newMessage.trim() && selectedFiles.length === 0) ||
+                          sending ||
+                          (!selectedConversation.approved &&
+                            !isDoctor &&
+                            messages.filter((m) => m.senderType === "user").length >= 1) ||
+                          selectedConversation.rejected
+                        }
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-full hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <X className="w-6 h-6" />
-                      </button>
-                      <img 
-                        src={viewingImage} 
-                        alt="Full size attachment" 
-                        className="max-w-full max-h-[90vh] object-contain"
-                        onClick={(e) => e.stopPropagation()}
-                      />
+                        {sending ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
+                      </motion.button>
                     </div>
-                  </div>
-                )}
+
+                    {/* Enhanced status messages */}
+                    <AnimatePresence>
+                      {!selectedConversation.approved &&
+                        !selectedConversation.rejected &&
+                        !isDoctor &&
+                        messages.filter((m) => m.senderType === "user").length >= 1 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-3"
+                          >
+                            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-lg border border-amber-200">
+                              <Clock className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                              <p className="text-xs text-amber-700">{t.waitForApproval}</p>
+                            </div>
+                          </motion.div>
+                        )}
+
+                      {selectedConversation.approved && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
+                            <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
+                            <p className="text-xs text-green-700">{t.conversationApproved}</p>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {selectedConversation.rejected && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200">
+                            <XCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
+                            <p className="text-xs text-red-700">Conversation rejected</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </form>
+                </div>
               </div>
             ) : (
-              <div className="hidden md:flex md:w-2/3 items-center justify-center bg-gray-50">
-                <div className="text-center">
-                  <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">{t.noConversations}</p>
-                  <p className="text-gray-400 text-sm mt-2">{t.startConversation}</p>
-                </div>
+              <div className="hidden md:flex md:w-2/3 lg:w-3/4 items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center"
+                >
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <MessageCircle className="w-12 h-12 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">{t.noConversations}</h3>
+                  <p className="text-gray-500 mb-4">{t.startConversation}</p>
+                  <motion.button
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 font-medium shadow-lg transition-all duration-200 flex items-center gap-2 mx-auto"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => router.push("/doctors")}
+                  >
+                    <Plus className="w-5 h-5" />
+                    Start New Conversation
+                  </motion.button>
+                </motion.div>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
+
+      {/* Enhanced Image Viewer Modal */}
+      <AnimatePresence>
+        {viewingImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50"
+            onClick={() => setViewingImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative max-w-[95vw] max-h-[95vh]"
+            >
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/70 transition-all duration-200 z-10"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setViewingImage(null)
+                }}
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+              <img
+                src={viewingImage || "/placeholder.svg"}
+                alt="Full size attachment"
+                className="max-w-full max-h-[95vh] object-contain rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Error notification */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50"
+          >
+            <div className="flex items-center gap-2">
+              <XCircle className="w-5 h-5" />
+              <span>{error}</span>
+              <button onClick={() => setError(null)} className="ml-2 hover:bg-red-600 p-1 rounded">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
