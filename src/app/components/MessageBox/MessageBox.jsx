@@ -509,7 +509,7 @@ export default function MessageBox() {
           console.error("Failed to send typing indicator", e)
         }
       }
-    }, 2000)
+    }, 500)
 
     setTypingTimeout(timeout)
   }

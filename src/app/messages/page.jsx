@@ -263,11 +263,11 @@ export default function MessagesPage() {
   }, [session, authStatus])
 
   // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    if (messagesEndRef.current && messages.length > 0) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }, [messages])
+  // useEffect(() => {
+  //   if (messagesEndRef.current && messages.length > 0) {
+  //     messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+  //   }
+  // }, [messages])
 
   // Typing indicator functions
   const handleTypingStart = () => {
@@ -281,7 +281,7 @@ export default function MessagesPage() {
 
     const timeout = setTimeout(() => {
       setIsTyping(false)
-    }, 2000)
+    }, 500)
 
     setTypingTimeout(timeout)
   }
