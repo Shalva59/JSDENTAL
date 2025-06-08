@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -27,7 +27,125 @@ import {
   Video,
   Search,
   Plus,
+  Loader2,
 } from "lucide-react"
+
+// Online status manager using localStorage
+class OnlineStatusManager {
+  static STORAGE_KEY = 'jcdental_online_users'
+  static TYPING_KEY = 'jcdental_typing_users'
+  static HEARTBEAT_INTERVAL = 5000 // 5 seconds
+  static OFFLINE_THRESHOLD = 10000 // 10 seconds
+  static TYPING_TIMEOUT = 3000 // 3 seconds
+
+  static updateMyStatus(userId) {
+    if (!userId) return
+    
+    const onlineUsers = this.getOnlineUsers()
+    onlineUsers[userId] = Date.now()
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(onlineUsers))
+  }
+
+  static getOnlineUsers() {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY)
+      return stored ? JSON.parse(stored) : {}
+    } catch {
+      return {}
+    }
+  }
+
+  static isUserOnline(userId) {
+    if (!userId) return false
+    
+    const onlineUsers = this.getOnlineUsers()
+    const lastSeen = onlineUsers[userId]
+    
+    if (!lastSeen) return false
+    
+    return Date.now() - lastSeen < this.OFFLINE_THRESHOLD
+  }
+
+  static cleanupOfflineUsers() {
+    const onlineUsers = this.getOnlineUsers()
+    const now = Date.now()
+    
+    Object.keys(onlineUsers).forEach(userId => {
+      if (now - onlineUsers[userId] > this.OFFLINE_THRESHOLD) {
+        delete onlineUsers[userId]
+      }
+    })
+    
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(onlineUsers))
+  }
+
+  // Typing status methods
+  static setTyping(conversationId, userId, isTyping) {
+    const typingUsers = this.getTypingUsers()
+    
+    if (!typingUsers[conversationId]) {
+      typingUsers[conversationId] = {}
+    }
+    
+    if (isTyping) {
+      typingUsers[conversationId][userId] = Date.now()
+    } else {
+      delete typingUsers[conversationId][userId]
+    }
+    
+    localStorage.setItem(this.TYPING_KEY, JSON.stringify(typingUsers))
+  }
+
+  static getTypingUsers() {
+    try {
+      const stored = localStorage.getItem(this.TYPING_KEY)
+      return stored ? JSON.parse(stored) : {}
+    } catch {
+      return {}
+    }
+  }
+
+  static isUserTyping(conversationId, userId) {
+    const typingUsers = this.getTypingUsers()
+    const conversationTyping = typingUsers[conversationId] || {}
+    const lastTyping = conversationTyping[userId]
+    
+    if (!lastTyping) return false
+    
+    // Clean up old typing status
+    if (Date.now() - lastTyping > this.TYPING_TIMEOUT) {
+      delete conversationTyping[userId]
+      localStorage.setItem(this.TYPING_KEY, JSON.stringify(typingUsers))
+      return false
+    }
+    
+    return true
+  }
+
+  static cleanupTypingStatus() {
+    const typingUsers = this.getTypingUsers()
+    const now = Date.now()
+    let hasChanges = false
+    
+    Object.keys(typingUsers).forEach(conversationId => {
+      Object.keys(typingUsers[conversationId]).forEach(userId => {
+        if (now - typingUsers[conversationId][userId] > this.TYPING_TIMEOUT) {
+          delete typingUsers[conversationId][userId]
+          hasChanges = true
+        }
+      })
+      
+      if (Object.keys(typingUsers[conversationId]).length === 0) {
+        delete typingUsers[conversationId]
+        hasChanges = true
+      }
+    })
+    
+    if (hasChanges) {
+      localStorage.setItem(this.TYPING_KEY, JSON.stringify(typingUsers))
+    }
+  }
+}
 
 export default function MessagesPage() {
   const { data: session, status: authStatus } = useSession()
@@ -55,13 +173,19 @@ export default function MessagesPage() {
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
-  const [otherUserTyping, setOtherUserTyping] = useState(false)
-  const [typingTimeout, setTypingTimeout] = useState(null)
   const [messageReadStatus, setMessageReadStatus] = useState({})
-  const [onlineUsers, setOnlineUsers] = useState(new Set()) // Track online users
+  
+  // Online/Typing status states
+  const [onlineStatuses, setOnlineStatuses] = useState({})
+  const [typingStatuses, setTypingStatuses] = useState({})
+  const typingTimeoutRef = useRef(null)
+  const heartbeatIntervalRef = useRef(null)
+  const statusCheckIntervalRef = useRef(null)
 
-  // Translations
+  // Get current user ID
+  const currentUserId = session?.user?.id || session?.user?.email
+
+  // Translations (keeping existing translations)
   const texts = {
     ka: {
       title: "შეტყობინებები",
@@ -102,11 +226,14 @@ export default function MessagesPage() {
       searchMessages: "შეტყობინებების ძიება",
       online: "ონლაინ",
       offline: "ოფლაინ",
+      lastSeen: "ბოლოს ნანახი",
       typing: "წერს...",
       doctorTyping: "ექიმი წერს...",
       patientTyping: "პაციენტი წერს...",
       delivered: "მიწოდებული",
       read: "წაკითხული",
+      connectionError: "კავშირის შეცდომა",
+      reconnecting: "ხელახლა დაკავშირება...",
     },
     en: {
       title: "Messages",
@@ -147,11 +274,14 @@ export default function MessagesPage() {
       searchMessages: "Search messages",
       online: "Online",
       offline: "Offline",
+      lastSeen: "Last seen",
       typing: "typing...",
       doctorTyping: "Doctor is typing...",
       patientTyping: "Patient is typing...",
       delivered: "Delivered",
       read: "Read",
+      connectionError: "Connection error",
+      reconnecting: "Reconnecting...",
     },
     ru: {
       title: "Сообщения",
@@ -192,11 +322,14 @@ export default function MessagesPage() {
       searchMessages: "Поиск сообщений",
       online: "Онлайн",
       offline: "Оффлайн",
+      lastSeen: "Был(а) в сети",
       typing: "печатает...",
       doctorTyping: "Врач печатает...",
       patientTyping: "Пациент печатает...",
       delivered: "Доставлено",
       read: "Прочитано",
+      connectionError: "Ошибка соединения",
+      reconnecting: "Переподключение...",
     },
     he: {
       title: "הודעות",
@@ -237,15 +370,107 @@ export default function MessagesPage() {
       searchMessages: "חפש הודעות",
       online: "מקוון",
       offline: "לא מקוון",
+      lastSeen: "נראה לאחרונה",
       typing: "כותב...",
       doctorTyping: "הרופא כותב...",
       patientTyping: "המטופל כותב...",
       delivered: "נמסר",
       read: "נקרא",
+      connectionError: "שגיאת חיבור",
+      reconnecting: "מתחבר מחדש...",
     },
   }
 
   const t = texts[currentLanguage] || texts.ka
+
+  // Initialize online status heartbeat
+  useEffect(() => {
+    if (!currentUserId) return
+
+    // Update my online status immediately
+    OnlineStatusManager.updateMyStatus(currentUserId)
+
+    // Set up heartbeat
+    heartbeatIntervalRef.current = setInterval(() => {
+      OnlineStatusManager.updateMyStatus(currentUserId)
+    }, OnlineStatusManager.HEARTBEAT_INTERVAL)
+
+    // Set up status checking
+    statusCheckIntervalRef.current = setInterval(() => {
+      OnlineStatusManager.cleanupOfflineUsers()
+      OnlineStatusManager.cleanupTypingStatus()
+      updateOnlineStatuses()
+      updateTypingStatuses()
+    }, 1000) // Check every second
+
+    // Clean up on unmount
+    return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current)
+      }
+      if (statusCheckIntervalRef.current) {
+        clearInterval(statusCheckIntervalRef.current)
+      }
+    }
+  }, [currentUserId])
+
+  // Update online statuses for all conversations
+  const updateOnlineStatuses = useCallback(() => {
+    const statuses = {}
+    
+    conversations.forEach(conversation => {
+      const otherUserId = isDoctor ? conversation.userId : conversation.doctorId
+      if (otherUserId) {
+        statuses[otherUserId] = OnlineStatusManager.isUserOnline(otherUserId.toString())
+      }
+    })
+    
+    setOnlineStatuses(statuses)
+  }, [conversations, isDoctor])
+
+  // Update typing statuses
+  const updateTypingStatuses = useCallback(() => {
+    if (!selectedConversation) return
+    
+    const otherUserId = isDoctor ? selectedConversation.userId : selectedConversation.doctorId
+    if (!otherUserId) return
+    
+    const isTyping = OnlineStatusManager.isUserTyping(
+      selectedConversation._id,
+      otherUserId.toString()
+    )
+    
+    setTypingStatuses(prev => ({
+      ...prev,
+      [selectedConversation._id]: isTyping
+    }))
+  }, [selectedConversation, isDoctor])
+
+  // Handle typing
+  const handleTypingStart = useCallback(() => {
+    if (!selectedConversation || !currentUserId) return
+    
+    // Set typing status
+    OnlineStatusManager.setTyping(
+      selectedConversation._id,
+      currentUserId,
+      true
+    )
+    
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+    
+    // Set timeout to stop typing
+    typingTimeoutRef.current = setTimeout(() => {
+      OnlineStatusManager.setTyping(
+        selectedConversation._id,
+        currentUserId,
+        false
+      )
+    }, OnlineStatusManager.TYPING_TIMEOUT - 500) // Stop slightly before timeout
+  }, [selectedConversation, currentUserId])
 
   // Check authentication
   useEffect(() => {
@@ -255,80 +480,40 @@ export default function MessagesPage() {
       return
     }
     fetchConversations()
-
-    // Add current user to online users when component mounts
-    if (session?.user?.email) {
-      setOnlineUsers((prev) => new Set([...prev, session.user.email]))
-    }
   }, [session, authStatus])
 
-  // Auto-scroll to bottom when messages change
-  // useEffect(() => {
-  //   if (messagesEndRef.current && messages.length > 0) {
-  //     messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-  //   }
-  // }, [messages])
-
-  // Typing indicator functions
-  const handleTypingStart = () => {
-    if (!isTyping && selectedConversation) {
-      setIsTyping(true)
-    }
-
-    if (typingTimeout) {
-      clearTimeout(typingTimeout)
-    }
-
-    const timeout = setTimeout(() => {
-      setIsTyping(false)
-    }, 500)
-
-    setTypingTimeout(timeout)
-  }
-
-  // Simplified online status check
-  const isUserOnline = (conversation) => {
+  // Check if user is online
+  const isUserOnline = useCallback((conversation) => {
     if (!conversation) return false
+    
+    const otherUserId = isDoctor ? conversation.userId : conversation.doctorId
+    return otherUserId ? (onlineStatuses[otherUserId] || false) : false
+  }, [isDoctor, onlineStatuses])
 
-    // For now, we'll consider users online if they have recent activity
-    // This is a simplified version until we implement real-time presence
-    const now = new Date()
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
-
-    if (isDoctor) {
-      // Doctor checking if patient is online
-      const patientEmail = conversation.patientEmail || conversation.patientName
-      return (
-        onlineUsers.has(patientEmail) ||
-        (conversation.lastMessageTime && new Date(conversation.lastMessageTime) > fiveMinutesAgo)
-      )
-    } else {
-      // Patient checking if doctor is online
-      const doctorEmail = conversation.doctorEmail || conversation.doctorName
-      return (
-        onlineUsers.has(doctorEmail) ||
-        (conversation.lastMessageTime && new Date(conversation.lastMessageTime) > fiveMinutesAgo)
-      )
-    }
-  }
-
-  // Simplified unread messages logic
-  const hasUnreadMessages = (conversation) => {
+  // Check if other user is typing
+  const isOtherUserTyping = useCallback((conversation) => {
     if (!conversation) return false
+    return typingStatuses[conversation._id] || false
+  }, [typingStatuses])
 
-    // Check if there are unread messages for current user
-    if (isDoctor) {
-      return (
-        conversation.unreadByDoctor > 0 ||
-        (conversation.lastMessage && !conversation.seenByDoctor && conversation.lastMessageSender !== "doctor")
-      )
-    } else {
-      return (
-        conversation.unreadByPatient > 0 ||
-        (conversation.lastMessage && !conversation.seenByPatient && conversation.lastMessageSender !== "user")
-      )
-    }
-  }
+  // Format last seen time
+  const formatLastSeen = useCallback((userId) => {
+    const onlineUsers = OnlineStatusManager.getOnlineUsers()
+    const lastSeen = onlineUsers[userId?.toString()]
+    
+    if (!lastSeen) return ""
+    
+    const now = Date.now()
+    const diff = now - lastSeen
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    
+    if (minutes < 1) return t.justNow
+    if (minutes < 60) return `${minutes} ${t.minutesAgo}`
+    if (hours < 24) return `${hours} ${t.hoursAgo}`
+    return `${days} ${t.daysAgo}`
+  }, [t])
 
   // Fetch conversations
   const fetchConversations = async () => {
@@ -377,28 +562,21 @@ export default function MessagesPage() {
     }
   }
 
-  // Select a conversation and mark messages as read (simplified)
+  // Select a conversation
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation)
     setMessages([])
     setSelectedFiles([])
     setAttachmentMenuOpen(false)
-
-    // Simplified mark as read - just update local state
-    // Remove unread indicator immediately when conversation is opened
-    const updatedConversations = conversations.map((conv) => {
-      if (conv._id === conversation._id) {
-        return {
-          ...conv,
-          unreadByDoctor: isDoctor ? 0 : conv.unreadByDoctor,
-          unreadByPatient: !isDoctor ? 0 : conv.unreadByPatient,
-          seenByDoctor: isDoctor ? true : conv.seenByDoctor,
-          seenByPatient: !isDoctor ? true : conv.seenByPatient,
-        }
-      }
-      return conv
-    })
-    setConversations(updatedConversations)
+    
+    // Clear typing status when switching conversations
+    if (currentUserId && selectedConversation) {
+      OnlineStatusManager.setTyping(
+        selectedConversation._id,
+        currentUserId,
+        false
+      )
+    }
 
     await fetchMessages(conversation._id)
   }
@@ -468,10 +646,19 @@ export default function MessagesPage() {
     }
   }
 
-  // Send message with attachments
+  // Send message
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if ((!newMessage.trim() && selectedFiles.length === 0) || !selectedConversation) return
+
+    // Stop typing
+    if (currentUserId) {
+      OnlineStatusManager.setTyping(
+        selectedConversation._id,
+        currentUserId,
+        false
+      )
+    }
 
     setSending(true)
     try {
@@ -499,7 +686,7 @@ export default function MessagesPage() {
       setNewMessage("")
       setSelectedFiles([])
 
-      // Mark own message as delivered initially
+      // Update message read status
       setMessageReadStatus((prev) => ({
         ...prev,
         [newMessageData._id]: {
@@ -509,18 +696,15 @@ export default function MessagesPage() {
       }))
 
       // Simulate read receipt after delay
-      setTimeout(
-        () => {
-          setMessageReadStatus((prev) => ({
-            ...prev,
-            [newMessageData._id]: {
-              read: true,
-              readAt: new Date(),
-            },
-          }))
-        },
-        Math.random() * 2000 + 2000,
-      )
+      setTimeout(() => {
+        setMessageReadStatus((prev) => ({
+          ...prev,
+          [newMessageData._id]: {
+            read: true,
+            readAt: new Date(),
+          },
+        }))
+      }, Math.random() * 2000 + 1000)
 
       fetchConversations()
     } catch (error) {
@@ -536,6 +720,15 @@ export default function MessagesPage() {
     setSelectedConversation(null)
     setMessages([])
     setSelectedFiles([])
+    
+    // Clear typing status
+    if (currentUserId && selectedConversation) {
+      OnlineStatusManager.setTyping(
+        selectedConversation._id,
+        currentUserId,
+        false
+      )
+    }
   }
 
   // Render file attachment preview
@@ -547,7 +740,7 @@ export default function MessagesPage() {
 
       return (
         <div
-          className="cursor-pointer overflow-hidden rounded-xl sm:rounded-2xl relative bg-gray-100 shadow-sm"
+          className="cursor-pointer overflow-hidden rounded-xl sm:rounded-2xl relative bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
           onClick={() => setViewingImage(`/api/files/${attachment.fileName}`)}
           style={{ maxWidth: "200px" }}
         >
@@ -574,7 +767,7 @@ export default function MessagesPage() {
     } else {
       return (
         <div
-          className="bg-gray-50 rounded-lg sm:rounded-xl overflow-hidden shadow-sm border border-gray-100"
+          className="bg-gray-50 rounded-lg sm:rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
           style={{ maxWidth: "200px" }}
         >
           <div className="flex items-center p-2 sm:p-4">
@@ -586,12 +779,12 @@ export default function MessagesPage() {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{attachment.name || "file"}</p>
               <p className="text-xs text-gray-500 mb-0.5 sm:mb-1">{formatFileSize(attachment.size)}</p>
-              <a
+              
                 href={`/api/files/${attachment.fileName}`}
                 download={attachment.name}
                 onClick={(e) => e.stopPropagation()}
                 className="text-xs sm:text-sm text-blue-600 font-medium hover:text-blue-700"
-              >
+              <a>
                 {t.downloadFile}
               </a>
             </div>
@@ -631,12 +824,26 @@ export default function MessagesPage() {
     return name?.toLowerCase().includes(searchTerm.toLowerCase())
   })
 
+  // Check if conversation has unread messages (simplified)
+  const hasUnreadMessages = (conversation) => {
+    if (!conversation.lastMessage) return false
+    
+    // Simple check based on last message sender
+    if (isDoctor && conversation.lastMessageSender === "user") {
+      return true
+    } else if (!isDoctor && conversation.lastMessageSender === "doctor") {
+      return true
+    }
+    
+    return false
+  }
+
   // Loading state
   if (authStatus === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">{t.loading}</p>
         </div>
       </div>
@@ -723,7 +930,7 @@ export default function MessagesPage() {
               {loading ? (
                 <div className="flex items-center justify-center p-12">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">{t.loading}</p>
                   </div>
                 </div>
@@ -737,90 +944,92 @@ export default function MessagesPage() {
                 </div>
               ) : (
                 <div className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-280px)]">
-                  {filteredConversations.map((conversation, index) => (
-                    <motion.div
-                      key={conversation._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`p-2 sm:p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 ${
-                        selectedConversation?._id === conversation._id
-                          ? "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-l-blue-500"
-                          : ""
-                      }`}
-                      onClick={() => handleSelectConversation(conversation)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="flex items-start gap-2 sm:gap-3">
-                        <div className="relative">
-                          <div className="bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <User className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
-                          </div>
-
-                          {/* Online status indicator */}
-                          {isUserOnline(conversation) ? (
-                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-green-400 rounded-full border-1 sm:border-2 border-white shadow-sm"></div>
-                          ) : (
-                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-gray-300 rounded-full border-1 sm:border-2 border-white shadow-sm"></div>
-                          )}
-
-                          {/* Approval status indicator */}
-                          {isDoctor && !conversation.approved && !conversation.rejected && (
-                            <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-5 sm:h-5 bg-amber-400 rounded-full border-1 sm:border-2 border-white flex items-center justify-center shadow-sm">
-                              <AlertTriangle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                  {filteredConversations.map((conversation, index) => {
+                    const online = isUserOnline(conversation)
+                    const typing = isOtherUserTyping(conversation)
+                    const unread = hasUnreadMessages(conversation)
+                    
+                    return (
+                      <motion.div
+                        key={conversation._id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className={`p-2 sm:p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 ${
+                          selectedConversation?._id === conversation._id
+                            ? "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-l-blue-500"
+                            : ""
+                        }`}
+                        onClick={() => handleSelectConversation(conversation)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <div className="relative">
+                            <div className="bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <User className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
                             </div>
-                          )}
-                        </div>
 
-                        <div className="flex-grow min-w-0">
-                          <div className="flex justify-between items-start mb-0.5 sm:mb-1">
-                            <h3 className="font-semibold text-gray-900 truncate text-xs sm:text-sm">
-                              {isDoctor
-                                ? conversation.patientName || "Patient"
-                                : `Dr. ${conversation.doctorName || "Doctor"}`}
-                            </h3>
+                            {/* Online status indicator */}
+                            <div className={`absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 ${
+                              online ? "bg-green-400" : "bg-gray-300"
+                            } rounded-full border-1 sm:border-2 border-white shadow-sm`}></div>
 
-                            {conversation.lastMessageTime && (
-                              <span className="text-xs text-gray-500 ml-1 sm:ml-2 flex-shrink-0">
-                                {formatConversationTime(conversation.lastMessageTime)}
-                              </span>
+                            {/* Approval status indicator */}
+                            {isDoctor && !conversation.approved && !conversation.rejected && (
+                              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-5 sm:h-5 bg-amber-400 rounded-full border-1 sm:border-2 border-white flex items-center justify-center shadow-sm">
+                                <AlertTriangle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                              </div>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <p className="text-gray-600 text-xs sm:text-sm truncate flex-1 mr-1 sm:mr-2">
-                              {conversation.lastMessage || "..."}
-                            </p>
+                          <div className="flex-grow min-w-0">
+                            <div className="flex justify-between items-start mb-0.5 sm:mb-1">
+                              <h3 className="font-semibold text-gray-900 truncate text-xs sm:text-sm">
+                                {isDoctor
+                                  ? conversation.patientName || "Patient"
+                                  : `Dr. ${conversation.doctorName || "Doctor"}`}
+                              </h3>
 
-                            {/* Status indicators */}
-                            <div className="flex items-center gap-0.5 sm:gap-1">
-                              {/* Approval status indicators */}
-                              {!conversation.approved && !conversation.rejected && (
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-400 rounded-full"></div>
-                              )}
-                              {conversation.approved && (
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"></div>
-                              )}
-                              {conversation.rejected && (
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-400 rounded-full"></div>
-                              )}
-
-                              {/* Unread message indicator */}
-                              {hasUnreadMessages(conversation) && (
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                              {conversation.lastMessageTime && (
+                                <span className="text-xs text-gray-500 ml-1 sm:ml-2 flex-shrink-0">
+                                  {formatConversationTime(conversation.lastMessageTime)}
+                                </span>
                               )}
                             </div>
-                          </div>
 
-                          {/* Online status text */}
-                          <div className="text-xs text-gray-400 mt-0.5 sm:mt-1">
-                            {isUserOnline(conversation) ? t.online : t.offline}
+                            <div className="flex items-center justify-between">
+                              <p className={`text-xs sm:text-sm truncate flex-1 mr-1 sm:mr-2 ${
+                                typing ? "text-blue-600 italic" : unread ? "text-gray-900 font-medium" : "text-gray-600"
+                              }`}>
+                                {typing ? t.typing : (conversation.lastMessage || "...")}
+                              </p>
+
+                              {/* Status indicators */}
+                              <div className="flex items-center gap-0.5 sm:gap-1">
+                                {/* Unread indicator */}
+                                {unread && (
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                )}
+                                
+                                {/* Approval status */}
+                                {!conversation.approved && !conversation.rejected && (
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-400 rounded-full"></div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Online status text */}
+                            <div className="text-xs text-gray-400 mt-0.5 sm:mt-1">
+                              {online ? t.online : `${t.lastSeen} ${formatLastSeen(
+                                isDoctor ? conversation.userId : conversation.doctorId
+                              )}`}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -847,11 +1056,9 @@ export default function MessagesPage() {
                             <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                           </div>
                           {/* Online status indicator in header */}
-                          {isUserOnline(selectedConversation) ? (
-                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full border-1 sm:border-2 border-white"></div>
-                          ) : (
-                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gray-400 rounded-full border-1 sm:border-2 border-white"></div>
-                          )}
+                          <div className={`absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 ${
+                            isUserOnline(selectedConversation) ? "bg-green-400" : "bg-gray-400"
+                          } rounded-full border-1 sm:border-2 border-white`}></div>
                         </div>
 
                         <div>
@@ -861,7 +1068,17 @@ export default function MessagesPage() {
                               : `Dr. ${selectedConversation.doctorName || "Doctor"}`}
                           </h3>
                           <p className="text-xs sm:text-sm text-gray-500">
-                            {isUserOnline(selectedConversation) ? t.online : t.offline}
+                            {isOtherUserTyping(selectedConversation) ? (
+                              <span className="text-blue-600 italic">{
+                                isDoctor ? t.patientTyping : t.doctorTyping
+                              }</span>
+                            ) : isUserOnline(selectedConversation) ? (
+                              t.online
+                            ) : (
+                              `${t.lastSeen} ${formatLastSeen(
+                                isDoctor ? selectedConversation.userId : selectedConversation.doctorId
+                              )}`
+                            )}
                           </p>
                         </div>
                       </div>
@@ -897,7 +1114,7 @@ export default function MessagesPage() {
                           >
                             {approving ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                                <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                                 <span className="hidden sm:inline">{t.approving}</span>
                               </>
                             ) : (
@@ -925,7 +1142,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Enhanced messages area */}
-                <div className="flex-grow max-h-[calc(100vh-240px)] sm:max-h-[calc(100vh-320px)] overflow-y-auto p-2 sm:p-4 bg-gradient-to-b from-gray-50/50 to-white">
+                <div className="flex-grow overflow-y-auto p-2 sm:p-4 bg-gradient-to-b from-gray-50/50 to-white">
                   {messages.length > 0 ? (
                     <div className="space-y-2 sm:space-y-4">
                       {messages.map((message, index) => {
@@ -939,7 +1156,7 @@ export default function MessagesPage() {
                             key={message._id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.05 }}
                             className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
                           >
                             <div
@@ -982,7 +1199,7 @@ export default function MessagesPage() {
                                           className="flex flex-col items-start"
                                           initial={{ opacity: 0, scale: 0.9 }}
                                           animate={{ opacity: 1, scale: 1 }}
-                                          transition={{ delay: 0.2 }}
+                                          transition={{ delay: 0.1 }}
                                         >
                                           {renderAttachmentPreview(attachment)}
                                         </motion.div>
@@ -1021,41 +1238,43 @@ export default function MessagesPage() {
                       })}
 
                       {/* Enhanced typing indicator */}
-                      {otherUserTyping && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="flex justify-start"
-                        >
-                          <div className="flex items-end gap-2 max-w-[75%]">
-                            <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                              <User className="w-4 h-4 text-gray-600" />
-                            </div>
-                            <div className="bg-white text-gray-800 border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
-                              <div className="flex items-center gap-2">
-                                <div className="flex gap-1">
-                                  <div
-                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                    style={{ animationDelay: "0ms" }}
-                                  ></div>
-                                  <div
-                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                    style={{ animationDelay: "150ms" }}
-                                  ></div>
-                                  <div
-                                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                    style={{ animationDelay: "300ms" }}
-                                  ></div>
+                      <AnimatePresence>
+                        {isOtherUserTyping(selectedConversation) && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="flex justify-start"
+                          >
+                            <div className="flex items-end gap-2 max-w-[75%]">
+                              <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <User className="w-4 h-4 text-gray-600" />
+                              </div>
+                              <div className="bg-white text-gray-800 border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex gap-1">
+                                    <motion.div
+                                      className="w-2 h-2 bg-gray-400 rounded-full"
+                                      animate={{ y: [0, -5, 0] }}
+                                      transition={{ duration: 0.5, repeat: Infinity, delay: 0 }}
+                                    />
+                                    <motion.div
+                                      className="w-2 h-2 bg-gray-400 rounded-full"
+                                      animate={{ y: [0, -5, 0] }}
+                                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.15 }}
+                                    />
+                                    <motion.div
+                                      className="w-2 h-2 bg-gray-400 rounded-full"
+                                      animate={{ y: [0, -5, 0] }}
+                                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.3 }}
+                                    />
+                                  </div>
                                 </div>
-                                <span className="text-xs text-gray-500">
-                                  {isDoctor ? t.patientTyping : t.doctorTyping}
-                                </span>
                               </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
                       <div ref={messagesEndRef} />
                     </div>
@@ -1226,12 +1445,6 @@ export default function MessagesPage() {
                           }
                           ref={messageInputRef}
                         />
-                        <button
-                          type="button"
-                          className={`absolute ${isRTL ? "left-2 sm:left-3" : "right-2 sm:right-3"} top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600`}
-                        >
-                          <MoreHorizontal className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </button>
                       </div>
 
                       {/* Enhanced send button */}
@@ -1250,7 +1463,7 @@ export default function MessagesPage() {
                         whileTap={{ scale: 0.95 }}
                       >
                         {sending ? (
-                          <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                         ) : (
                           <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                         )}
@@ -1323,7 +1536,7 @@ export default function MessagesPage() {
                     className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 font-medium shadow-lg transition-all duration-200 flex items-center gap-2 mx-auto"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => router.push("/doctors")}
+                    onClick={() => router.push("/pages/doctorspage")}
                   >
                     <Plus className="w-5 h-5" />
                     Start New Conversation
