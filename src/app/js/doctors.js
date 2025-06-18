@@ -82,11 +82,7 @@ export const doctors = [
     specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
     image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
-  {
-    name: "ელი კასრელიშვილი",
-    specialty: "თერაპევტი, ქირურგი, პაროდონტოლოგი",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
-  },
+
 ]
 
 // ინგლისური ექიმები
@@ -106,11 +102,7 @@ export const enDoctors = [
     specialty: "Therapist, Surgeon, Periodontologist",
     image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
-  {
-    name: "Eli Kasrelishvili",
-    specialty: "Therapist, Surgeon, Periodontologist",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
-  },
+
 ]
 
 // რუსული ექიმები
@@ -130,11 +122,7 @@ export const ruDoctors = [
     specialty: "Терапевт, Хирург, Пародонтолог",
     image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
-  {
-    name: "Эли Касрелишвили",
-    specialty: "Терапевт, Хирург, Пародонтолог",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
-  },
+
 ] 
 
 // ებრაული ექიმები
@@ -154,11 +142,7 @@ export const heDoctors = [
     specialty: "מטפל, מנתח, פריודונטולוג",
     image: "/JC_Dental_Doctors/Ana_patchkoria1.jpg",
   },
-  {
-    name: "אלי קסרלישווילי",
-    specialty: "מטפל, מנתח, פריודונטולוג",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili1.jpg",
-  },
+
 ]
 
 // ყველა ენის ექიმები ერთ ობიექტში
@@ -229,17 +213,9 @@ export const dentists = [
     workingHours: "11:00 - 19:00",
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
+
   {
     id: 3,
-    name: " ელი კასრელიშვილი",
-    specialties: ["თერაპევტი", "ქირურგი", "პაროდონტოლოგი"],
-    experience: "3 წელი გამოცდილება",
-    workingDays: ["ორშაბათი", "ოთხშაბათი", "პარასკევი"],
-    workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
-  },
-  {
-    id: 4,
     name: " ანა პაჭკორია ",
     specialties: ["თერაპევტი", "ქირურგი", "პაროდონტოლოგი"],
     experience: "3 წელი გამოცდილება",
@@ -269,17 +245,9 @@ export const enDentists = [
     workingHours: "11:00 - 19:00",
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
+
   {
     id: 3,
-    name: "Dr. Eli Kasrelishvili",
-    specialties: ["Therapist", "Surgeon", "Periodontologist"],
-    experience: "3 years of experience",
-    workingDays: ["Monday", "Wednesday", "Friday"],
-    workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
-  },
-  {
-    id: 4,
     name: "Dr. Ana Patchkoria ",
     specialties: ["Therapist", "Surgeon", "Periodontologist"],
     experience: "3 years of experience",
@@ -309,17 +277,9 @@ export const ruDentists = [
     workingHours: "11:00 - 19:00",
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
+
   {
     id: 3,
-    name: "Др. Эли Касрелишвили",
-    specialties: ["Терапевт", "Хирург", "Пародонтолог"],
-    experience: "3 лет опыта",
-    workingDays: ["Понедельник", "Среда", "Пятница"],
-    workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
-  },
-  {
-    id: 4,
     name: "Др. Ана Пачкория",
     specialties: ["Терапевт", "Хирург", "Пародонтолог"],
     experience: "3 лет опыта",
@@ -349,17 +309,9 @@ export const heDentists = [
     workingHours: "11:00 - 19:00",
     image: "/JC_Dental_Doctors/Tengo_shimshilashvili.jpeg",
   },
+
   {
     id: 3,
-    name: "ד״ר אלי קסרלישווילי",
-    specialties: ["מטפל", "מנתח", "פריודונטולוג"],
-    experience: "3 שנות ניסיון",
-    workingDays: ["יום שני", "יום רביעי", "יום שישי"],
-    workingHours: "09:00 - 17:00",
-    image: "/JC_Dental_Doctors/Eli_kasrelishvili_3.jpg",
-  },
-  {
-    id: 4,
     name: "ד״ר אנה פצ'קוריה",
     specialties: ["מטפל", "מנתח", "פריודונטולוג"],
     experience: "3 שנות ניסיון",
