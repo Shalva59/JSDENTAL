@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { 
+import {
   getAppointmentById,
   updateAppointmentStatus,
   createNotification
 } from "../../../lib/appointments";
-import { getUserByEmail } from "../../../lib/user";
-import { getDoctorByDoctorId } from "../../../lib/user"; // Add import
+import { getUserByEmail, getUserById, getDoctorByDoctorId } from "../../../lib/user";
+import { sendEmail } from "../../../lib/email";
+import {
+  getAppointmentApprovedEmail,
+  getAppointmentDeclinedEmail,
+  getAppointmentCounterOfferEmail
+} from "../../../lib/appointmentEmailTemplates";
 
 export async function PUT(request, { params }) {
   try {
@@ -208,6 +213,90 @@ export async function PUT(request, { params }) {
     // Create notification if needed
     if (notificationData.userId || notificationData.type) {
       await createNotification(notificationData);
+    }
+
+    // Send email notifications
+    try {
+      const patientUser = await getUserById(appointment.userId.toString());
+      const patientFullName = `${appointment.patientInfo.firstName} ${appointment.patientInfo.lastName}`;
+
+      // Get the patient's preferred language from the appointment
+      const patientLanguage = appointment.language || 'en';
+
+      switch (action) {
+        case "approve":
+          if (patientUser && patientUser.email) {
+            const approvedEmailTemplate = getAppointmentApprovedEmail({
+              patientName: patientFullName,
+              doctorName: appointment.doctorName,
+              service: appointment.serviceName,
+              appointmentDate: appointment.requestedDate,
+              appointmentTime: appointment.requestedTime,
+              language: patientLanguage
+            });
+
+            await sendEmail({
+              to: patientUser.email,
+              subject: approvedEmailTemplate.subject,
+              html: approvedEmailTemplate.html,
+              text: approvedEmailTemplate.text
+            });
+          }
+          break;
+
+        case "decline":
+          if (patientUser && patientUser.email) {
+            const declinedEmailTemplate = getAppointmentDeclinedEmail({
+              patientName: patientFullName,
+              doctorName: appointment.doctorName,
+              service: appointment.serviceName,
+              requestedDate: appointment.requestedDate,
+              requestedTime: appointment.requestedTime,
+              reason: reason || "No reason provided",
+              language: patientLanguage
+            });
+
+            await sendEmail({
+              to: patientUser.email,
+              subject: declinedEmailTemplate.subject,
+              html: declinedEmailTemplate.html,
+              text: declinedEmailTemplate.text
+            });
+          }
+          break;
+
+        case "counter_offer":
+          if (patientUser && patientUser.email) {
+            const counterOfferEmailTemplate = getAppointmentCounterOfferEmail({
+              patientName: patientFullName,
+              doctorName: appointment.doctorName,
+              service: appointment.serviceName,
+              originalDate: appointment.requestedDate,
+              originalTime: appointment.requestedTime,
+              counterOfferDate: counterOfferDate,
+              counterOfferTime: counterOfferTime,
+              reason: reason || "Doctor suggested a different time",
+              language: patientLanguage
+            });
+
+            await sendEmail({
+              to: patientUser.email,
+              subject: counterOfferEmailTemplate.subject,
+              html: counterOfferEmailTemplate.html,
+              text: counterOfferEmailTemplate.text
+            });
+          }
+          break;
+
+        default:
+          // No email for other actions (cancel, accept_counter, decline_counter)
+          break;
+      }
+
+      console.log(`Email sent successfully for action: ${action}`);
+    } catch (emailError) {
+      console.error('Error sending appointment status email:', emailError);
+      // Don't fail the status update if email fails
     }
 
     return NextResponse.json({

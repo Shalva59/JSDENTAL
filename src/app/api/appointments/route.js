@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { 
-  createAppointment, 
-  getAppointmentsByUser, 
+import {
+  createAppointment,
+  getAppointmentsByUser,
   getAppointmentsByDoctor,
   getUserAppointmentsToday,
   createNotification
 } from "../../lib/appointments";
-import { getUserByEmail, getDoctorByDoctorId } from "../../lib/user"; // Add import
+import { getUserByEmail, getDoctorByDoctorId } from "../../lib/user";
+import { sendEmail } from "../../lib/email";
+import {
+  getAppointmentCreatedEmailForPatient,
+  getAppointmentCreatedEmailForDoctor,
+  getAppointmentCreatedEmailForClinic
+} from "../../lib/appointmentEmailTemplates";
 
 export async function GET(request) {
   try {
@@ -85,16 +91,17 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { 
-      doctorId, 
+    const {
+      doctorId,
       doctorName,
-      service, 
+      service,
       serviceName,
-      requestedDate, 
-      requestedTime, 
+      requestedDate,
+      requestedTime,
       patientInfo,
       notes,
-      isUrgent 
+      isUrgent,
+      language
     } = body;
 
     // Validate required fields
@@ -145,7 +152,80 @@ export async function POST(request) {
         console.error("Error notifying doctor:", error);
         // Don't fail the appointment creation if notification fails
       }
-      
+
+    // Send email notifications
+    try {
+      const patientFullName = `${patientInfo.firstName} ${patientInfo.lastName}`;
+
+      // 1. Send confirmation email to patient
+      const patientEmailTemplate = getAppointmentCreatedEmailForPatient({
+        patientName: patientFullName,
+        doctorName: doctorName,
+        service: serviceName,
+        requestedDate: requestedDate,
+        requestedTime: requestedTime,
+        language: language || 'en'
+      });
+
+      await sendEmail({
+        to: user.email,
+        subject: patientEmailTemplate.subject,
+        html: patientEmailTemplate.html,
+        text: patientEmailTemplate.text
+      });
+
+      // 2. Send notification to doctor
+      const doctorUser = await getDoctorByDoctorId(doctorId);
+      if (doctorUser && doctorUser.email) {
+        const doctorEmailTemplate = getAppointmentCreatedEmailForDoctor({
+          doctorName: doctorName,
+          patientName: patientFullName,
+          patientPhone: patientInfo.phone || 'Not provided',
+          patientEmail: user.email,
+          service: serviceName,
+          requestedDate: requestedDate,
+          requestedTime: requestedTime,
+          notes: notes || '',
+          isUrgent: isUrgent || false,
+          language: language || 'en'
+        });
+
+        await sendEmail({
+          to: doctorUser.email,
+          subject: doctorEmailTemplate.subject,
+          html: doctorEmailTemplate.html,
+          text: doctorEmailTemplate.text
+        });
+      }
+
+      // 3. Send notification to main clinic email
+      const clinicEmail = process.env.EMAIL_TO;
+      if (clinicEmail) {
+        const clinicEmailTemplate = getAppointmentCreatedEmailForClinic({
+          patientName: patientFullName,
+          doctorName: doctorName,
+          service: serviceName,
+          requestedDate: requestedDate,
+          requestedTime: requestedTime,
+          patientPhone: patientInfo.phone || 'Not provided',
+          patientEmail: user.email,
+          language: language || 'en'
+        });
+
+        await sendEmail({
+          to: clinicEmail,
+          subject: clinicEmailTemplate.subject,
+          html: clinicEmailTemplate.html,
+          text: clinicEmailTemplate.text
+        });
+      }
+
+      console.log('Appointment emails sent successfully');
+    } catch (emailError) {
+      console.error('Error sending appointment emails:', emailError);
+      // Don't fail the appointment creation if email fails
+    }
+
     return NextResponse.json({
       success: true,
       appointment,

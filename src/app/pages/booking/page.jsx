@@ -369,6 +369,7 @@ export default function BookingPage() {
         },
         notes,
         isUrgent,
+        language: currentLanguage, // Include user's language preference for emails
       }
 
       console.log("Sending appointment data:", appointmentData)

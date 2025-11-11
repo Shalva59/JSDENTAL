@@ -40,25 +40,25 @@ export async function getUserById(id) {
   }
 }
 
-// Create new user (updated with isDoctor field)
+// Create new user (updated with isDoctor field and language)
 export async function createUser(userData) {
   try {
-    const { firstName, lastName, email, phone, password } = userData;
-    
+    const { firstName, lastName, email, phone, password, language } = userData;
+
     const db = await getDatabase();
-    
+
     // Check if user exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
       throw new Error("User already exists with this email");
     }
-    
+
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    
+
     // Hash password
     const hashedPassword = await hash(password, 10);
-    
+
     // Create user document
     const newUser = {
       firstName,
@@ -67,12 +67,13 @@ export async function createUser(userData) {
       phone,
       password: hashedPassword,
       isVerified: false,
-      isDoctor: false, // Add this line for the appointment system
+      isDoctor: false,
+      language: language || 'en', // Store user's preferred language
       verificationToken,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    
+
     const result = await db.collection(COLLECTION).insertOne(newUser);
     return { ...newUser, _id: result.insertedId };
   } catch (error) {
