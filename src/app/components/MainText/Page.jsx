@@ -33,11 +33,11 @@ const DentalSection = () => {
     if (isHebrew) {
       return [
         {
-          number: "3+",
+          number: "5+",
           label: translations?.dentalSection?.stats?.experience || "שנות ניסיון",
         },
         {
-          number: "50+",
+          number: "500+",
           label: translations?.dentalSection?.stats?.patients || "מטופלים מרוצים",
         },
         {
@@ -54,11 +54,11 @@ const DentalSection = () => {
     if (isGeorgian) {
       return [
         {
-          number: "3+",
+          number: "5+",
           label: translations?.dentalSection?.stats?.experience || "წლიანი გამოცდილება",
         },
         {
-          number: "50+",
+          number: "500+",
           label: translations?.dentalSection?.stats?.patients || "კმაყოფილი პაციენტი",
         },
         {
@@ -75,11 +75,11 @@ const DentalSection = () => {
     // English fallback
     return [
       {
-        number: "3+",
+        number: "5+",
         label: translations?.dentalSection?.stats?.experience || "Years Experience",
       },
       {
-        number: "50+",
+        number: "500+",
         label: translations?.dentalSection?.stats?.patients || "Happy Patients",
       },
       {
