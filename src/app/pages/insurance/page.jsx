@@ -144,7 +144,7 @@ export default function InsurancePage() {
                     <div>
                       <div className="font-bold text-slate-900">JC Dental</div>
                       <div className="text-xs text-slate-500">
-                        {t?.hero?.subtitle || "Dental Clinic"}
+                        {t?.hero?.clinicLabel || "Dental Clinic"}
                       </div>
                     </div>
                   </div>
@@ -168,7 +168,9 @@ export default function InsurancePage() {
                     </div>
                     <div>
                       <div className="font-bold text-slate-900">TBC</div>
-                      <div className="text-xs text-slate-500">Insurance</div>
+                      <div className="text-xs text-slate-500">
+                        {t?.hero?.insuranceLabel || "Insurance"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -515,7 +517,7 @@ export default function InsurancePage() {
               {t?.faq?.title || "ხშირად დასმული კითხვები"}
             </h2>
             <p className="text-lg text-slate-600 text-pretty">
-              {t?.faq?.subtitle || "გაეცანით პასუხებს ხშირად დასმულ კითხვებზე"}
+              {t?.faq?.subtitle || "გაეცანით პასუხებს ხშირად დასმულ კითხვებზ��"}
             </p>
           </div>
 

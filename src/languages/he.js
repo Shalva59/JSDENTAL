@@ -408,6 +408,8 @@ export const he = {
         "JC Dental היא שותפה רשמית של חברת הביטוח TBC. השתמשו בביטוח שלכם וקבלו טיפול שיניים איכותי בתנאים מועדפים.",
       bookButton: "קביעת תור",
       callButton: "צור קשר",
+      clinicLabel: "מרפאת שיניים",
+      insuranceLabel: "ביטוח",
     },
     partnership: {
       label: "שותפות",

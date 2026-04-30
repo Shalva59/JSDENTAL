@@ -419,6 +419,8 @@ export const en = {
         "JC Dental is an official partner of TBC Insurance. Use your insurance to receive premium dental care under preferential terms.",
       bookButton: "Book Appointment",
       callButton: "Contact Us",
+      clinicLabel: "Dental Clinic",
+      insuranceLabel: "Insurance",
     },
     partnership: {
       label: "Partnership",
