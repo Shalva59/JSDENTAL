@@ -406,4 +406,150 @@ export const en = {
     waitingForDoctor: "Waiting for doctor approval"
   },
   viewConversation: "View Conversation",
+
+  insurance: {
+    nav: "TBC Insurance",
+    metaTitle: "TBC Insurance — JC Dental",
+    hero: {
+      badge: "Official Partner",
+      title: "TBC Insurance",
+      titleHighlight: "at JC Dental",
+      subtitle: "A Healthy Smile at an Affordable Price",
+      description:
+        "JC Dental is an official partner of TBC Insurance. Use your insurance to receive premium dental care under preferential terms.",
+      bookButton: "Book Appointment",
+      callButton: "Contact Us",
+    },
+    partnership: {
+      label: "Partnership",
+      title: "Together for Your Smile",
+      description:
+        "JC Dental and TBC Insurance share one mission — to make high-quality dental care accessible to everyone. Insurance holders enjoy special conditions and significant discounts at our clinic.",
+      stat1Value: "100%",
+      stat1Label: "Official Partnership",
+      stat2Value: "30%+",
+      stat2Label: "Average Discount",
+      stat3Value: "24/7",
+      stat3Label: "Customer Support",
+    },
+    benefits: {
+      label: "Benefits",
+      title: "Why JC Dental with TBC Insurance",
+      subtitle: "Use your insurance and unlock exclusive advantages",
+      items: [
+        {
+          title: "Discount on All Services",
+          description: "TBC Insurance holders receive significant discounts across every dental procedure we offer.",
+        },
+        {
+          title: "Fast Settlements",
+          description: "Insurance reimbursement is handled quickly — we manage all paperwork on your behalf.",
+        },
+        {
+          title: "Modern Equipment",
+          description: "Treatment with cutting-edge digital technology and world-class materials.",
+        },
+        {
+          title: "Qualified Team",
+          description: "Experienced doctors with international certifications and many years of practice.",
+        },
+        {
+          title: "Flexible Schedule",
+          description: "We work 6 days a week — appointments tailored to your calendar.",
+        },
+        {
+          title: "Full Transparency",
+          description: "Treatment plan and pricing are agreed in advance — no hidden fees.",
+        },
+      ],
+    },
+    coverage: {
+      label: "Covered Services",
+      title: "What the Insurance Covers",
+      subtitle: "With TBC Insurance you can access the following services at JC Dental",
+      items: [
+        { title: "Therapy", description: "Cavity treatment, fillings, root canal therapy" },
+        { title: "Orthopedics", description: "Crowns, veneers, bridges, dentures" },
+        { title: "Surgery", description: "Tooth extraction, bone augmentation, other procedures" },
+        { title: "Periodontology", description: "Gum treatment, professional cleaning" },
+        { title: "Implantology", description: "Premium implants from leading global brands" },
+        { title: "Prevention", description: "Check-ups, x-rays, consultations" },
+      ],
+    },
+    howItWorks: {
+      label: "Simple 4 Steps",
+      title: "How Insurance Coverage Works",
+      subtitle: "Get treatment with ease — we handle everything for you",
+      steps: [
+        {
+          number: "01",
+          title: "Call or Book Online",
+          description: "Reach out by phone or book your visit online. Let us know you have TBC Insurance.",
+        },
+        {
+          number: "02",
+          title: "Visit for Consultation",
+          description: "Your dentist examines you, designs a treatment plan and prepares the cost breakdown.",
+        },
+        {
+          number: "03",
+          title: "Insurance Confirmation",
+          description: "We coordinate with TBC Insurance and prepare every required document.",
+        },
+        {
+          number: "04",
+          title: "Receive Treatment",
+          description: "Begin treatment with your discount applied — insurance covers its share automatically.",
+        },
+      ],
+    },
+    documents: {
+      label: "Required Documents",
+      title: "What to Bring to Your Visit",
+      subtitle: "A short checklist — we take care of everything else",
+      items: [
+        "ID card or passport",
+        "TBC Insurance policy or ID number",
+        "Previous treatment history (if applicable)",
+        "Medical records of chronic conditions (if applicable)",
+      ],
+    },
+    faq: {
+      label: "FAQ",
+      title: "Frequently Asked Questions",
+      subtitle: "Find answers to the most common questions",
+      items: [
+        {
+          question: "Are all services covered by insurance?",
+          answer:
+            "The coverage rate depends on your specific policy. During the consultation, your dentist will help you calculate the exact amount.",
+        },
+        {
+          question: "Is pre-approval required?",
+          answer:
+            "Some procedures require it. We handle the pre-approval process with TBC Insurance on your behalf.",
+        },
+        {
+          question: "What if the cost exceeds the insurance limit?",
+          answer:
+            "You will pay the difference. The treatment plan and price are agreed upfront — no hidden charges.",
+        },
+        {
+          question: "Can I reschedule my appointment?",
+          answer: "Yes. Please notify us at least 24 hours in advance to reschedule or cancel.",
+        },
+        {
+          question: "Need more information?",
+          answer:
+            "Call +995 500 50 20 62 or write to jcdental07@gmail.com and our team will gladly assist you.",
+        },
+      ],
+    },
+    cta: {
+      title: "Start Your Treatment Today",
+      description: "Use your TBC Insurance and receive professional dental care at JC Dental.",
+      bookButton: "Book Appointment",
+      callButton: "+995 500 50 20 62",
+    },
+  },
 }
