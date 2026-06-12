@@ -165,7 +165,7 @@ const Header = () => {
   useEffect(() => {
     const checkScreenWidth = () => {
       const width = window.innerWidth
-      if (width >= 1400) {
+      if (width >= 1600) {
         setScreenSize("desktop")
       } else if (width >= 1200) {
         setScreenSize("intermediate")
@@ -390,12 +390,12 @@ const Header = () => {
             {/* Desktop Navigation (1400px+) */}
             {screenSize === "desktop" && (
               <nav className="flex items-center">
-                <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-8" : "space-x-8"}`}>
+                <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-4" : "space-x-4"}`}>
                   {localizedProducts.map((item, index) => (
                     <Link
                       key={index}
                       href={item.url}
-                      className={`text-base font-medium relative transition-colors whitespace-nowrap ${isActiveLink(item.url) ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                      className={`text-sm font-medium relative transition-colors whitespace-nowrap ${isActiveLink(item.url) ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
                         }`}
                     >
                       {item.name}
@@ -411,7 +411,7 @@ const Header = () => {
 
                   {/* Smile Creator */}
                   <div
-                    className={`text-base font-medium text-gray-700 relative whitespace-nowrap ${isRTL ? "mr-8" : ""
+                    className={`text-sm font-medium text-gray-700 relative whitespace-nowrap ${isRTL ? "mr-4" : ""
                       }`}
                   >
                     <span>Smile Creator</span>
