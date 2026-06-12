@@ -17,7 +17,7 @@ const beforeAfterCases = [
     date: "2023-05-15",
   },
 
-    {
+  {
     id: 2,
     doctorId: 1,
     category: "crowns",
@@ -33,21 +33,21 @@ const beforeAfterCases = [
     date: "2026-01-18",
   },
 
-//  {
-//     id: 1,
-//     doctorId: 1,
-//     category: "crowns",
-//     title: {
-//       ka: "ცირკონის კერამიკული ხიდი",
-//       en: "Zirconia ceramic crown",
-//       ru: "Циркониевая керамическая коронка",
-//       he: "כתר קרמי מזירקוניה",
-//     },
-//     beforeImage:
-//       "/JC_namushevrebi/gabi_namushevrebi/client_1/before-dental-treatment.jpg",
-//     afterImage: "/JC_namushevrebi/gabi_namushevrebi/client_1/after-dental.jpg",
-//     date: "2023-05-15",
-//   },
+  //  {
+  //     id: 1,
+  //     doctorId: 1,
+  //     category: "crowns",
+  //     title: {
+  //       ka: "ცირკონის კერამიკული ხიდი",
+  //       en: "Zirconia ceramic crown",
+  //       ru: "Циркониевая керамическая коронка",
+  //       he: "כתר קרמי מזירקוניה",
+  //     },
+  //     beforeImage:
+  //       "/JC_namushevrebi/gabi_namushevrebi/client_1/before-dental-treatment.jpg",
+  //     afterImage: "/JC_namushevrebi/gabi_namushevrebi/client_1/after-dental.jpg",
+  //     date: "2023-05-15",
+  //   },
 
 
 
@@ -60,14 +60,14 @@ const beforeAfterCases = [
     doctorId: 2,
     category: "therapeutic",
     title: {
-      ka: "კარიესის მკურნალობა",
-      en: "Caries Treatment",
-      ru: "Лечение кариеса",
-      he: "טיפול בעששת",
+      ka: "ზედა და ქვედა ყბის სრული რეაბილიტაცია",
+      en: "Full rehabilitation of the upper and lower jaw",
+      ru: "Полная реабилитация верхней и нижней челюсти",
+      he: "שיקום מלא של הלסת העליונה והתחתונה",
     },
     beforeImage: "/JC_namushevrebi/Tengo_Shimshilashvili/client_1/before1.jpg",
-    afterImage: "/JC_namushevrebi/Tengo_Shimshilashvili/client_1/after1.jpg",
-    date: "2024-02-05",
+    afterImage: "/JC_namushevrebi/Tengo_Shimshilashvili/client_1/After1.jpg",
+    date: "2026-02-05",
   },
 
   // Doctor 3 - Ana Pachkoria
@@ -250,7 +250,7 @@ const beforeAfterCases = [
     date: "2024-06-20",
   },
 
-    {
+  {
     id: 16,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
