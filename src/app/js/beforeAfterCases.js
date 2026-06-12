@@ -54,10 +54,26 @@ const beforeAfterCases = [
 
   // Doctor 2 - Tengo Shimshilashvili
 
-  // Doctor 3 - Ana Pachkoria
 
   {
     id: 3,
+    doctorId: 2,
+    category: "therapeutic",
+    title: {
+      ka: "კარიესის მკურნალობა",
+      en: "Caries Treatment",
+      ru: "Лечение кариеса",
+      he: "טיפול בעששת",
+    },
+    beforeImage: "/JC_namushevrebi/Tengo_Shimshilashvili/client_1/before1.jpg",
+    afterImage: "/JC_namushevrebi/Tengo_Shimshilashvili/client_1/after1.jpg",
+    date: "2024-02-05",
+  },
+
+  // Doctor 3 - Ana Pachkoria
+
+  {
+    id: 4,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -72,7 +88,7 @@ const beforeAfterCases = [
   },
 
   {
-    id: 4,
+    id: 5,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -89,7 +105,7 @@ const beforeAfterCases = [
   // Additional cases for doctors
 
   {
-    id: 5,
+    id: 6,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -103,7 +119,7 @@ const beforeAfterCases = [
     date: "2024-03-22",
   },
   {
-    id: 6,
+    id: 7,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -117,7 +133,7 @@ const beforeAfterCases = [
     date: "2024-04-05",
   },
   {
-    id: 7,
+    id: 8,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -132,7 +148,7 @@ const beforeAfterCases = [
   },
 
   {
-    id: 8,
+    id: 9,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -147,7 +163,7 @@ const beforeAfterCases = [
   },
 
   {
-    id: 9,
+    id: 10,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -162,7 +178,7 @@ const beforeAfterCases = [
   },
 
   {
-    id: 10,
+    id: 11,
     doctorId: 3,
     category: "therapeutic",
     title: {
@@ -178,7 +194,7 @@ const beforeAfterCases = [
 
   // Doctor 4 - Mariam Kobiashvili
   {
-    id: 11,
+    id: 12,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
     title: {
@@ -192,7 +208,7 @@ const beforeAfterCases = [
     date: "2024-06-20",
   },
   {
-    id: 12,
+    id: 13,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
     title: {
@@ -206,7 +222,7 @@ const beforeAfterCases = [
     date: "2024-06-20",
   },
   {
-    id: 13,
+    id: 14,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
     title: {
@@ -220,7 +236,7 @@ const beforeAfterCases = [
     date: "2024-06-20",
   },
   {
-    id: 14,
+    id: 15,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
     title: {
@@ -235,7 +251,7 @@ const beforeAfterCases = [
   },
 
     {
-    id: 15,
+    id: 16,
     doctorId: 4, // დარწმუნდი რომ doctors სექციაში მარიამის id 4 წერია
     category: "therapeutic",
     title: {
