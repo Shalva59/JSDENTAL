@@ -2,6 +2,10 @@ import { getUserByEmail, createResetToken } from "../../../lib/user";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+// Ensure this route is never statically evaluated during `next build`,
+// so it doesn't try to reach the database before runtime env vars exist.
+export const dynamic = "force-dynamic";
+
 // Track if primary account failed (persists between requests)
 let primaryAccountFailed = false;
 

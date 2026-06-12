@@ -2,6 +2,8 @@ import { createUser } from "../../../lib/user";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+export const dynamic = "force-dynamic";
+
 // Track if primary account failed (persists between requests)
 let primaryAccountFailed = false;
 
