@@ -122,6 +122,11 @@ export default function InsurancePage() {
                 </Link>
                 <a
                   href="tel:+995500502062"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    window.location.href = "tel:+995500502062"
+                  }}
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold border-2 border-white/40 text-white hover:bg-white/10 transition-all"
                 >
                   <Phone className="w-5 h-5" />
@@ -625,6 +630,11 @@ export default function InsurancePage() {
                 </Link>
                 <a
                   href="tel:+995500502062"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    window.location.href = "tel:+995500502062"
+                  }}
                   className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full font-bold border-2 border-white/40 text-white hover:bg-white/10 transition-all"
                 >
                   <Phone className="w-5 h-5" />
