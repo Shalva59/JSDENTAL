@@ -628,7 +628,7 @@ export default function InsurancePage() {
                   className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full font-bold border-2 border-white/40 text-white hover:bg-white/10 transition-all"
                 >
                   <Phone className="w-5 h-5" />
-                  {t?.cta?.callButton || "+995 500 50 20 62"}
+                  <span dir="ltr">{t?.cta?.callButton || "+995 500 50 20 62"}</span>
                 </a>
                 <Link
                   href="/pages/contact"
